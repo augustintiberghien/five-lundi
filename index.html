@@ -1462,52 +1462,29 @@ function buildStatsView(){
     if (!hof.length) {
       html += '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.75rem;font-style:italic;padding:.8rem 0">Résultats disponibles après clôture du vote.</div>';
     } else {
-      // Hall of fame compact
-      hof.forEach(function(name, i){
-        var n = titleCount[name];
-        var photo = null;
-        SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===name && !photo){ var m=p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
-        var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'⭐';
-        var nameColor = i===0?'#FFD600':i===1?'#ccc':i===2?'#cd7f32':'#fff';
-        html += '<div style="display:flex;align-items:center;gap:.7rem;padding:.5rem .4rem;border-radius:8px;background:rgba(255,255,255,.04);margin-bottom:3px">';
-        if (photo) html += '<img src="'+photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0">';
-        else html += '<div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:rgba(255,255,255,.4);flex-shrink:0">'+name.slice(0,2).toUpperCase()+'</div>';
-        html += '<div style="flex:1"><div style="font-family:Oswald,sans-serif;font-size:.88rem;font-weight:700;color:'+nameColor+';text-transform:uppercase;letter-spacing:.04em">'+medal+' '+name+'</div>';
-        html += '<div style="font-size:.62rem;color:rgba(255,255,255,.35)">'+n+' titre'+(n>1?'s':'')+' MOTM</div></div></div>';
-      });
-      // Historique session par session
+      // Grille de médaillons cliquables — du plus récent au plus ancien
       var orderedIds = SESSIONS.map(function(s){ return s.id; }).filter(function(id){ return titlesBySession[id]; });
-      if (orderedIds.length) {
-        html += '<div style="margin-top:.9rem;border-top:1px solid rgba(255,255,255,.07);padding-top:.8rem">';
-        html += '<div style="font-family:Oswald,sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);padding-bottom:.5rem">Historique</div>';
-        orderedIds.forEach(function(sid){
-          var d = titlesBySession[sid];
-          var photo = null;
-          SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===d.winner && !photo){ var m=p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
-          html += '<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .4rem;border-radius:6px;background:rgba(255,255,255,.02);margin-bottom:2px">';
-          if (photo) html += '<img src="'+photo+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0">';
-          html += '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline">';
-          html += '<span style="font-family:Oswald,sans-serif;font-size:.78rem;font-weight:700;color:#FFD600;text-transform:uppercase">'+d.winner+'</span>';
-          html += '<span style="font-size:.6rem;color:rgba(255,255,255,.3)">'+d.date+'</span></div>';
-          html += '<div style="font-size:.62rem;color:rgba(255,255,255,.3)">'+d.count+'/'+d.total+' votes · '+d.score+'</div>';
-          html += '<div id="stats-summary-' + sid + '" style="margin-top:.3rem;font-size:.68rem;color:rgba(255,255,255,.4);font-style:italic">Génération…</div>';
-          html += '</div></div>';
-        });
+      html += '<div style="display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;padding:.4rem 0">';
+      orderedIds.forEach(function(sid, i) {
+        var d = titlesBySession[sid];
+        var photo = null;
+        SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===d.winner && !photo){ var m=p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
+        var totalTitles = titleCount[d.winner];
+        var medal = totalTitles >= 3 ? '🥇' : totalTitles === 2 ? '🥈' : '🏅';
+        html += '<div onclick="showPitch();renderSession(SESSIONS.find(function(s){return s.id===\''+sid+'\'}));setActiveTab(\''+sid+'\')" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:72px">';
+        html += '<div style="position:relative">';
+        if (photo) html += '<img src="'+photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600">';
+        else html += '<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(255,255,255,.4)">'+d.winner.slice(0,2).toUpperCase()+'</div>';
+        html += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.85rem">'+medal+'</div>';
         html += '</div>';
-      }
+        html += '<div style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.1">'+d.winner+'</div>';
+        html += '<div style="font-size:.55rem;color:rgba(255,255,255,.3);text-align:center">'+d.date.split(' ').slice(0,2).join(' ')+'</div>';
+        html += '</div>';
+      });
+      html += '</div>';
     }
     inner.innerHTML = html;
-
-    // Générer les résumés IA pour chaque session
-    Object.keys(titlesBySession).forEach(function(sid) {
-      var d = titlesBySession[sid];
-      var summaryEl = document.getElementById('stats-summary-' + sid);
-      if (d.comments.length && summaryEl) {
-        generateMvpSummary(sid, d.winner, d.comments, summaryEl);
-      } else if (summaryEl) {
-        summaryEl.style.display = 'none';
-      }
-    });
+    // Pas de génération IA ici — le résumé est sur la fiche session
   });
 }
 /* ══════════════════════════════════════════
