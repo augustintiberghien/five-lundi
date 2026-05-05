@@ -808,7 +808,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div class="mvp-section" id="mvp-section" style="display:none;margin-bottom:1.6rem"></div>
 
-<div id="view-pitch" style="padding-top:1.8rem">  <div class="pitch-wrap">
+<div id="view-pitch">  <div class="pitch-wrap">
     <div class="pitch" id="pitch">
       <div class="pitch-bg">
         <div class="stripe" style="top:0;height:20%"></div>
@@ -1615,7 +1615,8 @@ function _renderMvpInner(s, votes) {
   }
 
   /* ── Formulaire de vote ── */
-  if (isOpen) {
+  var alreadyVotedLocal = !!localStorage.getItem('mvp_voted_' + s.id);
+  if (isOpen && !alreadyVotedLocal) {
     html += '<div id="mvp-form-' + s.id + '">';
 
     // Sélection voter
@@ -1658,6 +1659,11 @@ function _renderMvpInner(s, votes) {
       html += '<div class="mvp-info" style="text-align:center">Vote ouvert encore ~' + diffH + 'h' + String(diffM).padStart(2,'0') + 'min</div>';
     }
     html += '</div>';
+  } else if (isOpen && alreadyVotedLocal) {
+    var myVote = localStorage.getItem('mvp_voted_' + s.id);
+    html += '<div class="mvp-voted-ok">✅ Tu as déjà voté' + (myVote ? ' — merci ' + myVote + ' !' : ' !') + '</div>';
+    var dl2 = mvpDeadline(s.date, s.id);
+    if (dl2) { var d2=dl2-new Date(),h2=Math.floor(d2/3600000),m2=Math.floor((d2%3600000)/60000); html+='<div class="mvp-info" style="text-align:center">Résultats définitifs dans ~'+h2+'h'+String(m2).padStart(2,'0')+'min</div>'; }
   } else if (isClosed && votes.length > 0) {
     html += '<div class="mvp-closed">Vote clôturé.</div>';
   }
@@ -1677,10 +1683,19 @@ async function submitMvpVote(sid) {
   if (!motm)  { alert('Clique sur un joueur pour voter !'); return; }
   if (voter === motm) { alert('Tu ne peux pas voter pour toi-même !'); return; }
 
+  // Vérifier localStorage
+  var lsKey = 'mvp_voted_' + sid;
+  if (localStorage.getItem(lsKey)) {
+    alert('Tu as déjà voté pour cette session !');
+    return;
+  }
+
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
   try {
     await sbInsertVote(sid, voter, motm, comment);
+    // Stocker dans localStorage
+    localStorage.setItem(lsKey, voter);
     // Reload votes et refresh
     var s = SESSIONS.find(function(x){ return x.id === sid; });
     if (s) {
@@ -1694,6 +1709,7 @@ async function submitMvpVote(sid) {
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = 'Voter 🏅'; }
     if (e.message === 'already_voted') {
+      localStorage.setItem(lsKey, voter); // stocker quand même
       alert('Tu as déjà voté pour cette session !');
     } else {
       alert('Erreur lors du vote. Vérifie ta connexion.');
