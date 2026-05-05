@@ -1472,7 +1472,7 @@ function buildStatsView(){
         SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===d.winner && !photo){ var m=p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
         var totalTitles = titleCount[d.winner];
         var medal = totalTitles >= 3 ? '🥇' : totalTitles === 2 ? '🥈' : '🏅';
-        html += '<div onclick="showPitch();renderSession(SESSIONS.find(function(s){return s.id===\''+sid+'\'}));setActiveTab(\''+sid+'\')" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:72px">';
+        html += '<div onclick="window.scrollTo(0,0);showPitch();renderSession(SESSIONS.find(function(s){return s.id===\''+sid+'\'}));setActiveTab(\''+sid+'\')" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:72px">';
         html += '<div style="position:relative">';
         if (photo) html += '<img src="'+photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600">';
         else html += '<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(255,255,255,.4)">'+d.winner.slice(0,2).toUpperCase()+'</div>';
@@ -1634,10 +1634,14 @@ function _renderMvpInner(s, votes) {
     });
     html += '</div>';
 
-    // Résumé IA des feedbacks
-    var allComments = votes.filter(function(v){ return v.comment && v.comment.trim(); });
-    if (allComments.length) {
-      html += '<div id="mvp-summary-' + s.id + '" class="mvp-comments-list"><div style="text-align:center;font-size:.68rem;color:rgba(255,255,255,.3);padding:.3rem 0">Génération du résumé…</div></div>';
+    // Commentaires uniquement des votants pour le gagnant
+    var winnerComments = votes.filter(function(v){ return v.motm === winner && v.comment && v.comment.trim(); });
+    if (winnerComments.length) {
+      html += '<div class="mvp-comments-list">';
+      winnerComments.forEach(function(v) {
+        html += '<div class="mvp-comment-item"><div class="mvp-comment-text">"' + v.comment.trim() + '"</div><div class="mvp-comment-author">— ' + v.voter + '</div></div>';
+      });
+      html += '</div>';
     }
   } else if (isClosed) {
     html += '<div class="mvp-closed">Aucun vote enregistré pour cette session.</div>';
