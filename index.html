@@ -1544,8 +1544,34 @@ function mvpDeadline(sessionDate, sessionId) {
   d.setDate(d.getDate() + 1);
   return d;
 }
-function mvpIsOpen(s)   { if (s.current || !s.scoreWinner) return false; var dl = mvpDeadline(s.date, s.id); return dl && new Date() < dl; }
-function mvpIsClosed(s) { if (s.current || !s.scoreWinner) return false; var dl = mvpDeadline(s.date, s.id); return !dl || new Date() >= dl; }
+function mvpMatchNight(sessionDate) {
+  var months = {janvier:0,é:1};// dummy — on parse directement
+  var parts = sessionDate.split(' ');
+  if (parts.length !== 3) return false;
+  var monthsFull = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var mIdx = monthsFull.indexOf(parts[1].toLowerCase());
+  if (mIdx < 0) return false;
+  var now = new Date();
+  return now.getFullYear() === parseInt(parts[2])
+      && now.getMonth()    === mIdx
+      && now.getDate()     === parseInt(parts[0])
+      && (now.getHours() > 22 || (now.getHours() === 22 && now.getMinutes() >= 30));
+}
+function mvpIsOpen(s) {
+  var dl = mvpDeadline(s.date, s.id);
+  if (!dl) return false;
+  var now = new Date();
+  if (s.scoreWinner && !s.current) return now < dl;
+  if (s.current && mvpMatchNight(s.date)) return now < dl;
+  return false;
+}
+function mvpIsClosed(s) {
+  var dl = mvpDeadline(s.date, s.id);
+  if (!dl) return false;
+  var now = new Date();
+  if (s.scoreWinner && !s.current) return now >= dl;
+  return false;
+}
 function mvpIsFullVote(s, votes) { return votes && votes.length >= s.players.length; }
 
 /* ── Récupérer la photo d'un joueur depuis SESSIONS ── */
