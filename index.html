@@ -1592,8 +1592,8 @@ function _renderMvpInner(s, votes) {
   var players  = s.players.map(function(p){ return p.name; });
   var html = '';
 
-  /* ── Résultats ── */
-  if (votes.length > 0) {
+  /* ── Résultats ── (uniquement si vote clôturé) */
+  if (votes.length > 0 && isClosed) {
     // Compter
     var counts = {};
     players.forEach(function(n){ counts[n] = 0; });
@@ -1635,6 +1635,12 @@ function _renderMvpInner(s, votes) {
 
   /* ── Formulaire de vote ── */
   var alreadyVotedLocal = !!localStorage.getItem('mvp_voted_' + s.id);
+
+  // Pendant le vote ouvert : juste un compteur, pas de résultats
+  if (isOpen && votes.length > 0) {
+    html += '<div style="text-align:center;font-size:.7rem;color:rgba(255,255,255,.3);margin-bottom:.6rem">' + votes.length + ' vote' + (votes.length > 1 ? 's' : '') + ' enregistré' + (votes.length > 1 ? 's' : '') + ' — résultats après clôture</div>';
+  }
+
   if (isOpen && !alreadyVotedLocal) {
     html += '<div id="mvp-form-' + s.id + '">';
 
