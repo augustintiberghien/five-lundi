@@ -1424,7 +1424,7 @@ function buildStatsView(){
     var titlesBySession = {};
     SESSIONS.forEach(function(s){
       if (!s.scoreWinner || s.current) return;
-      var isOpen = mvpIsOpen(s);
+      var isOpen = mvpIsOpen(s) && !mvpIsFullVote(s, sv);
       var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
       if (!sv.length) return;
       // Si vote encore ouvert : ne pas comptabiliser pour le HoF
@@ -1440,9 +1440,10 @@ function buildStatsView(){
       titleCount[winner] = (titleCount[winner]||0) + 1;
     });
 
-    // Sessions avec vote encore ouvert
+    // Sessions avec vote encore ouvert (et pas 10/10)
     var openSessions = SESSIONS.filter(function(s){
-      return mvpIsOpen(s) && allVotes.some(function(v){ return v.session_id === s.id; });
+      var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
+      return mvpIsOpen(s) && !mvpIsFullVote(s, sv) && sv.length > 0;
     });
 
     var hof = Object.keys(titleCount).sort(function(a,b){ return titleCount[b]-titleCount[a]; });
@@ -1535,7 +1536,7 @@ async function sbInsertVote(sessionId, voter, motm, comment) {
 
 /* ── helpers date ── */
 function mvpDeadline(sessionDate, sessionId) {
-  if (sessionId === 's7') return new Date(2026, 4, 6, 12, 0, 0);
+  if (sessionId === 's7') return new Date(2026, 4, 5, 23, 40, 0);
   var months = {janvier:0,février:1,mars:2,avril:3,mai:4,juin:5,juillet:6,août:7,septembre:8,octobre:9,novembre:10,décembre:11};
   var parts = sessionDate.split(' ');
   if (parts.length !== 3) return null;
@@ -1545,6 +1546,7 @@ function mvpDeadline(sessionDate, sessionId) {
 }
 function mvpIsOpen(s)   { if (s.current || !s.scoreWinner) return false; var dl = mvpDeadline(s.date, s.id); return dl && new Date() < dl; }
 function mvpIsClosed(s) { if (s.current || !s.scoreWinner) return false; var dl = mvpDeadline(s.date, s.id); return !dl || new Date() >= dl; }
+function mvpIsFullVote(s, votes) { return votes && votes.length >= s.players.length; }
 
 /* ── Récupérer la photo d'un joueur depuis SESSIONS ── */
 function mvpGetPhoto(name, players) {
@@ -1598,8 +1600,9 @@ function renderMvpSection(s) {
 function _renderMvpInner(s, votes) {
   var inner = document.getElementById('mvp-inner');
   if (!inner) return;
-  var isOpen   = mvpIsOpen(s);
-  var isClosed = mvpIsClosed(s);
+  var fullVote = mvpIsFullVote(s, votes);
+  var isOpen   = mvpIsOpen(s) && !fullVote;
+  var isClosed = mvpIsClosed(s) || fullVote;
   var players  = s.players.map(function(p){ return p.name; });
   var html = '';
 
