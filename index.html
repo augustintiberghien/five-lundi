@@ -768,9 +768,10 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .mvp-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
 .mvp-bar-fill{height:100%;background:#FFD600;border-radius:3px;transition:width .5s}
 .mvp-bar-count{min-width:22px;text-align:right;color:rgba(255,255,255,.35)}
-.mvp-comments-list{display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem}
-.mvp-comment-item{font-size:.72rem;color:rgba(255,255,255,.6);font-style:italic;border-left:2px solid rgba(255,214,0,.35);padding-left:.6rem}
-.mvp-comment-author{font-style:normal;font-weight:600;color:rgba(255,214,0,.7);font-size:.65rem;margin-top:.1rem}
+.mvp-comments-list{display:flex;flex-direction:column;gap:.6rem;margin-top:.8rem;border-top:1px solid rgba(255,255,255,.07);padding-top:.7rem}
+.mvp-comment-item{background:rgba(255,255,255,.04);border-radius:8px;padding:.6rem .8rem;border-left:3px solid rgba(255,214,0,.5)}
+.mvp-comment-text{font-size:.78rem;color:rgba(255,255,255,.8);font-style:italic;line-height:1.5}
+.mvp-comment-author{font-style:normal;font-weight:700;color:rgba(255,214,0,.8);font-size:.65rem;margin-top:.3rem;text-transform:uppercase;letter-spacing:.06em}
 .mvp-closed{font-size:.72rem;color:rgba(255,255,255,.3);font-style:italic;text-align:center;padding:.3rem 0}
 .mvp-voted-ok{font-size:.75rem;color:#4ade80;text-align:center;padding:.4rem 0;font-weight:600}
 
@@ -1547,9 +1548,27 @@ function mvpGetPhoto(name, players) {
 var _mvpSelected = {};
 
 function mvpSelectCard(sid, name) {
+  var voterEl = document.getElementById('mvp-voter-' + sid);
+  var voter = voterEl ? voterEl.value : '';
+  if (voter && voter === name) { alert('Tu ne peux pas voter pour toi-même !'); return; }
   _mvpSelected[sid] = name;
   document.querySelectorAll('#mvp-cards-' + sid + ' .mvp-card').forEach(function(c) {
     c.classList.toggle('selected', c.dataset.name === name);
+  });
+}
+
+function mvpRefreshCards(sid) {
+  var voterEl = document.getElementById('mvp-voter-' + sid);
+  var voter = voterEl ? voterEl.value : '';
+  // Si la carte sélectionnée est maintenant le votant, désélectionner
+  if (_mvpSelected[sid] && _mvpSelected[sid] === voter) {
+    _mvpSelected[sid] = null;
+  }
+  document.querySelectorAll('#mvp-cards-' + sid + ' .mvp-card').forEach(function(c) {
+    var isSelf = voter && c.dataset.name === voter;
+    c.style.opacity = isSelf ? '0.2' : '';
+    c.style.pointerEvents = isSelf ? 'none' : '';
+    c.classList.toggle('selected', c.dataset.name === _mvpSelected[sid]);
   });
 }
 
@@ -1606,7 +1625,7 @@ function _renderMvpInner(s, votes) {
     if (winnerComments.length) {
       html += '<div class="mvp-comments-list">';
       winnerComments.forEach(function(v) {
-        html += '<div class="mvp-comment-item">"' + v.comment.trim() + '"<div class="mvp-comment-author">— ' + v.voter + '</div></div>';
+        html += '<div class="mvp-comment-item"><div class="mvp-comment-text">"' + v.comment.trim() + '"</div><div class="mvp-comment-author">— ' + v.voter + '</div></div>';
       });
       html += '</div>';
     }
@@ -1620,7 +1639,7 @@ function _renderMvpInner(s, votes) {
     html += '<div id="mvp-form-' + s.id + '">';
 
     // Sélection voter
-    html += '<div class="mvp-voter-row"><label>Je suis</label><select id="mvp-voter-' + s.id + '">';
+    html += '<div class="mvp-voter-row"><label>Je suis</label><select id="mvp-voter-' + s.id + '" onchange="mvpRefreshCards(\'' + s.id + '\')">';
     html += '<option value="">— choisis ton nom</option>';
     players.forEach(function(p) {
       var alreadyVoted = votes.some(function(v){ return v.voter === p; });
