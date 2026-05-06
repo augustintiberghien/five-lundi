@@ -787,6 +787,39 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .article-body strong{color:#fff;font-weight:700}
 .article-body em{color:rgba(255,214,0,.8);font-style:normal;font-weight:600}
 .article-footer{font-size:.68rem;color:rgba(255,255,255,.25);margin-top:1rem;text-align:right;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── Responsive mobile ── */
+@media (max-width: 420px) {
+  .pitch-wrap {
+    width: calc(100vw - 1rem);
+    aspect-ratio: 8 / 13;
+    min-height: 480px;
+  }
+  .card {
+    width: 68px;
+  }
+  .cphoto {
+    width: 68px;
+    height: 70px;
+  }
+  .card-label {
+    font-size: .44rem;
+    padding: .15rem .3rem;
+    letter-spacing: .04em;
+  }
+  .card-name {
+    font-size: .58rem;
+    padding: .18rem .2rem;
+  }
+  .badge-label {
+    font-size: .42rem;
+  }
+  #view-stats,
+  .mvp-section,
+  .article-section {
+    width: calc(100vw - 1rem);
+  }
+}
 </style>
 </head>
 <body>
