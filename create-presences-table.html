@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Créer table presences</title></head>
+<body style="font-family:sans-serif;padding:2rem;background:#111;color:#fff">
+<h2>Création table presences</h2>
+<pre id="log" style="background:#222;padding:1rem;border-radius:8px;white-space:pre-wrap"></pre>
+<script>
+var SB_URL = 'https://fewbqcbzlmanmidvrxhs.supabase.co';
+var SB_SERVICE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZld2JxY2J6bG1hbm1pZHZyeGhzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Nzk1OTI0MCwiZXhwIjoyMDkzNTM1MjQwfQ.jCkZ_Yd4orzS4XnN243JQib-QudB0rZy1TAqDjgrbDY';
+
+var log = document.getElementById('log');
+function print(msg) { log.textContent += msg + '\n'; }
+
+var sql = `
+create table if not exists presences (
+  id uuid default gen_random_uuid() primary key,
+  session_id text not null,
+  name text not null,
+  status text not null check (status in ('playing', 'maybe', 'absent')),
+  updated_at timestamptz default now(),
+  unique(session_id, name)
+);
+alter table presences enable row level security;
+create policy if not exists "Lecture publique" on presences for select using (true);
+create policy if not exists "Insert publique" on presences for insert with check (true);
+create policy if not exists "Update publique" on presences for update using (true);
+`;
+
+async function run() {
+  print('Connexion à Supabase...');
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/rpc/exec_sql', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_SERVICE,
+        'Authorization': 'Bearer ' + SB_SERVICE,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sql: sql })
+    });
+    print('Statut: ' + r.status);
+    var body = await r.text();
+    print('Réponse: ' + body);
+
+    // Test direct table access
+    print('\nTest accès table presences...');
+    var r2 = await fetch(SB_URL + '/rest/v1/presences?limit=1', {
+      headers: {
+        'apikey': SB_SERVICE,
+        'Authorization': 'Bearer ' + SB_SERVICE
+      }
+    });
+    print('Statut table: ' + r2.status);
+    var body2 = await r2.text();
+    print('Réponse: ' + body2);
+    if (r2.status === 200) {
+      print('\n✅ Table presences accessible !');
+    }
+  } catch(e) {
+    print('Erreur: ' + e.message);
+  }
+}
+
+run();
+</script>
+</body>
+</html>
