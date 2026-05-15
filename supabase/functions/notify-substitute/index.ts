@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { substitute, absentPlayer, sessionId, sessionDate } = await req.json();
+    const { substitute, absentPlayer, sessionDate } = await req.json();
 
     if (!substitute || !absentPlayer) {
       return new Response(JSON.stringify({ error: "missing fields" }), {
@@ -21,38 +20,32 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    // Credentials du groupe WhatsApp — stockés comme secrets Edge Function
+    // supabase secrets set CALLMEBOT_GROUP_PHONE=336... CALLMEBOT_GROUP_APIKEY=123456
+    const phone = Deno.env.get("CALLMEBOT_GROUP_PHONE");
+    const apikey = Deno.env.get("CALLMEBOT_GROUP_APIKEY");
 
-    const { data: contact, error } = await supabase
-      .from("player_contacts")
-      .select("phone, callmebot_apikey")
-      .eq("name", substitute)
-      .maybeSingle();
-
-    if (error || !contact?.phone || !contact?.callmebot_apikey) {
-      console.log(`No contact info for ${substitute}`);
-      return new Response(JSON.stringify({ ok: true, notified: false }), {
+    if (!phone || !apikey) {
+      console.warn("CALLMEBOT_GROUP_PHONE / CALLMEBOT_GROUP_APIKEY not configured");
+      return new Response(JSON.stringify({ ok: true, notified: false, reason: "not_configured" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const msg =
-      `🟢 Five Lundi — ${sessionDate}\n` +
-      `${absentPlayer} est absent(e). Tu es appelé(e) comme remplaçant !\n` +
-      `Confirme ta présence dans l'app 👊`;
+      `🔔 Five Lundi — ${sessionDate}\n` +
+      `${absentPlayer} est absent(e) ` +
+      `→ ${substitute} est appelé(e) comme remplaçant 🟢`;
 
     const callUrl =
       `https://api.callmebot.com/whatsapp.php` +
-      `?phone=${encodeURIComponent(contact.phone)}` +
+      `?phone=${encodeURIComponent(phone)}` +
       `&text=${encodeURIComponent(msg)}` +
-      `&apikey=${encodeURIComponent(contact.callmebot_apikey)}`;
+      `&apikey=${encodeURIComponent(apikey)}`;
 
     const resp = await fetch(callUrl);
     const body = await resp.text();
-    console.log(`CallMeBot → ${substitute}: ${resp.status} ${body.slice(0, 80)}`);
+    console.log(`CallMeBot group: ${resp.status} — ${body.slice(0, 100)}`);
 
     return new Response(JSON.stringify({ ok: true, notified: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
