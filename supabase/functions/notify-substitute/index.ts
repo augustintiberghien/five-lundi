@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import webpush from "npm:web-push";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,33 +22,39 @@ serve(async (req) => {
       });
     }
 
-    // Credentials du groupe WhatsApp — stockés comme secrets Edge Function
-    // supabase secrets set CALLMEBOT_GROUP_PHONE=336... CALLMEBOT_GROUP_APIKEY=123456
-    const phone = Deno.env.get("CALLMEBOT_GROUP_PHONE");
-    const apikey = Deno.env.get("CALLMEBOT_GROUP_APIKEY");
+    webpush.setVapidDetails(
+      "mailto:contact@five-lundi.app",
+      Deno.env.get("VAPID_PUBLIC_KEY")!,
+      Deno.env.get("VAPID_PRIVATE_KEY")!
+    );
 
-    if (!phone || !apikey) {
-      console.warn("CALLMEBOT_GROUP_PHONE / CALLMEBOT_GROUP_APIKEY not configured");
-      return new Response(JSON.stringify({ ok: true, notified: false, reason: "not_configured" }), {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const { data } = await supabase
+      .from("push_subscriptions")
+      .select("subscription")
+      .eq("name", substitute)
+      .maybeSingle();
+
+    if (!data?.subscription) {
+      console.log(`No push subscription for ${substitute}`);
+      return new Response(JSON.stringify({ ok: true, notified: false, reason: "no_subscription" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const msg =
-      `🔔 Five Lundi — ${sessionDate}\n` +
-      `${absentPlayer} est absent(e) ` +
-      `→ ${substitute} est appelé(e) comme remplaçant 🟢`;
+    await webpush.sendNotification(
+      data.subscription,
+      JSON.stringify({
+        title: "Five Lundi 🟢",
+        body: `${absentPlayer} est absent · Tu joues le ${sessionDate} !`,
+      })
+    );
 
-    const callUrl =
-      `https://api.callmebot.com/whatsapp.php` +
-      `?phone=${encodeURIComponent(phone)}` +
-      `&text=${encodeURIComponent(msg)}` +
-      `&apikey=${encodeURIComponent(apikey)}`;
-
-    const resp = await fetch(callUrl);
-    const body = await resp.text();
-    console.log(`CallMeBot group: ${resp.status} — ${body.slice(0, 100)}`);
-
+    console.log(`Push sent to ${substitute}`);
     return new Response(JSON.stringify({ ok: true, notified: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
