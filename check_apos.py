@@ -12,14 +12,49 @@ script = content[script_start:script_end]
 errors = []
 
 # 1. Apostrophes françaises non échappées dans des strings single-quotées
+# Approche robuste : on cherche le motif lettre+'lettre directement dans la ligne,
+# mais uniquement à l'intérieur d'une string single-quotée (pas en double-quote).
+# On utilise un tokenizer simple plutôt qu'un regex aveugle aux emoji.
 for i, line in enumerate(script.split('\n'), 1):
     stripped = line.strip()
     if stripped.startswith('//') or stripped.startswith('*'):
         continue
-    parts = re.findall(r"'([^'\\\n]{3,})'", line)
-    for part in parts:
-        if re.search(r"[a-zA-ZÀ-ÿ]'[a-zA-ZÀ-ÿ]", part):
-            errors.append(f"L{i} apostrophe: '{part}' — {line.strip()[:80]}")
+    # Tokenize: find all single-quoted string spans (ignoring escaped quotes)
+    in_sq = False
+    in_dq = False
+    sq_content = []
+    j = 0
+    while j < len(line):
+        c = line[j]
+        if c == '\\':
+            j += 2
+            continue
+        if c == "'" and not in_dq:
+            if in_sq:
+                # closing quote — check collected content for apostrophes
+                segment = ''.join(sq_content)
+                if re.search(r"[a-zA-ZÀ-ÿ]'[a-zA-ZÀ-ÿ]", segment):
+                    errors.append(f"L{i} apostrophe: {line.strip()[:80]}")
+                    break
+                # Also check: if next char is a letter, the ' was an apostrophe (not a closing quote)
+                next_char = line[j+1] if j+1 < len(line) else ''
+                last_char = sq_content[-1] if sq_content else ''
+                if re.match(r'[a-zA-ZÀ-ÿ]', next_char) and re.match(r'[a-zA-ZÀ-ÿ]', last_char):
+                    errors.append(f"L{i} apostrophe: {line.strip()[:80]}")
+                    break
+                in_sq = False
+                sq_content = []
+            else:
+                in_sq = True
+            j += 1
+            continue
+        if c == '"' and not in_sq:
+            in_dq = not in_dq
+            j += 1
+            continue
+        if in_sq:
+            sq_content.append(c)
+        j += 1
 
 # 2. Virgules manquantes dans les objets JS clés
 data_blocks = ['var PLAYER_STATS', 'var PLAYER_NOTES', 'var PLAYER_ROLES',
