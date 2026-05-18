@@ -35,6 +35,21 @@ git push -u origin claude/setup-html-project-wSe4F
   - Bleue   : GK(50,92), DL(12,76), DR(88,76), ML(35,62), MR(65,62)
 - `bench` : ordre de remplacement, visible jusqu'à 21h30 Paris le soir du match
 
+## Règle : mise à jour automatique après un score
+
+Quand l'utilisateur donne le score d'un match (ex : "s9 : 12-5 Blanche"), effectuer **dans cet ordre** :
+
+1. **SESSIONS** — mettre à jour `score` et `scoreWinner` de la session concernée (`'A'` si Blanche gagne, `'B'` si Bleue gagne)
+2. **PLAYER_STATS** — incrémenter `played` (+1) et `wins` (+1 si gagné) pour chaque joueur présent dans `s.players`
+3. **PAIR_STATS** — pour chaque paire de la même équipe dans `s.players`, incrémenter `together` (+1) et `wins` (+1 si gagné)
+
+**NE PAS TOUCHER** :
+- Le tableau `players` (compositions d'équipes) de la session — il est déjà validé
+- `PLAYER_NOTES` (notes de base et sm) — jamais modifié sur un score
+- Les notes ajustées et statuts (Maudit / En galère / En feu / Invincible / En forme) sont **calculés dynamiquement** depuis `SESSIONS` via `_getPlayerForm()`, ils se mettent à jour automatiquement une fois `scoreWinner` renseigné
+
+Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
+
 ## Vote MVP
 - Ouverture : 22h30 Paris le soir du match
 - Clôture : 10 votes atteints OU 22h30 le lendemain
