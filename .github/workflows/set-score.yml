@@ -1,0 +1,49 @@
+name: Set score
+
+on:
+  workflow_dispatch:
+    inputs:
+      session_id:
+        description: 'ID de la session (ex: s10)'
+        required: true
+      score_a:
+        description: 'Score Blanche'
+        required: true
+      score_b:
+        description: 'Score Bleue'
+        required: true
+      winner:
+        description: 'Gagnant (A ou B)'
+        required: true
+
+jobs:
+  set-score:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Mettre à jour le score dans SESSIONS
+        env:
+          SESSION_ID: ${{ inputs.session_id }}
+          SCORE_A:    ${{ inputs.score_a }}
+          SCORE_B:    ${{ inputs.score_b }}
+          WINNER:     ${{ inputs.winner }}
+        run: python3 .github/scripts/set_score.py
+
+      - name: Recalculer PLAYER_STATS + PAIR_STATS
+        run: python3 .github/scripts/update_stats.py
+
+      - name: Commit & push
+        run: |
+          git config user.name "five-lundi-bot"
+          git config user.email "bot@five-lundi.fr"
+          git add index.html
+          git diff --cached --quiet && echo "Rien à committer" && exit 0
+          git commit -m "Auto : score ${{ inputs.session_id }} → ${{ inputs.score_a }}-${{ inputs.score_b }} (${{ inputs.winner }})"
+          git push origin main
