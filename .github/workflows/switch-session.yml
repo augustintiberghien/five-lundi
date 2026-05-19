@@ -1,0 +1,35 @@
+name: Switch active session
+
+on:
+  workflow_dispatch:   # Déclenché par le webhook Supabase (ou manuellement)
+  schedule:
+    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — chaque mercredi matin
+    # Couvre la deadline max : match lundi soir → vote clos mardi 22h30 → bascule mercredi 01h30
+    - cron: '30 23 * * 2'
+
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Check vote & switch session
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python3 .github/scripts/switch_session.py
+
+      - name: Commit & push si changement
+        run: |
+          git config user.name "five-lundi-bot"
+          git config user.email "bot@five-lundi.fr"
+          git add index.html CLAUDE.md
+          git diff --cached --quiet && echo "Rien à committer" && exit 0
+          git commit -m "Auto : passage à la session suivante"
+          git push origin main
