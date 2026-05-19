@@ -55,6 +55,11 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 - Clôture : 10 votes atteints OU 22h30 le lendemain
 - Timezone : toujours via `toLocaleString('en-US', {timeZone:'Europe/Paris'})`
 
+## Passage à la session suivante
+- **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
+- Clôture = 10 votes atteints OU 22h30 le lendemain → donc au plus tard à **01h30** (nuit du lendemain au surlendemain)
+- Opération manuelle : mettre à jour `current` dans SESSIONS dans index.html, puis commit/push/PR/merge
+
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
