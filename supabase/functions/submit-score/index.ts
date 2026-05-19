@@ -49,7 +49,8 @@ Deno.serve(async (req) => {
     }
   )
 
-  const msg = gh.ok ? 'Score envoyé' : await gh.text()
+  if (gh.ok) return new Response('Score envoyé', { status: 200, headers: corsHeaders() })
+  const msg = await gh.text()
   return new Response(msg, { status: gh.status, headers: corsHeaders() })
 })
 
