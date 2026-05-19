@@ -1,5 +1,4 @@
 const GITHUB_PAT = Deno.env.get('GITHUB_PAT')!
-const SCORE_PIN   = Deno.env.get('SCORE_PIN')!   // code secret défini dans les secrets Supabase
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -7,24 +6,19 @@ Deno.serve(async (req) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type',
       },
     })
   }
 
-  let body: { session_id?: string; score_a?: number; score_b?: number; pin?: string }
+  let body: { session_id?: string; score_a?: number; score_b?: number }
   try {
     body = await req.json()
   } catch {
     return new Response('Invalid JSON', { status: 400, headers: corsHeaders() })
   }
 
-  const { session_id, score_a, score_b, pin } = body
-
-  // Vérification du PIN
-  if (!pin || pin !== SCORE_PIN) {
-    return new Response('Code incorrect', { status: 403, headers: corsHeaders() })
-  }
+  const { session_id, score_a, score_b } = body
 
   if (!session_id || typeof score_a !== 'number' || typeof score_b !== 'number') {
     return new Response('Champs manquants', { status: 400, headers: corsHeaders() })
