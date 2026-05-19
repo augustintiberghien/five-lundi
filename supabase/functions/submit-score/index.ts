@@ -50,12 +50,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         ref: 'main',
-        inputs: {
-          session_id,
-          score_a: String(score_a),
-          score_b: String(score_b),
-          winner,
-        },
+        inputs: { session_id, score_a: String(score_a), score_b: String(score_b), winner },
       }),
     }
   )
@@ -65,8 +60,5 @@ Deno.serve(async (req) => {
 })
 
 function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'text/plain',
-  }
+  return { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/plain' }
 }
