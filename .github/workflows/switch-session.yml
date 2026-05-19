@@ -1,16 +1,17 @@
 name: Switch active session
 
 on:
-  workflow_dispatch:   # Déclenché par le webhook Supabase (vote inséré)
+  workflow_dispatch:   # Déclenché par Edge Function Supabase au 10ème vote
   schedule:
-    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — mardi matin (vote rapide, 10 votes dans la nuit du match)
-    - cron: '30 23 * * 1'
-    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — mercredi matin (deadline 22h30 mardi + 3h)
+    # Mercredi 01h30 Paris CEST (UTC+2) = 23h30 UTC mardi
+    # Cas deadline : vote jamais atteint 10 votes → on bascule à 01h30 mercredi (22h30 mardi + 3h)
     - cron: '30 23 * * 2'
 
 jobs:
   switch:
     runs-on: ubuntu-latest
+    # 6h max — couvre le pire cas : 10 votes arrivés juste après 22h30, sleep jusqu'à 01h30 (3h)
+    timeout-minutes: 200
     permissions:
       contents: write
 
@@ -21,6 +22,8 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Check timing & switch session
+        env:
+          TRIGGER: ${{ github.event_name }}
         run: python3 .github/scripts/switch_session.py
 
       - name: Commit & push si changement
