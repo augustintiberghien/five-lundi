@@ -1,7 +1,4 @@
-import os, json, urllib.request, datetime, sys, re
-
-SB_URL = os.environ['SUPABASE_URL']
-SB_KEY = os.environ['SUPABASE_KEY']
+import os, datetime, sys, re
 
 with open('index.html', 'r') as f:
     content = f.read()
@@ -30,62 +27,43 @@ parts = date_str.split()
 match_date = datetime.datetime(int(parts[2]), MONTHS[parts[1]], int(parts[0]),
                                tzinfo=datetime.timezone.utc)
 
-# Deadline = lendemain 22h30 Paris (CEST = UTC+2 en été, CET = UTC+1 en hiver)
-month = match_date.month
-utc_offset = 2 if 4 <= month <= 10 else 1
-deadline_utc = match_date + datetime.timedelta(days=1, hours=22-utc_offset, minutes=30)
-switch_after_utc = deadline_utc + datetime.timedelta(hours=3)
-open_utc = match_date + datetime.timedelta(hours=22-utc_offset, minutes=30)
-open_plus3 = open_utc + datetime.timedelta(hours=3)
+# Paris offset (CEST = UTC+2 en été, CET = UTC+1 en hiver)
+utc_offset = 2 if 4 <= match_date.month <= 10 else 1
+
+# Vote ouvre à 22h30 Paris le soir du match
+open_utc  = match_date + datetime.timedelta(hours=22 - utc_offset, minutes=30)
+# Switch autorisé à partir de open + 3h (= 01h30 Paris)
+switch_from = open_utc + datetime.timedelta(hours=3)
+# Deadline : le lendemain 22h30 + 3h
+deadline_utc    = match_date + datetime.timedelta(days=1, hours=22 - utc_offset, minutes=30)
+switch_deadline = deadline_utc + datetime.timedelta(hours=3)
 
 now_utc = datetime.datetime.now(datetime.timezone.utc)
 
-print(f"Date match : {date_str}")
-print(f"Clôture max (UTC) : {deadline_utc}")
-print(f"Bascule au plus tard (UTC) : {switch_after_utc}")
-print(f"Maintenant (UTC) : {now_utc}")
+print(f"Date match       : {date_str}")
+print(f"Ouverture vote   : {open_utc} UTC")
+print(f"Switch possible  : {switch_from} UTC  (ouverture +3h)")
+print(f"Switch deadline  : {switch_deadline} UTC  (deadline +3h)")
+print(f"Maintenant       : {now_utc}")
 
-# Check vote count in Supabase
-vote_count = 0
-try:
-    req = urllib.request.Request(
-        f"{SB_URL}/rest/v1/votes?session_id=eq.{current_id}&select=id",
-        headers={
-            'apikey': SB_KEY,
-            'Authorization': f'Bearer {SB_KEY}',
-        }
-    )
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        votes = json.loads(resp.read())
-        vote_count = len(votes)
-        print(f"Votes : {vote_count}/10")
-except Exception as e:
-    print(f"Erreur Supabase : {e} — on se base uniquement sur l'heure")
-
-# Vote clos si : 10 votes atteints ET +3h depuis ouverture, OU deadline+3h passée
-if vote_count >= 10:
-    vote_closed = now_utc >= open_plus3
-    if vote_closed:
-        print("Vote clos : 10 votes atteints et +3h depuis l'ouverture")
-    else:
-        print(f"10 votes atteints mais +3h pas encore écoulées (attendre {open_plus3})")
-elif now_utc >= switch_after_utc:
-    vote_closed = True
-    print("Vote clos : deadline +3h dépassée")
-else:
-    vote_closed = False
-    print(f"Vote pas encore clos — bascule prévue à {switch_after_utc}")
-
-if not vote_closed:
+# Bascule si on est passé open+3h (et donc que le vote a pu atteindre 10 votes)
+# OU si la deadline+3h est dépassée
+if now_utc < switch_from:
+    print(f"Trop tôt — attendre {switch_from}")
     sys.exit(0)
 
-# Find all session ids in order (newest first in the array)
+# Vérifier que la session a bien un scoreWinner (match joué)
+m_winner = re.search(rf"id:'{current_id}'[^{{]*?scoreWinner:'([^']*)'", content, re.DOTALL)
+has_score = m_winner and m_winner.group(1) in ('A', 'B')
+if not has_score:
+    print("Pas de score enregistré pour cette session — on ne bascule pas")
+    sys.exit(0)
+
+print("Conditions OK — bascule vers la session suivante")
+
+# Find all session ids in order (newest first)
 session_ids = re.findall(r"id:'(s\d+)'", content)
 print(f"Sessions : {session_ids}")
-
-if current_id not in session_ids:
-    print(f"Session {current_id} introuvable dans la liste")
-    sys.exit(1)
 
 idx = session_ids.index(current_id)
 if idx == 0:

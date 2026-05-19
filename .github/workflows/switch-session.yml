@@ -1,10 +1,11 @@
 name: Switch active session
 
 on:
-  workflow_dispatch:   # Déclenché par le webhook Supabase (ou manuellement)
+  workflow_dispatch:   # Déclenché par le webhook Supabase (vote inséré)
   schedule:
-    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — chaque mercredi matin
-    # Couvre la deadline max : match lundi soir → vote clos mardi 22h30 → bascule mercredi 01h30
+    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — mardi matin (vote rapide, 10 votes dans la nuit du match)
+    - cron: '30 23 * * 1'
+    # 01h30 Paris CEST (UTC+2) = 23h30 UTC — mercredi matin (deadline 22h30 mardi + 3h)
     - cron: '30 23 * * 2'
 
 jobs:
@@ -19,10 +20,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: Check vote & switch session
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      - name: Check timing & switch session
         run: python3 .github/scripts/switch_session.py
 
       - name: Commit & push si changement
