@@ -30,7 +30,8 @@ if f"id:'{session_id}'" not in content:
 # Vérifier qu'il n'y a pas déjà un score
 m_existing = re.search(rf"id:'{session_id}'[^{{]*?scoreWinner:'([^']*)'", content, re.DOTALL)
 if m_existing and m_existing.group(1) in ('A', 'B'):
-    print(f"ATTENTION : {session_id} a déjà un score ({m_existing.group(1)}) — on le remplace quand même")
+    print(f"Score déjà enregistré pour {session_id} ({m_existing.group(1)}) — aucune modification.")
+    sys.exit(0)
 
 def replace_field(html, sid, field, new_value):
     """Remplace field:'...' pour la session donnée."""
