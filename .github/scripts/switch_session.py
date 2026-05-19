@@ -51,14 +51,13 @@ print(f"Trigger          : {TRIGGER}")
 print(f"Maintenant       : {now_utc}")
 
 if TRIGGER == 'workflow_dispatch':
-    # Déclenché par Edge Function = 10 votes atteints
-    # Attendre open+3h si on est encore trop tôt
-    wait = (switch_from - now_utc).total_seconds()
-    if wait > 0:
-        print(f"10 votes atteints mais trop tôt — attente {wait/3600:.1f}h ({switch_from} UTC)...")
-        time.sleep(wait)
-        now_utc = datetime.datetime.now(datetime.timezone.utc)
-    print("Conditions OK (10 votes + délai) — bascule")
+    # Déclenché par Edge Function = 10ème vote vient d'être enregistré
+    # On attend exactement 3h à partir de maintenant (= clôture du vote)
+    switch_time = now_utc + datetime.timedelta(hours=3)
+    wait = (switch_time - now_utc).total_seconds()
+    print(f"10 votes atteints — bascule dans 3h à {switch_time} UTC")
+    time.sleep(wait)
+    print("3h écoulées — bascule")
 
 elif TRIGGER == 'schedule':
     # Déclenché par cron mercredi 01h30 = deadline+3h
