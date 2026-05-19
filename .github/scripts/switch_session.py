@@ -31,13 +31,14 @@ match_date = datetime.datetime(int(parts[2]), MONTHS[parts[1]], int(parts[0]),
                                tzinfo=datetime.timezone.utc)
 
 # Deadline = lendemain 22h30 Paris (CEST = UTC+2 en été, CET = UTC+1 en hiver)
-# Approximation : UTC+2 pour les mois d'avril à octobre
 month = match_date.month
 utc_offset = 2 if 4 <= month <= 10 else 1
 deadline_utc = match_date + datetime.timedelta(days=1, hours=22-utc_offset, minutes=30)
 switch_after_utc = deadline_utc + datetime.timedelta(hours=3)
+open_utc = match_date + datetime.timedelta(hours=22-utc_offset, minutes=30)
+open_plus3 = open_utc + datetime.timedelta(hours=3)
 
-now_utc = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+now_utc = datetime.datetime.now(datetime.timezone.utc)
 
 print(f"Date match : {date_str}")
 print(f"Clôture max (UTC) : {deadline_utc}")
@@ -61,14 +62,8 @@ try:
 except Exception as e:
     print(f"Erreur Supabase : {e} — on se base uniquement sur l'heure")
 
-# Vote clos si : 10 votes atteints ET +3h, OU deadline+3h passée
-vote_threshold_met = vote_count >= 10
-
-if vote_threshold_met:
-    # Vote clos par count — vérifier que +3h sont passées depuis l'ouverture
-    # (ouverture = 22h30 le soir du match)
-    open_utc = match_date + datetime.timedelta(hours=22-utc_offset, minutes=30)
-    open_plus3 = open_utc + datetime.timedelta(hours=3)
+# Vote clos si : 10 votes atteints ET +3h depuis ouverture, OU deadline+3h passée
+if vote_count >= 10:
     vote_closed = now_utc >= open_plus3
     if vote_closed:
         print("Vote clos : 10 votes atteints et +3h depuis l'ouverture")
@@ -79,7 +74,7 @@ elif now_utc >= switch_after_utc:
     print("Vote clos : deadline +3h dépassée")
 else:
     vote_closed = False
-    print("Vote pas encore clos, rien à faire")
+    print(f"Vote pas encore clos — bascule prévue à {switch_after_utc}")
 
 if not vote_closed:
     sys.exit(0)
@@ -114,8 +109,8 @@ def set_current(html, session_id, value):
         old = 'false'
     else:
         raise ValueError(f"Valeur inattendue : {after[:10]}")
-    new = 'true' if value else 'false'
-    return html[:cur_pos + 8] + new + html[cur_pos + 8 + len(old):]
+    new_val = 'true' if value else 'false'
+    return html[:cur_pos + 8] + new_val + html[cur_pos + 8 + len(old):]
 
 content = set_current(content, current_id, False)
 content = set_current(content, next_id, True)
@@ -127,16 +122,8 @@ with open('index.html', 'w') as f:
 with open('CLAUDE.md', 'r') as f:
     md = f.read()
 
-md = re.sub(
-    rf"(\| {current_id} \|[^|]*\|[^|]*\|) ✅ \|",
-    r'\1  |',
-    md
-)
-md = re.sub(
-    rf"(\| {next_id} \|[^|]*\|[^|]*\|)  \|",
-    r'\1 ✅ |',
-    md
-)
+md = re.sub(rf'(\| {current_id} \|[^|]*\|[^|]*\|) ✅ \|', r'\1  |', md)
+md = re.sub(rf'(\| {next_id} \|[^|]*\|[^|]*\|)  \|', r'\1 ✅ |', md)
 
 with open('CLAUDE.md', 'w') as f:
     f.write(md)
