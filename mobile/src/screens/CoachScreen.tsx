@@ -80,7 +80,25 @@ export default function CoachScreen() {
           </Text>
         </View>
 
-        {/* Create session CTA */}
+        {/* Coach tools row */}
+        <View style={styles.toolsRow}>
+          <TouchableOpacity
+            style={styles.toolCard}
+            onPress={() => navigation.navigate('CreateSession')}
+          >
+            <Text style={styles.toolIcon}>＋</Text>
+            <Text style={styles.toolLabel}>{t.coach.newSession}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toolCard, styles.toolCardAlt]}
+            onPress={() => navigation.navigate('CoachRating')}
+          >
+            <Text style={styles.toolIcon}>📊</Text>
+            <Text style={styles.toolLabel}>Notation</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Create session CTA (kept for quick next-session hint) */}
         <TouchableOpacity
           style={styles.createCard}
           onPress={() => navigation.navigate('CreateSession')}
@@ -283,6 +301,17 @@ const styles = StyleSheet.create({
   heroEmoji: { fontSize: 32 },
   heroName: { fontSize: 22, fontWeight: '900', color: '#fff', marginBottom: 4 },
   heroSub: { fontSize: 12, color: '#333', fontWeight: '600' },
+
+  // Tool cards row
+  toolsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  toolCard: {
+    flex: 1, backgroundColor: '#0d1a0d',
+    borderWidth: 1.5, borderColor: '#4CAF50',
+    borderRadius: 14, paddingVertical: 14, alignItems: 'center', gap: 6,
+  },
+  toolCardAlt: { backgroundColor: '#0a0a1a', borderColor: '#64B5F6' },
+  toolIcon:  { fontSize: 22 },
+  toolLabel: { fontSize: 12, fontWeight: '800', color: '#ddd' },
 
   // Create CTA
   createCard: {
