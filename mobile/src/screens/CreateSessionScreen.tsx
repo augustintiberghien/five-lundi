@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -22,11 +23,20 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 const FR_MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const FR_DAYS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
-function nextOccurrence(dayOfWeek: number): Date {
+function dateKey(d: Date): string {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function nextNOccurrences(dayOfWeek: number, n: number): Date[] {
+  const result: Date[] = [];
   const d = new Date();
   const diff = (dayOfWeek - d.getDay() + 7) % 7 || 7;
   d.setDate(d.getDate() + diff);
-  return d;
+  for (let i = 0; i < n; i++) {
+    result.push(new Date(d));
+    d.setDate(d.getDate() + 7);
+  }
+  return result;
 }
 
 function toFrStr(d: Date): string {
@@ -37,17 +47,32 @@ export default function CreateSessionScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
 
-  const [step, setStep]         = useState(0);
-  const [date, setDate]         = useState(() => nextOccurrence(GROUP_CONFIG.defaultDayOfWeek));
-  const [hour, setHour]         = useState(() => parseInt(GROUP_CONFIG.defaultTime.split(':')[0]) || 21);
-  const [minute, setMinute]     = useState(() => parseInt(GROUP_CONFIG.defaultTime.split(':')[1]) || 30);
-  const [location, setLocation] = useState(GROUP_CONFIG.defaultLocation);
-  const [maxPlayers, setMax]    = useState(GROUP_CONFIG.defaultMaxPlayers);
+  const upcomingDates = useState(() => nextNOccurrences(GROUP_CONFIG.defaultDayOfWeek, 6))[0];
+
+  const [step, setStep]           = useState(0);
+  const [selectedKeys, setSelected] = useState<Set<string>>(
+    () => new Set(upcomingDates.map(dateKey))
+  );
+  const [hour, setHour]           = useState(() => parseInt(GROUP_CONFIG.defaultTime.split(':')[0]) || 21);
+  const [minute, setMinute]       = useState(() => parseInt(GROUP_CONFIG.defaultTime.split(':')[1]) || 30);
+  const [location, setLocation]   = useState(GROUP_CONFIG.defaultLocation);
+  const [maxPlayers, setMax]      = useState(GROUP_CONFIG.defaultMaxPlayers);
   const [published, setPublished] = useState(false);
 
   const fadeAnim  = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
   const doneScale = useRef(new Animated.Value(0)).current;
+
+  const selectedDates = upcomingDates.filter(d => selectedKeys.has(dateKey(d)));
+
+  function toggleDate(d: Date) {
+    const key = dateKey(d);
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
 
   function goTo(next: number, dir: 'fwd' | 'back' = 'fwd') {
     const exitX  = dir === 'fwd' ? -40 : 40;
@@ -68,10 +93,11 @@ export default function CreateSessionScreen() {
   function handlePublish() {
     setPublished(true);
     Animated.spring(doneScale, { toValue: 1, friction: 4, useNativeDriver: true }).start();
-    setTimeout(() => navigation.goBack(), 1800);
+    setTimeout(() => navigation.goBack(), 2200);
   }
 
   const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  const noneSelected = selectedDates.length === 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -103,57 +129,69 @@ export default function CreateSessionScreen() {
           transform: [{ translateX: slideAnim }],
         }]}>
 
-          {/* ── Step 0: Date & heure ── */}
+          {/* ── Step 0: Dates & heure ── */}
           {step === 0 && (
-            <View style={styles.step}>
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
               <Text style={styles.stepLabel}>{t.coach.stepDate}</Text>
 
-              {/* Date navigator */}
-              <View style={styles.dateCard}>
-                <Pressable style={styles.dateArrow} onPress={() => {
-                  const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d);
-                }}>
-                  <Text style={styles.dateArrowText}>‹</Text>
-                </Pressable>
-
-                <View style={styles.dateCenter}>
-                  <Text style={styles.dateDayName}>{FR_DAYS[date.getDay()].toUpperCase()}</Text>
-                  <Text style={styles.dateValue}>
-                    {date.getDate()} {FR_MONTHS[date.getMonth()]} {date.getFullYear()}
-                  </Text>
-                </View>
-
-                <Pressable style={styles.dateArrow} onPress={() => {
-                  const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d);
-                }}>
-                  <Text style={styles.dateArrowText}>›</Text>
-                </Pressable>
+              {/* Date chips */}
+              <View style={styles.chipsCol}>
+                {upcomingDates.map(d => {
+                  const key = dateKey(d);
+                  const on  = selectedKeys.has(key);
+                  return (
+                    <Pressable
+                      key={key}
+                      style={[styles.chip, on ? styles.chipOn : styles.chipOff]}
+                      onPress={() => toggleDate(d)}
+                    >
+                      <View style={[styles.chipBox, on && styles.chipBoxOn]}>
+                        {on && <Text style={styles.chipTick}>✓</Text>}
+                      </View>
+                      <View style={styles.chipTexts}>
+                        <Text style={[styles.chipDay, !on && styles.dimText]}>
+                          {FR_DAYS[d.getDay()].toUpperCase()}
+                        </Text>
+                        <Text style={[styles.chipDate, !on && styles.dimText]}>
+                          {toFrStr(d)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
 
               {/* Time selector */}
               <View style={styles.timeRow}>
-                <TimeCounter
-                  value={hour} min={0} max={23} step={1}
-                  onChange={setHour}
-                  label={String(hour).padStart(2, '0')}
-                />
+                <TimeCounter value={hour}   min={0}  max={23} step={1}
+                  onChange={setHour}   label={String(hour).padStart(2, '0')} />
                 <Text style={styles.timeSep}>:</Text>
-                <TimeCounter
-                  value={minute} min={0} max={55} step={5}
-                  onChange={setMinute}
-                  label={String(minute).padStart(2, '0')}
-                />
+                <TimeCounter value={minute} min={0}  max={55} step={5}
+                  onChange={setMinute} label={String(minute).padStart(2, '0')} />
               </View>
 
-              <TouchableOpacity style={styles.nextBtn} onPress={() => goTo(1)}>
-                <Text style={styles.nextBtnText}>{t.coach.next}</Text>
+              <TouchableOpacity
+                style={[styles.nextBtn, noneSelected && styles.nextBtnOff]}
+                onPress={() => !noneSelected && goTo(1)}
+                activeOpacity={noneSelected ? 1 : 0.75}
+              >
+                <Text style={styles.nextBtnText}>
+                  {noneSelected
+                    ? 'Sélectionne au moins une date'
+                    : `${t.coach.next} (${selectedDates.length})`}
+                </Text>
               </TouchableOpacity>
-            </View>
+            </ScrollView>
           )}
 
           {/* ── Step 1: Lieu ── */}
           {step === 1 && (
-            <View style={styles.step}>
+            <View style={{ flex: 1, paddingTop: 8 }}>
               <Text style={styles.stepLabel}>{t.coach.stepLocation}</Text>
 
               <View style={styles.inputBlock}>
@@ -171,23 +209,17 @@ export default function CreateSessionScreen() {
               <View style={styles.inputBlock}>
                 <Text style={styles.inputLabel}>{t.coach.maxPlayers}</Text>
                 <View style={styles.maxRow}>
-                  <Pressable
-                    style={styles.maxBtn}
-                    onPress={() => setMax(v => Math.max(2, v - 2))}
-                  >
+                  <Pressable style={styles.maxBtn} onPress={() => setMax(v => Math.max(2, v - 2))}>
                     <Text style={styles.maxBtnText}>−</Text>
                   </Pressable>
                   <Text style={styles.maxVal}>{maxPlayers}</Text>
-                  <Pressable
-                    style={styles.maxBtn}
-                    onPress={() => setMax(v => Math.min(20, v + 2))}
-                  >
+                  <Pressable style={styles.maxBtn} onPress={() => setMax(v => Math.min(20, v + 2))}>
                     <Text style={styles.maxBtnText}>+</Text>
                   </Pressable>
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.nextBtn} onPress={() => goTo(2)}>
+              <TouchableOpacity style={[styles.nextBtn, { marginTop: 'auto' as any }]} onPress={() => goTo(2)}>
                 <Text style={styles.nextBtnText}>{t.coach.next}</Text>
               </TouchableOpacity>
             </View>
@@ -195,31 +227,49 @@ export default function CreateSessionScreen() {
 
           {/* ── Step 2: Résumé & publication ── */}
           {step === 2 && (
-            <View style={styles.step}>
-              <Text style={styles.stepLabel}>{t.coach.stepSummary}</Text>
-
-              {published ? (
+            published ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Animated.View style={[styles.doneBox, { transform: [{ scale: doneScale }] }]}>
                   <Text style={styles.doneCheck}>✓</Text>
-                  <Text style={styles.doneTitle}>{t.coach.published}</Text>
-                  <Text style={styles.doneSub}>{FR_DAYS[date.getDay()]} {toFrStr(date)}</Text>
+                  <Text style={styles.doneTitle}>
+                    {selectedDates.length} session{selectedDates.length > 1 ? 's' : ''} publiée{selectedDates.length > 1 ? 's' : ''} !
+                  </Text>
+                  <Text style={styles.doneSub}>{timeStr} · {location || GROUP_CONFIG.defaultLocation}</Text>
                 </Animated.View>
-              ) : (
-                <>
-                  <View style={styles.summaryCard}>
-                    <SummaryRow icon="📅" value={`${FR_DAYS[date.getDay()]} ${toFrStr(date)}`} />
-                    <SummaryRow icon="🕐" value={timeStr} />
-                    {location ? <SummaryRow icon="📍" value={location} /> : null}
-                    <SummaryRow icon="👥" value={`${maxPlayers} joueurs max`} />
-                    <SummaryRow icon="🔓" value="Inscriptions ouvertes à la publication" dim />
-                  </View>
+              </View>
+            ) : (
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+              >
+                <Text style={styles.stepLabel}>{t.coach.stepSummary}</Text>
 
-                  <TouchableOpacity style={styles.publishBtn} onPress={handlePublish}>
-                    <Text style={styles.publishBtnText}>{t.coach.publish}</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+                <View style={styles.summaryCard}>
+                  {/* Dates list */}
+                  <View style={styles.summaryDatesRow}>
+                    <Text style={styles.summaryIcon}>📅</Text>
+                    <View style={{ flex: 1, gap: 5 }}>
+                      {selectedDates.map(d => (
+                        <Text key={dateKey(d)} style={styles.summaryDateItem}>
+                          {FR_DAYS[d.getDay()]} {toFrStr(d)}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                  <SummaryRow icon="🕐" value={timeStr} />
+                  {location ? <SummaryRow icon="📍" value={location} /> : null}
+                  <SummaryRow icon="👥" value={`${maxPlayers} joueurs max`} />
+                  <SummaryRow icon="🔓" value="Inscriptions ouvertes à la publication" dim />
+                </View>
+
+                <TouchableOpacity style={styles.publishBtn} onPress={handlePublish}>
+                  <Text style={styles.publishBtnText}>
+                    {t.coach.publish} ({selectedDates.length})
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )
           )}
 
         </Animated.View>
@@ -290,7 +340,6 @@ const styles = StyleSheet.create({
   backArrow: { fontSize: 22, color: '#fff' },
   headerTitle: { fontSize: 15, fontWeight: '800', color: '#fff' },
 
-  // Step indicator
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingVertical: 16 },
   dot: {
     width: 7, height: 7, borderRadius: 4,
@@ -298,29 +347,35 @@ const styles = StyleSheet.create({
   },
   dotActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50', width: 22 },
 
-  // Step wrapper
   stepContainer: { flex: 1, paddingHorizontal: 24 },
-  step: { flex: 1, paddingTop: 8 },
+  scrollContent: { paddingTop: 8, paddingBottom: 32 },
   stepLabel: {
     fontSize: 10, fontWeight: '800', color: '#333',
-    letterSpacing: 2, marginBottom: 24,
+    letterSpacing: 2, marginBottom: 20,
   },
 
-  // Date navigator
-  dateCard: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#111', borderRadius: 16,
-    borderWidth: 1, borderColor: '#1e1e1e',
-    marginBottom: 28,
+  // Date chips
+  chipsCol: { gap: 8, marginBottom: 28 },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    borderRadius: 14, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14,
   },
-  dateArrow: { padding: 20 },
-  dateArrowText: { fontSize: 32, color: '#555', fontWeight: '200' },
-  dateCenter: { flex: 1, alignItems: 'center', paddingVertical: 20 },
-  dateDayName: { fontSize: 28, fontWeight: '900', color: '#4CAF50', letterSpacing: 2 },
-  dateValue: { fontSize: 14, color: '#666', marginTop: 4, fontWeight: '600' },
+  chipOn:  { backgroundColor: '#0d1a0d', borderColor: '#4CAF50' },
+  chipOff: { backgroundColor: '#0e0e0e', borderColor: '#1e1e1e' },
+  chipBox: {
+    width: 22, height: 22, borderRadius: 11,
+    borderWidth: 1.5, borderColor: '#2a2a2a',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  chipBoxOn: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
+  chipTick: { fontSize: 12, color: '#fff', fontWeight: '900' },
+  chipTexts: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  chipDay:  { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 0.5 },
+  chipDate: { fontSize: 12, color: '#888', fontWeight: '600' },
+  dimText:  { color: '#2a2a2a' },
 
   // Time selector
-  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 36 },
+  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 28 },
   timeSep: { fontSize: 40, color: '#333', fontWeight: '200', marginBottom: 4 },
   timeCounter: { alignItems: 'center', gap: 6 },
   timeBtn: {
@@ -330,7 +385,7 @@ const styles = StyleSheet.create({
   timeBtnText: { fontSize: 12, color: '#555' },
   timeNum: { fontSize: 56, fontWeight: '900', color: '#fff', lineHeight: 64 },
 
-  // Input block
+  // Input block (step 1)
   inputBlock: { marginBottom: 24 },
   inputLabel: { fontSize: 10, color: '#333', fontWeight: '700', letterSpacing: 1.5, marginBottom: 8 },
   textInput: {
@@ -351,12 +406,13 @@ const styles = StyleSheet.create({
   // Buttons
   nextBtn: {
     backgroundColor: '#4CAF50', borderRadius: 14,
-    paddingVertical: 16, alignItems: 'center', marginTop: 'auto' as any,
+    paddingVertical: 16, alignItems: 'center',
   },
+  nextBtnOff: { backgroundColor: '#1a1a1a' },
   nextBtnText: { fontSize: 14, fontWeight: '800', color: '#fff' },
   publishBtn: {
     backgroundColor: '#4CAF50', borderRadius: 14,
-    paddingVertical: 18, alignItems: 'center', marginTop: 'auto' as any,
+    paddingVertical: 18, alignItems: 'center',
   },
   publishBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 0.5 },
 
@@ -366,14 +422,16 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#1e1e1e',
     padding: 16, gap: 12, marginBottom: 24,
   },
+  summaryDatesRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  summaryDateItem: { fontSize: 13, color: '#ddd', fontWeight: '600', textTransform: 'capitalize' },
   summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   summaryIcon: { fontSize: 16, width: 24 },
   summaryValue: { fontSize: 14, color: '#ddd', fontWeight: '600', flex: 1 },
   summaryDim: { color: '#2a2a2a', fontSize: 12 },
 
   // Done animation
-  doneBox: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  doneBox: { alignItems: 'center', gap: 12 },
   doneCheck: { fontSize: 64, color: '#4CAF50' },
-  doneTitle: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  doneSub: { fontSize: 14, color: '#555', textTransform: 'capitalize' },
+  doneTitle: { fontSize: 22, fontWeight: '900', color: '#fff', textAlign: 'center' },
+  doneSub: { fontSize: 14, color: '#555' },
 });
