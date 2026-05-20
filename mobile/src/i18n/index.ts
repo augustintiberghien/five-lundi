@@ -1,5 +1,29 @@
 import { getLocales } from 'expo-localization';
 
+// ─── Date formatting ──────────────────────────────────────────────
+
+const FR_MONTH_NUM: Record<string, number> = {
+  'janvier': 0, 'février': 1, 'mars': 2, 'avril': 3,
+  'mai': 4, 'juin': 5, 'juillet': 6, 'août': 7,
+  'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11,
+};
+const FR_DAY_NAMES   = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+const FR_MONTH_NAMES = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const EN_DAY_NAMES   = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const EN_MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function parseFrDate(dateStr: string): Date | null {
+  const parts = dateStr.trim().split(' ');
+  if (parts.length !== 3) return null;
+  const day   = parseInt(parts[0]);
+  const month = FR_MONTH_NUM[parts[1].toLowerCase()];
+  const year  = parseInt(parts[2]);
+  if (isNaN(day) || month === undefined || isNaN(year)) return null;
+  return new Date(year, month, day);
+}
+
+// ─── Translations ─────────────────────────────────────────────────
+
 const fr = {
   // Tabs
   tabs: { home: 'Accueil', calendar: 'Calendrier', stats: 'Stats' },
@@ -50,7 +74,6 @@ const fr = {
 
   // Session card / detail
   session: {
-    mondayPrefix: 'Lundi',
     inscriptionsOpen: 'Inscriptions ouvertes',
     inscriptionsSoon: 'Inscriptions bientôt',
     inscribed: 'inscrits',
@@ -88,6 +111,13 @@ const fr = {
     'En forme 📈': 'En forme 📈',
     'En galère 😤': 'En galère 😤',
     'Maudit ☠️': 'Maudit ☠️',
+  },
+
+  // Date formatter — day name computed from the actual date
+  formatDate: (dateStr: string): string => {
+    const d = parseFrDate(dateStr);
+    if (!d) return dateStr;
+    return `${FR_DAY_NAMES[d.getDay()]} ${d.getDate()} ${FR_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
   },
 };
 
@@ -136,7 +166,6 @@ const en: typeof fr = {
   },
 
   session: {
-    mondayPrefix: 'Monday',
     inscriptionsOpen: 'Open',
     inscriptionsSoon: 'Coming soon',
     inscribed: 'registered',
@@ -173,6 +202,12 @@ const en: typeof fr = {
     'En forme 📈': 'In form 📈',
     'En galère 😤': 'Struggling 😤',
     'Maudit ☠️': 'Cursed ☠️',
+  },
+
+  formatDate: (dateStr: string): string => {
+    const d = parseFrDate(dateStr);
+    if (!d) return dateStr;
+    return `${EN_DAY_NAMES[d.getDay()]}, ${EN_MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   },
 };
 

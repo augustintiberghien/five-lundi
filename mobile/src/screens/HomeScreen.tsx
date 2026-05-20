@@ -139,7 +139,7 @@ export default function HomeScreen() {
                 <Text style={styles.voteAlertIcon}>⚡</Text>
                 <View>
                   <Text style={styles.voteAlertTitle}>
-                    {t.session.mondayPrefix} {voteSession.date}
+                    {t.formatDate(voteSession.date)}
                   </Text>
                   <Text style={styles.voteAlertSub}>{t.home.notVotedYet}</Text>
                 </View>
@@ -158,7 +158,7 @@ export default function HomeScreen() {
               onPress={() => navigation.navigate('SessionDetail', { sessionId: nextSession.id })}
             >
               <Text style={styles.nextMatchDate}>
-                {t.session.mondayPrefix} {nextSession.date}
+                {t.formatDate(nextSession.date)}
               </Text>
               <View style={styles.nextMatchTeams}>
                 <Text style={styles.nextTeamA}>{nextSession.nameA}</Text>

@@ -4,7 +4,7 @@ import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { isPast, SESSIONS } from '../types/session';
+import { GROUP_CONFIG, isPast, SESSIONS } from '../types/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SessionDetail'>;
 
@@ -28,11 +28,24 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerDate}>{t.session.mondayPrefix} {session.date}</Text>
+        <Text style={styles.headerDate}>{t.formatDate(session.date)}</Text>
         <View style={styles.backBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Time + location */}
+        {(() => {
+          const time = session.time ?? GROUP_CONFIG.defaultTime;
+          const loc  = session.location ?? GROUP_CONFIG.defaultLocation;
+          if (!time && !loc) return null;
+          return (
+            <View style={styles.metaRow}>
+              {time ? <Text style={styles.metaItem}>🕐 {time}</Text> : null}
+              {loc  ? <Text style={styles.metaItem}>📍 {loc}</Text>  : null}
+            </View>
+          );
+        })()}
+
         {/* Score block */}
         <View style={styles.scoreBlock}>
           <View style={styles.teamCol}>
@@ -159,6 +172,13 @@ const styles = StyleSheet.create({
   headerDate: { fontSize: 14, fontWeight: '700', color: '#888', textTransform: 'capitalize' },
 
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
+
+  metaRow: {
+    flexDirection: 'row', gap: 20,
+    paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: '#111',
+  },
+  metaItem: { fontSize: 12, color: '#555', fontWeight: '500' },
 
   scoreBlock: {
     flexDirection: 'row',

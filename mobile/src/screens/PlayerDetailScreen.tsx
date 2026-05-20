@@ -157,7 +157,7 @@ export default function PlayerDetailScreen({ route, navigation }: Props) {
                   >
                     <Text style={styles.mvpTrophy}>🏆</Text>
                     <View style={styles.mvpInfo}>
-                      <Text style={styles.mvpDate}>Lundi {s.date}</Text>
+                      <Text style={styles.mvpDate}>{t.formatDate(s.date)}</Text>
                       <Text style={styles.mvpScore}>
                         {s.nameA} {scoreA} – {scoreB} {s.nameB} · {winnerName}
                       </Text>

@@ -48,7 +48,7 @@ export default function MVPScreen({ route, navigation }: Props) {
           <VotedConfirmation name={selected!} onBack={() => navigation.goBack()} />
         ) : (
           <>
-            <Text style={styles.sessionDate}>{t.session.mondayPrefix} {session.date}</Text>
+            <Text style={styles.sessionDate}>{t.formatDate(session.date)}</Text>
             <Text style={styles.question}>{t.session.voteQuestion}</Text>
 
             <TeamSection

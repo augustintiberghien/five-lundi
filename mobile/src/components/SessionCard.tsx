@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useT } from '../i18n';
-import { isPast, Session, UserRegistration } from '../types/session';
+import { GROUP_CONFIG, isPast, Session, UserRegistration } from '../types/session';
 
 type Props = {
   session: Session;
@@ -40,9 +40,17 @@ export default function SessionCard({
     <View style={[styles.card, past && styles.cardPast, !!onPress && styles.cardTappable]}>
       {/* Date row */}
       <View style={styles.dateRow}>
-        <Text style={[styles.date, past && styles.datePast]}>
-          {t.session.mondayPrefix} {session.date}
-        </Text>
+        <View>
+          <Text style={[styles.date, past && styles.datePast]}>
+            {t.formatDate(session.date)}
+          </Text>
+          {(() => {
+            const time = session.time ?? GROUP_CONFIG.defaultTime;
+            const loc  = session.location ?? GROUP_CONFIG.defaultLocation;
+            const meta = [time, loc].filter(Boolean).join(' · ');
+            return meta ? <Text style={styles.dateMeta}>{meta}</Text> : null;
+          })()}
+        </View>
         {session.voteOpen && (
           <TouchableOpacity style={styles.voteBadge} onPress={onVote}>
             <Text style={styles.voteBadgeText}>{t.session.voteMvp}</Text>
@@ -219,6 +227,7 @@ const styles = StyleSheet.create({
   dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   date: { fontSize: 13, fontWeight: '700', color: '#fff', textTransform: 'capitalize' },
   datePast: { color: '#888' },
+  dateMeta: { fontSize: 10, color: '#555', fontWeight: '500', marginTop: 1 },
 
   teams: { fontSize: 15, color: '#ddd', fontWeight: '600', marginBottom: 10 },
   vs: { color: '#555' },

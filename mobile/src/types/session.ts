@@ -16,11 +16,19 @@ export type Session = {
   maxPlayers: number;
   confirmedCount: number;
   benchCount: number;
+  time?: string;                       // override group default, e.g. "21:30"
+  location?: string;                   // override group default
   mvp?: string;
   voteOpen?: boolean;
   article?: string;
   players?: SessionPlayer[];           // qui a joué
   compo?: Record<string, string>;      // posId → playerName
+};
+
+export const GROUP_CONFIG = {
+  name: 'Five du Lundi',
+  defaultTime: '21:30',
+  defaultLocation: '',                 // à configurer par le coach
 };
 
 export type UserRegistration = {
