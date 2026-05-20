@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import BalancingScreen from '../screens/BalancingScreen';
 import CoachRatingScreen from '../screens/CoachRatingScreen';
 import CoachScreen from '../screens/CoachScreen';
 import CompoScreen from '../screens/CompoScreen';
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   Players: undefined;
   Coach: undefined;
   CoachRating: undefined;
+  Balancing: undefined;
   CreateSession: undefined;
 };
 
@@ -40,6 +42,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Players" component={PlayersScreen} />
       <Stack.Screen name="Coach" component={CoachScreen} />
       <Stack.Screen name="CoachRating" component={CoachRatingScreen} />
+      <Stack.Screen name="Balancing" component={BalancingScreen} />
       <Stack.Screen name="CreateSession" component={CreateSessionScreen} />
     </Stack.Navigator>
   );

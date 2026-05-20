@@ -96,6 +96,13 @@ export default function CoachScreen() {
             <Text style={styles.toolIcon}>📊</Text>
             <Text style={styles.toolLabel}>Notation</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toolCard, styles.toolCardBalance]}
+            onPress={() => navigation.navigate('Balancing')}
+          >
+            <Text style={styles.toolIcon}>⚖️</Text>
+            <Text style={styles.toolLabel}>Équilibrage</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Create session CTA (kept for quick next-session hint) */}
@@ -309,7 +316,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: '#4CAF50',
     borderRadius: 14, paddingVertical: 14, alignItems: 'center', gap: 6,
   },
-  toolCardAlt: { backgroundColor: '#0a0a1a', borderColor: '#64B5F6' },
+  toolCardAlt:     { backgroundColor: '#0a0a1a', borderColor: '#64B5F6' },
+  toolCardBalance: { backgroundColor: '#1a1200', borderColor: '#FF9800' },
   toolIcon:  { fontSize: 22 },
   toolLabel: { fontSize: 12, fontWeight: '800', color: '#ddd' },
 
