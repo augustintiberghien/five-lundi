@@ -3,39 +3,41 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import {
   FORM_COLOR,
   PAIR_STATS,
   PLAYER_STATS,
-  RANK_METHOD_LABELS,
   RankMethod,
   rankPlayers,
 } from '../types/stats';
 import { isPast, SESSIONS } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type T = ReturnType<typeof useT>;
 type Section = 'classement' | 'joueurs' | 'paires' | 'palmares';
-
-const SECTIONS: { key: Section; label: string }[] = [
-  { key: 'classement', label: 'Classement' },
-  { key: 'joueurs',    label: 'Joueurs' },
-  { key: 'paires',     label: 'Paires' },
-  { key: 'palmares',   label: 'Palmarès' },
-];
 
 const METHODS: RankMethod[] = ['winrate', 'regularite', 'equilibre', 'stabilite'];
 
 export default function StatsScreen() {
   const navigation = useNavigation<Nav>();
+  const t = useT();
   const [section, setSection] = useState<Section>('classement');
   const [method, setMethod] = useState<RankMethod>('winrate');
+
+  const SECTIONS: { key: Section; label: string }[] = [
+    { key: 'classement', label: t.stats.classement },
+    { key: 'joueurs',    label: t.stats.joueurs },
+    { key: 'paires',     label: t.stats.paires },
+    { key: 'palmares',   label: t.stats.palmares },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Stats</Text>
+        <Text style={styles.title}>{t.tabs.stats}</Text>
       </View>
 
       {/* Section selector */}
@@ -55,11 +57,11 @@ export default function StatsScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {section === 'classement' && (
-          <ClassementSection method={method} onMethodChange={setMethod} />
+          <ClassementSection method={method} onMethodChange={setMethod} navigation={navigation} t={t} />
         )}
-        {section === 'joueurs' && <JoueursSection />}
-        {section === 'paires'   && <PairesSection />}
-        {section === 'palmares' && <PalmaresSection navigation={navigation} />}
+        {section === 'joueurs'  && <JoueursSection navigation={navigation} t={t} />}
+        {section === 'paires'   && <PairesSection t={t} />}
+        {section === 'palmares' && <PalmaresSection navigation={navigation} t={t} />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -68,32 +70,27 @@ export default function StatsScreen() {
 // ─── Classement ───────────────────────────────────────────────────
 
 function ClassementSection({
-  method,
-  onMethodChange,
+  method, onMethodChange, navigation, t,
 }: {
-  method: RankMethod;
-  onMethodChange: (m: RankMethod) => void;
+  method: RankMethod; onMethodChange: (m: RankMethod) => void; navigation: Nav; t: T;
 }) {
   const ranked = rankPlayers(PLAYER_STATS, method);
   const maxScore = ranked[0]?.score ?? 1;
+  const methodLabels: Record<RankMethod, string> = {
+    winrate: t.stats.rankWinrate, regularite: t.stats.rankRegularite,
+    equilibre: t.stats.rankEquilibre, stabilite: t.stats.rankStabilite,
+  };
+  const methodDescs: Record<RankMethod, string> = {
+    winrate: t.stats.rankWinrateDesc, regularite: t.stats.rankRegulariteDesc,
+    equilibre: t.stats.rankEquilibreDesc, stabilite: t.stats.rankStabiliteDesc,
+  };
 
   return (
     <>
-      {/* Method pills */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.methodRow}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.methodRow}>
         {METHODS.map(m => (
-          <TouchableOpacity
-            key={m}
-            style={[styles.methodPill, method === m && styles.methodPillActive]}
-            onPress={() => onMethodChange(m)}
-          >
-            <Text style={[styles.methodText, method === m && styles.methodTextActive]}>
-              {RANK_METHOD_LABELS[m]}
-            </Text>
+          <TouchableOpacity key={m} style={[styles.methodPill, method === m && styles.methodPillActive]} onPress={() => onMethodChange(m)}>
+            <Text style={[styles.methodText, method === m && styles.methodTextActive]}>{methodLabels[m]}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -103,12 +100,9 @@ function ClassementSection({
           const wr = Math.round((player.wins / player.played) * 100);
           const barWidth = maxScore > 0 ? (player.score / maxScore) * 100 : 0;
           const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
-
           return (
-            <View key={player.name} style={styles.rankRow}>
-              <Text style={[styles.rankPos, i < 3 && styles.rankPosPodium]}>
-                {medal ?? `${i + 1}`}
-              </Text>
+            <TouchableOpacity key={player.name} style={styles.rankRow} onPress={() => navigation.navigate('Player', { playerName: player.name })}>
+              <Text style={[styles.rankPos, i < 3 && styles.rankPosPodium]}>{medal ?? `${i + 1}`}</Text>
               <View style={styles.rankInfo}>
                 <View style={styles.rankNameRow}>
                   <Text style={styles.rankName}>{player.name}</Text>
@@ -119,28 +113,18 @@ function ClassementSection({
                 </View>
               </View>
               <Text style={styles.rankPlayed}>{player.played}m</Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
-
-      <Text style={styles.methodNote}>{methodDescription(method)}</Text>
+      <Text style={styles.methodNote}>{methodDescs[method]}</Text>
     </>
   );
 }
 
-function methodDescription(m: RankMethod): string {
-  switch (m) {
-    case 'winrate':    return 'Taux de victoires brut (min. 3 matchs)';
-    case 'regularite': return 'Présence × performance — récompense ceux qui viennent ET gagnent';
-    case 'equilibre':  return 'Winrate lissé — plus fiable avec peu de matchs';
-    case 'stabilite':  return 'Winrate × ancienneté — confiance qui monte avec les matchs';
-  }
-}
-
 // ─── Joueurs ──────────────────────────────────────────────────────
 
-function JoueursSection() {
+function JoueursSection({ navigation, t }: { navigation: Nav; t: T }) {
   return (
     <View style={styles.playerList}>
       {PLAYER_STATS.map(p => {
@@ -148,7 +132,11 @@ function JoueursSection() {
         const formColor = FORM_COLOR[p.form];
 
         return (
-          <View key={p.name} style={styles.playerCard}>
+          <TouchableOpacity
+            key={p.name}
+            style={styles.playerCard}
+            onPress={() => navigation.navigate('Player', { playerName: p.name })}
+          >
             <View style={styles.playerCardLeft}>
               <View style={[styles.playerAvatar, { borderColor: formColor }]}>
                 <Text style={[styles.playerInitials, { color: formColor }]}>
@@ -157,18 +145,16 @@ function JoueursSection() {
               </View>
               <View>
                 <Text style={styles.playerName}>{p.name}</Text>
-                <Text style={[styles.playerForm, { color: formColor }]}>{p.form}</Text>
+                <Text style={[styles.playerForm, { color: formColor }]}>{t.form[p.form]}</Text>
               </View>
             </View>
 
             <View style={styles.playerCardRight}>
-              {/* Stats */}
               <View style={styles.playerStatRow}>
-                <MiniStat label="M" value={p.played} />
-                <MiniStat label="V" value={p.wins} />
+                <MiniStat label={t.player.played.slice(0, 1)} value={p.played} />
+                <MiniStat label={t.player.wins.slice(0, 1)} value={p.wins} />
                 <MiniStat label="%" value={wr} accent />
               </View>
-              {/* Recent results */}
               <View style={styles.resultDots}>
                 {p.recentResults.map((r, i) => (
                   <View key={i} style={[styles.resultDot, r === 'W' ? styles.dotW : styles.dotL]}>
@@ -177,7 +163,7 @@ function JoueursSection() {
                 ))}
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         );
       })}
     </View>
@@ -195,7 +181,7 @@ function MiniStat({ label, value, accent }: { label: string; value: number; acce
 
 // ─── Paires ───────────────────────────────────────────────────────
 
-function PairesSection() {
+function PairesSection({ t }: { t: T }) {
   const sorted = [...PAIR_STATS].sort((a, b) => {
     const wrA = a.wins / a.together;
     const wrB = b.wins / b.together;
@@ -205,10 +191,8 @@ function PairesSection() {
 
   return (
     <View style={styles.pairList}>
-      <Text style={styles.pairNote}>
-        Paires classées par taux de victoires ensemble (min. 5 matchs)
-      </Text>
-      {sorted.filter(p => p.together >= 4).map((pair, i) => {
+      <Text style={styles.pairNote}>{t.stats.pairesNote}</Text>
+      {sorted.filter(p => p.together >= 3).map((pair, i) => {
         const wr = Math.round((pair.wins / pair.together) * 100);
         const barW = maxWins > 0 ? (pair.wins / maxWins) * 100 : 0;
 
@@ -238,11 +222,10 @@ function PairesSection() {
 
 // ─── Palmarès ─────────────────────────────────────────────────────
 
-function PalmaresSection({ navigation }: { navigation: Nav }) {
+function PalmaresSection({ navigation, t }: { navigation: Nav; t: T }) {
   const mvpSessions = SESSIONS.filter(s => isPast(s) && s.mvp);
   const voteOpenSessions = SESSIONS.filter(s => isPast(s) && s.voteOpen && !s.mvp);
 
-  // Tally MVP counts
   const tally: Record<string, number> = {};
   for (const s of mvpSessions) {
     tally[s.mvp!] = (tally[s.mvp!] ?? 0) + 1;
@@ -253,10 +236,9 @@ function PalmaresSection({ navigation }: { navigation: Nav }) {
 
   return (
     <>
-      {/* Top MVP summary */}
       {topMvps.length > 0 && (
         <View style={styles.hallHeader}>
-          <Text style={styles.hallTitle}>🏆 Hall of Fame</Text>
+          <Text style={styles.hallTitle}>{t.stats.hallOfFame}</Text>
           <View style={styles.hallPodium}>
             {topMvps.map(([name, count], i) => (
               <View key={name} style={styles.hallEntry}>
@@ -269,7 +251,6 @@ function PalmaresSection({ navigation }: { navigation: Nav }) {
         </View>
       )}
 
-      {/* Chronological MVP list */}
       <View style={styles.mvpList}>
         {voteOpenSessions.map(s => (
           <TouchableOpacity
