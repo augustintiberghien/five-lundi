@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import {
   Image,
@@ -11,11 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import OnboardingScreen from './OnboardingScreen';
 import { Criterion, OnboardingProfile, Position } from '../store/useOnboarding';
 import { CRITERIA_META, usePlayerRatings } from '../store/usePlayerRatings';
+import { getInitials, scoreColor } from '../utils/formatting';
 
 type Props = {
   profile: OnboardingProfile;
   onSave: (p: OnboardingProfile) => void;
-  onClose: () => void;
+  onClose?: () => void;
 };
 
 const POSITION_LABELS: Record<Position, { label: string; icon: string }> = {
@@ -63,17 +65,28 @@ function scoreBar(v: number): string {
   return '█'.repeat(filled) + '░'.repeat(8 - filled);
 }
 
-function scoreColor(v: number): string {
-  if (v <= 8)  return '#F44336';
-  if (v <= 11) return '#FF9800';
-  if (v <= 15) return '#8BC34A';
-  return '#4CAF50';
-}
-
 // ─── Screen ───────────────────────────────────────────────────────
 
-export default function ProfileScreen({ profile, onSave, onClose }: Props) {
+async function pickPhoto(): Promise<string | undefined> {
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!perm.granted) return undefined;
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.7,
+  });
+  if (!result.canceled && result.assets[0]) return result.assets[0].uri;
+  return undefined;
+}
+
+export default function ProfileScreen({ profile, onSave, onClose = undefined }: Props) {
   const [editing, setEditing] = useState(false);
+
+  async function changePhoto() {
+    const uri = await pickPhoto();
+    if (uri) onSave({ ...profile, photoUri: uri });
+  }
   const { ratings } = usePlayerRatings();
   const coachRatings = ratings[profile.name];
 
@@ -86,16 +99,20 @@ export default function ProfileScreen({ profile, onSave, onClose }: Props) {
     );
   }
 
-  const initials = profile.name.split(' ').map(w => w[0]?.toUpperCase() ?? '').join('').slice(0, 2);
-  const pos  = POSITION_LABELS[profile.position];
+  const initials = getInitials(profile.name);
+  const pos  = profile.position ? POSITION_LABELS[profile.position] : null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} onPress={onClose}>
-          <Text style={styles.headerBtnText}>←</Text>
-        </TouchableOpacity>
+        {onClose ? (
+          <TouchableOpacity style={styles.headerBtn} onPress={onClose}>
+            <Text style={styles.headerBtnText}>←</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.headerBtn} />
+        )}
         <Text style={styles.headerTitle}>Mon profil</Text>
         <TouchableOpacity style={styles.headerBtn} onPress={() => setEditing(true)}>
           <Text style={styles.editBtnText}>Modifier</Text>
@@ -106,13 +123,18 @@ export default function ProfileScreen({ profile, onSave, onClose }: Props) {
 
         {/* Avatar + name */}
         <View style={styles.hero}>
-          {profile.photoUri ? (
-            <Image source={{ uri: profile.photoUri }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarInitials}>
-              <Text style={styles.avatarInitialsText}>{initials}</Text>
+          <TouchableOpacity onPress={changePhoto} style={styles.avatarWrap} activeOpacity={0.8}>
+            {profile.photoUri ? (
+              <Image source={{ uri: profile.photoUri }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarInitials}>
+                <Text style={styles.avatarInitialsText}>{initials}</Text>
+              </View>
+            )}
+            <View style={styles.cameraBadge}>
+              <Text style={styles.cameraBadgeIcon}>📷</Text>
             </View>
-          )}
+          </TouchableOpacity>
           <Text style={styles.heroName}>{profile.name}</Text>
           {profile.bio ? (
             <Text style={styles.heroBio}>{profile.bio}</Text>
@@ -124,13 +146,17 @@ export default function ProfileScreen({ profile, onSave, onClose }: Props) {
         </View>
 
         {/* Position */}
-        <Text style={styles.sectionLabel}>POSITION</Text>
-        <View style={styles.card}>
-          <View style={styles.posRow}>
-            <Text style={styles.posIcon}>{pos.icon}</Text>
-            <Text style={styles.posLabel}>{pos.label}</Text>
-          </View>
-        </View>
+        {pos && (
+          <>
+            <Text style={styles.sectionLabel}>POSITION</Text>
+            <View style={styles.card}>
+              <View style={styles.posRow}>
+                <Text style={styles.posIcon}>{pos.icon}</Text>
+                <Text style={styles.posLabel}>{pos.label}</Text>
+              </View>
+            </View>
+          </>
+        )}
 
         {/* Auto-déclaratif */}
         <Text style={styles.sectionLabel}>TON AUTO-ÉVALUATION</Text>
@@ -169,7 +195,7 @@ export default function ProfileScreen({ profile, onSave, onClose }: Props) {
             {CRITERIA_META.map(c => {
               const v     = coachRatings[c.key];
               const color = scoreColor(v);
-              const delta = getDelta(c.key, v, profile.strength, profile.weakness);
+              const delta = getDelta(c.key, v, profile.strength ?? 'endurance', profile.weakness ?? 'endurance');
               const tag   = delta ? DELTA_DISPLAY[delta] : null;
 
               return (
@@ -245,13 +271,21 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
 
   hero: { alignItems: 'center', paddingVertical: 28 },
-  avatar: { width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: AVATAR_SIZE / 2, marginBottom: 14 },
+  avatar: { width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: AVATAR_SIZE / 2 },
   avatarInitials: {
     width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: AVATAR_SIZE / 2,
     backgroundColor: '#1a1a1a', borderWidth: 1.5, borderColor: '#2a2a2a',
-    alignItems: 'center', justifyContent: 'center', marginBottom: 14,
+    alignItems: 'center', justifyContent: 'center',
   },
   avatarInitialsText: { fontSize: 32, fontWeight: '900', color: '#555' },
+  avatarWrap: { position: 'relative', marginBottom: 14 },
+  cameraBadge: {
+    position: 'absolute', bottom: 0, right: 0,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: '#1a1a1a', borderWidth: 1.5, borderColor: '#2a2a2a',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  cameraBadgeIcon: { fontSize: 13 },
   heroName: { fontSize: 24, fontWeight: '900', color: '#fff', marginBottom: 8 },
   heroBio:  { fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 19, maxWidth: 280 },
   addBio:   { fontSize: 13, color: '#333', fontWeight: '600' },

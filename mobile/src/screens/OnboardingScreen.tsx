@@ -14,7 +14,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Criterion, OnboardingProfile, Position } from '../store/useOnboarding';
+import { Criterion, OnboardingProfile, Position, Role } from '../store/useOnboarding';
+import { getInitials } from '../utils/formatting';
 
 type Props = {
   onDone: (profile: OnboardingProfile) => void;
@@ -22,6 +23,11 @@ type Props = {
 };
 
 // ─── Static data ──────────────────────────────────────────────────
+
+const ROLES: { key: Role; label: string; icon: string; desc: string }[] = [
+  { key: 'coach',  label: 'Coach',   icon: '🎯', desc: 'Tu gères les sessions' },
+  { key: 'player', label: 'Joueur',  icon: '👟', desc: 'Tu joues et votes MVP' },
+];
 
 const POSITIONS: { key: Position; label: string; icon: string; desc: string }[] = [
   { key: 'GK',  label: 'Gardien',   icon: '🧤', desc: 'Dernier rempart' },
@@ -39,7 +45,7 @@ const CRITERIA: { key: Criterion; label: string; icon: string }[] = [
   { key: 'leadership', label: 'Leadership', icon: '🗣️' },
 ];
 
-const TOTAL_STEPS = 5;
+// TOTAL_STEPS is dynamic: 4 for coach (Rôle, Nom, Photo, Bio), 6 for player (+ Position, Force/Faiblesse)
 
 // ─── Screen ───────────────────────────────────────────────────────
 
@@ -47,12 +53,15 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
   const isEdit = !!initial;
 
   const [step, setStep]         = useState(0);
+  const [role, setRole]         = useState<Role | null>(initial?.role ?? null);
   const [name, setName]         = useState(initial?.name ?? '');
   const [photoUri, setPhotoUri] = useState<string | undefined>(initial?.photoUri);
   const [bio, setBio]           = useState(initial?.bio ?? '');
   const [position, setPosition] = useState<Position | null>(initial?.position ?? null);
   const [strength, setStrength] = useState<Criterion | null>(initial?.strength ?? null);
   const [weakness, setWeakness] = useState<Criterion | null>(initial?.weakness ?? null);
+
+  const TOTAL_STEPS = role === 'coach' ? 4 : 6;
 
   const fadeAnim  = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -73,6 +82,8 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
   }
 
   async function pickPhoto() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -85,27 +96,30 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
   }
 
   function handleFinish() {
-    if (!name.trim() || !position || !strength || !weakness) return;
+    if (!name.trim() || !role) return;
+    if (role === 'player' && (!position || !strength || !weakness)) return;
     const profile: OnboardingProfile = {
+      role,
       name: name.trim(),
       photoUri: photoUri || undefined,
       bio: bio.trim() || undefined,
-      position,
-      strength,
-      weakness,
+      position: position ?? undefined,
+      strength: strength ?? undefined,
+      weakness: weakness ?? undefined,
     };
     Animated.spring(doneScale, { toValue: 1, friction: 4, useNativeDriver: true }).start();
     setTimeout(() => onDone(profile), isEdit ? 0 : 1600);
   }
 
-  const initials = name.trim().split(' ').map(w => w[0]?.toUpperCase() ?? '').join('').slice(0, 2) || '?';
+  const initials = getInitials(name, '?');
 
   const canNext = [
-    name.trim().length >= 2,  // step 0: nom
-    true,                      // step 1: photo (optional)
-    true,                      // step 2: bio (optional)
-    !!position,                // step 3: position
-    !!strength && !!weakness,  // step 4: force + faiblesse
+    !!role,                    // step 0: rôle
+    name.trim().length >= 2,   // step 1: nom
+    true,                      // step 2: photo (optional)
+    true,                      // step 3: bio (optional)
+    !!position,                // step 4: position (player only)
+    !!strength && !!weakness,  // step 5: force + faiblesse (player only)
   ];
 
   return (
@@ -114,7 +128,7 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
       <View style={styles.header}>
         {isEdit ? (
           <TouchableOpacity style={styles.backBtn} onPress={() => onDone({
-            name: initial!.name, photoUri: initial!.photoUri,
+            role: initial!.role, name: initial!.name, photoUri: initial!.photoUri,
             bio: initial!.bio, position: initial!.position,
             strength: initial!.strength, weakness: initial!.weakness,
           })}>
