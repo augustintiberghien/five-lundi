@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
@@ -13,7 +12,6 @@ import { Position } from '../store/useOnboarding';
 import { usePlayerRatings } from '../store/usePlayerRatings';
 import { balanceTeams, teamStrength } from '../utils/balancing';
 
-const POSITIONS_KEY = '@player_positions_v1';
 const POSITIONS: Position[] = ['GK', 'DEF', 'MIL', 'ATT'];
 const POS_ICON: Record<Position, string> = { GK: '🧤', DEF: '🛡️', MIL: '🔄', ATT: '⚡' };
 
@@ -21,20 +19,19 @@ type Phase = 'select' | 'result';
 
 export default function BalancingScreen() {
   const navigation = useNavigation();
-  const { ratings } = usePlayerRatings();
+  const { ratings, positions: storedPositions, saveRatings } = usePlayerRatings();
   const players = Object.keys(ratings);
 
-  const [positions, setPositions] = useState<Record<string, Position>>({});
+  const [positions, setPositions] = useState<Record<string, Position>>(storedPositions);
   const [selected, setSelected] = useState<Set<string>>(new Set(players));
   const [phase, setPhase] = useState<Phase>('select');
   const [teams, setTeams] = useState<{ teamA: string[]; teamB: string[] } | null>(null);
   const [swapFirst, setSwapFirst] = useState<string | null>(null);
 
+  // Sync positions when remote data loads
   useEffect(() => {
-    AsyncStorage.getItem(POSITIONS_KEY).then(raw => {
-      if (raw) setPositions(JSON.parse(raw));
-    });
-  }, []);
+    setPositions(storedPositions);
+  }, [JSON.stringify(storedPositions)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selected when players change
   useEffect(() => {
@@ -59,7 +56,7 @@ export default function BalancingScreen() {
     const next = POSITIONS[(idx + 1) % POSITIONS.length];
     const updated = { ...positions, [name]: next };
     setPositions(updated);
-    AsyncStorage.setItem(POSITIONS_KEY, JSON.stringify(updated));
+    saveRatings(ratings, updated); // persist + sync to Supabase
   }
 
   function generate() {

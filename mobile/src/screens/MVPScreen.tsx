@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,29 +10,69 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
+import { supabase } from '../lib/supabase';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { useSessions } from '../store/SessionsContext';
+import { useProfile } from '../store/ProfileContext';
 import { SessionPlayer } from '../types/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MVP'>;
+
+type VoteRow = { voter: string; motm: string; comment?: string };
 
 export default function MVPScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
   const { sessions } = useSessions();
   const session = sessions.find(s => s.id === sessionId)!;
+  const { profile } = useProfile();
 
   const t = useT();
   const [selected, setSelected] = useState<string | null>(null);
-  const [voted, setVoted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [votes, setVotes] = useState<VoteRow[]>([]);
+  const [hasVoted, setHasVoted] = useState(false);
 
   const players = session.players ?? [];
   const teamA = players.filter(p => p.team === 'A');
   const teamB = players.filter(p => p.team === 'B');
 
-  function handleVote() {
-    if (!selected) return;
-    setVoted(true);
-    // TODO: persist to Supabase
+  // Load existing votes on mount
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('votes')
+        .select('voter,motm,comment')
+        .eq('session_id', sessionId);
+      if (data) {
+        setVotes(data as VoteRow[]);
+        if (profile && data.some((v: VoteRow) => v.voter === profile.name)) {
+          setHasVoted(true);
+        }
+      }
+    })();
+  }, [sessionId, profile]);
+
+  async function handleVote() {
+    if (!selected || !profile) return;
+    setSubmitting(true);
+    try {
+      await supabase.from('votes').insert({
+        session_id: sessionId,
+        voter: profile.name,
+        motm: selected,
+        comment: '',
+      });
+      const { data } = await supabase
+        .from('votes')
+        .select('voter,motm,comment')
+        .eq('session_id', sessionId);
+      if (data) setVotes(data as VoteRow[]);
+      setHasVoted(true);
+    } catch {
+      // silent — user can retry
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -46,8 +87,11 @@ export default function MVPScreen({ route, navigation }: Props) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {voted ? (
-          <VotedConfirmation name={selected!} onBack={() => navigation.goBack()} />
+        {hasVoted ? (
+          <>
+            <VotedConfirmation name={selected ?? ''} onBack={() => navigation.goBack()} />
+            <VoteResults votes={votes} players={players} />
+          </>
         ) : (
           <>
             <Text style={styles.sessionDate}>{t.formatDate(session.date)}</Text>
@@ -67,16 +111,20 @@ export default function MVPScreen({ route, navigation }: Props) {
             />
 
             <TouchableOpacity
-              style={[styles.voteBtn, !selected && styles.voteBtnDisabled]}
+              style={[styles.voteBtn, (!selected || submitting) && styles.voteBtnDisabled]}
               onPress={handleVote}
-              disabled={!selected}
+              disabled={!selected || submitting}
             >
-              <Text style={[styles.voteBtnText, !selected && styles.voteBtnTextDisabled]}>
-                {selected ? t.session.voteConfirmBtn(selected) : t.session.voteSelectPrompt}
-              </Text>
+              {submitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={[styles.voteBtnText, !selected && styles.voteBtnTextDisabled]}>
+                  {selected ? t.session.voteConfirmBtn(selected) : t.session.voteSelectPrompt}
+                </Text>
+              )}
             </TouchableOpacity>
 
-            <Text style={styles.closingNote}>{t.session.voteClosed}</Text>
+            <Text style={styles.closingNote}>{votes.length} vote{votes.length !== 1 ? 's' : ''} enregistré{votes.length !== 1 ? 's' : ''}</Text>
           </>
         )}
       </ScrollView>
@@ -151,6 +199,34 @@ function PlayerCard({
         {player.name}
       </Text>
     </TouchableOpacity>
+  );
+}
+
+function VoteResults({ votes, players }: { votes: VoteRow[]; players: SessionPlayer[] }) {
+  if (votes.length === 0) return null;
+
+  // Count votes per player
+  const counts: Record<string, number> = {};
+  for (const v of votes) counts[v.motm] = (counts[v.motm] ?? 0) + 1;
+  const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const max = ranked[0]?.[1] ?? 0;
+
+  return (
+    <View style={styles.resultsCard}>
+      <Text style={styles.resultsTitle}>🏆 Résultats ({votes.length} vote{votes.length !== 1 ? 's' : ''})</Text>
+      {ranked.map(([name, count]) => (
+        <View key={name} style={styles.resultRow}>
+          <Text style={[styles.resultName, count === max && styles.resultNameWinner]}>{name}</Text>
+          <View style={styles.resultBarTrack}>
+            <View style={[styles.resultBarFill, {
+              width: `${(count / max) * 100}%` as any,
+              backgroundColor: count === max ? '#FFD600' : '#2a2a2a',
+            }]} />
+          </View>
+          <Text style={[styles.resultCount, count === max && { color: '#FFD600' }]}>{count}</Text>
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -234,6 +310,18 @@ const styles = StyleSheet.create({
   voteBtnTextDisabled: { color: '#333' },
 
   closingNote: { fontSize: 11, color: '#333', textAlign: 'center' },
+
+  resultsCard: {
+    marginTop: 8, backgroundColor: '#111',
+    borderRadius: 14, borderWidth: 1, borderColor: '#1e1e1e', padding: 16, gap: 10,
+  },
+  resultsTitle: { fontSize: 13, fontWeight: '800', color: '#FFD600', marginBottom: 4 },
+  resultRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  resultName: { fontSize: 13, fontWeight: '700', color: '#888', width: 80 },
+  resultNameWinner: { color: '#FFD600' },
+  resultBarTrack: { flex: 1, height: 8, backgroundColor: '#1a1a1a', borderRadius: 4, overflow: 'hidden' },
+  resultBarFill: { height: '100%', borderRadius: 4 },
+  resultCount: { fontSize: 13, fontWeight: '900', color: '#555', width: 20, textAlign: 'right' },
 
   confirmation: { alignItems: 'center', paddingTop: 60, gap: 12 },
   confirmIcon: {
