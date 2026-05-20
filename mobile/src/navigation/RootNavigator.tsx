@@ -1,5 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CoachScreen from '../screens/CoachScreen';
 import CompoScreen from '../screens/CompoScreen';
+import CreateSessionScreen from '../screens/CreateSessionScreen';
 import MVPScreen from '../screens/MVPScreen';
 import PlayerDetailScreen from '../screens/PlayerDetailScreen';
 import PlayersScreen from '../screens/PlayersScreen';
@@ -13,6 +15,8 @@ export type RootStackParamList = {
   MVP: { sessionId: string };
   Player: { playerName: string };
   Players: undefined;
+  Coach: undefined;
+  CreateSession: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -32,6 +36,8 @@ export default function RootNavigator() {
       <Stack.Screen name="MVP" component={MVPScreen} />
       <Stack.Screen name="Player" component={PlayerDetailScreen} />
       <Stack.Screen name="Players" component={PlayersScreen} />
+      <Stack.Screen name="Coach" component={CoachScreen} />
+      <Stack.Screen name="CreateSession" component={CreateSessionScreen} />
     </Stack.Navigator>
   );
 }

@@ -27,8 +27,10 @@ export type Session = {
 
 export const GROUP_CONFIG = {
   name: 'Five du Lundi',
+  defaultDayOfWeek: 1,                 // 0=dim, 1=lun, …, 6=sam
   defaultTime: '21:30',
   defaultLocation: '',                 // à configurer par le coach
+  defaultMaxPlayers: 10,
 };
 
 export type UserRegistration = {

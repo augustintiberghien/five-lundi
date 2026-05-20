@@ -62,6 +62,12 @@ export default function HomeScreen() {
               <Text style={styles.mvpBadgeText}>🏆 MVP · {MOCK_USER.lastMvpDate}</Text>
             </View>
           )}
+          <TouchableOpacity
+            style={styles.coachBtn}
+            onPress={() => navigation.navigate('Coach')}
+          >
+            <Text style={styles.coachBtnText}>⚙ {t.coach.title}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ─── Stats snapshot ─── */}
@@ -277,6 +283,13 @@ const styles = StyleSheet.create({
     borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4,
   },
   mvpBadgeText: { fontSize: 11, fontWeight: '700', color: '#f5c518' },
+  coachBtn: {
+    marginTop: 12,
+    backgroundColor: '#111', borderRadius: 20,
+    borderWidth: 1, borderColor: '#1e1e1e',
+    paddingHorizontal: 14, paddingVertical: 6,
+  },
+  coachBtnText: { fontSize: 11, color: '#444', fontWeight: '700' },
 
   // ── Stats
   statsRow: {

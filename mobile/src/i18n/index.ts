@@ -104,6 +104,30 @@ const fr = {
     back: 'Retour',
   },
 
+  // Coach panel
+  coach: {
+    title: 'Mode Coach',
+    newSession: 'Nouvelle session',
+    nextSession: 'PROCHAINE SESSION',
+    scoreSection: 'SAISIR LE SCORE',
+    registered: 'inscrits',
+    bench: 'banc',
+    openInsc: '🟢 Ouvrir',
+    closeInsc: '🔒 Fermer',
+    compo: '⚽ Compo',
+    confirmScore: 'Confirmer · ouvrir le vote MVP ⚡',
+    scoreRecorded: 'Score enregistré',
+    createTitle: 'Nouvelle session',
+    stepDate: 'DATE & HEURE',
+    stepLocation: 'LIEU',
+    stepSummary: 'RÉSUMÉ',
+    next: 'Suivant →',
+    publish: 'Publier →',
+    published: 'Session publiée !',
+    maxPlayers: 'Joueurs max',
+    location: 'Lieu',
+  },
+
   // Form badges
   form: {
     'En feu 🔥': 'En feu 🔥',
@@ -194,6 +218,29 @@ const en: typeof fr = {
     votedTitle: 'Vote recorded',
     votedSub: 'The MVP will be revealed after 10 votes\nor tomorrow at 10:30 PM.',
     back: 'Back',
+  },
+
+  coach: {
+    title: 'Coach Mode',
+    newSession: 'New session',
+    nextSession: 'NEXT SESSION',
+    scoreSection: 'ENTER SCORE',
+    registered: 'registered',
+    bench: 'bench',
+    openInsc: '🟢 Open',
+    closeInsc: '🔒 Close',
+    compo: '⚽ Lineup',
+    confirmScore: 'Confirm · open MVP vote ⚡',
+    scoreRecorded: 'Score recorded',
+    createTitle: 'New session',
+    stepDate: 'DATE & TIME',
+    stepLocation: 'LOCATION',
+    stepSummary: 'SUMMARY',
+    next: 'Next →',
+    publish: 'Publish →',
+    published: 'Session published!',
+    maxPlayers: 'Max players',
+    location: 'Location',
   },
 
   form: {
