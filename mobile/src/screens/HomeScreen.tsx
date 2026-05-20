@@ -12,7 +12,7 @@ const MOCK_USER = {
   name: 'Michael',
   role: 'Gardien',
   groupName: 'Five du Lundi',
-  lastMvpDate: '18 mai',
+  lastMvpDate: undefined as string | undefined,
   stats: {
     played: 9,
     wins: 6,

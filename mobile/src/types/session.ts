@@ -60,7 +60,7 @@ export const SESSIONS: Session[] = [
     score: '12 – 7', scoreWinner: 'A',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 3,
-    mvp: 'Michael', voteOpen: false,
+    mvp: 'Jack', voteOpen: false,
     players: [
       { name: 'Michael',  team: 'A' }, { name: 'Henri',    team: 'A' },
       { name: 'LM',       team: 'A' }, { name: 'Khalid',   team: 'A' },
@@ -74,14 +74,14 @@ export const SESSIONS: Session[] = [
       B_GK: 'Rémi',    B_DL: 'Edouard', B_DR: 'Flo',
       B_ML: 'Ibrahima',B_MR: 'Dylan',
     },
-    article: `**UNE BLANCHE ÉCLATANTE**\n\nLe cinq du lundi a vécu lundi soir l'un de ses matchs les plus irréels depuis des semaines. Blanche 12, Bleue 7 : un écart qui ne raconte qu'une partie de la vérité.\n\n**Le match**\n\nDès les premières secondes, Blanche imposait son tempo avec une agressivité rarement vue sur ce terrain synthétique. Bleue résistait, grappillait, tentait ses contre-attaques habituelles — mais la muraille blanche tenait bon. La première mi-temps s'achevait sur un avantage confortable pour l'équipe au maillot immaculé. La seconde période ne fit que confirmer la domination, avec un Michael impérial dans les cages et une ligne défensive qui aurait rendu jaloux Guardiola lui-même.\n\n**L'homme du match**\n\nMichael. Le gardien au calme olympien a multiplié les arrêts décisifs, notamment un double arrêt à la 23e qui a brisé les derniers espoirs bleus. Élu MVP à l'unanimité, il accepta le titre avec la modestie de ceux qui savent.\n\n**La stat du soir**\n\nBlanche a encaissé seulement 7 buts sur les 5 dernières rencontres. À ce rythme, l'équipe blanche postule au Ballon d'Or collectif.\n\n**La parole au coach**\n\n"On a été sérieux du début à la fin. C'est exactement ce qu'on avait préparé."\n\n**La note de la rédaction**\n\n8/10 — Un match propre, dominé, presque trop facile. Il manquait juste un peu de drama.`,
+    article: `**AVALANCHE BLANCHE**\n\nLe cinq du lundi a vécu lundi soir l'un de ses matchs les plus dominateurs de la saison. Blanche 12, Bleue 7 : un écart qui reflète parfaitement la maîtrise collective de l'équipe au maillot immaculé.\n\n**Le match**\n\nDès les premières secondes, Blanche imposait son tempo avec une agressivité rarement vue sur ce terrain synthétique. Bleue résistait, grappillait, tentait ses contre-attaques habituelles — mais la muraille blanche tenait bon. La première mi-temps s'achevait sur un avantage confortable. La seconde période ne fit que confirmer la domination, chaque situation défensive désamorcée avec calme, chaque transition offensive transformée en danger réel.\n\n**L'homme du match**\n\nJack. Omniprésent des deux côtés du terrain, il a dicté le rythme, coupé les lignes de passe adverses et déclenché plusieurs actions décisives. Le vote ne souffrit d'aucune contestation.\n\n**La stat du soir**\n\nBlanche n'a accordé que 7 buts sur l'ensemble de la rencontre. À ce rythme défensif, l'équipe blanche postule sérieusement au titre de meilleure arrière-garde de la saison.\n\n**La parole au coach**\n\n"On a été sérieux du début à la fin. C'est exactement ce qu'on avait préparé."\n\n**La note de la rédaction**\n\n8/10 — Un match propre, dominé de bout en bout. Il manquait juste un peu de drama.`,
   },
   {
     id: 's8', date: '11 mai 2026', dateISO: '2026-05-11',
     score: '3 – 4', scoreWinner: 'B',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 2,
-    voteOpen: true,
+    mvp: 'Rémi', voteOpen: false,
     players: [
       { name: 'Michael',  team: 'A' }, { name: 'Henri',   team: 'A' },
       { name: 'Jack',     team: 'A' }, { name: 'Khalid',  team: 'A' },
@@ -101,14 +101,13 @@ export const SESSIONS: Session[] = [
     score: '8 – 12', scoreWinner: 'B',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 2,
-    mvp: 'Dylan',
+    mvp: 'Théo',
   },
   {
     id: 's6', date: '27 avril 2026', dateISO: '2026-04-27',
     score: '9 – 13', scoreWinner: 'B',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 3,
-    mvp: 'Rémi',
   },
 ];
 
