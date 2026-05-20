@@ -5,16 +5,19 @@ export type Position = 'GK' | 'DEF' | 'MIL' | 'ATT';
 export type Criterion = 'endurance' | 'vitesse' | 'technique' | 'vision' | 'physique' | 'leadership';
 
 export type OnboardingProfile = {
+  name: string;
+  photoUri?: string;    // local URI from image picker
+  bio?: string;
   position: Position;
   strength: Criterion;
   weakness: Criterion;
 };
 
-const KEY = '@onboarding_v1';
+const KEY = '@onboarding_v2';
 
 export function useOnboarding() {
-  const [profile, setProfile]   = useState<OnboardingProfile | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const [profile, setProfile] = useState<OnboardingProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem(KEY)

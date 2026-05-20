@@ -1,11 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { FORM_COLOR, PLAYER_STATS } from '../types/stats';
 import { useSessions } from '../store/SessionsContext';
+import { useProfile } from '../store/ProfileContext';
 import { isPast, MOCK_USER_REGISTRATIONS } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -31,6 +32,7 @@ function extractArticleTitle(article: string): string {
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
+  const { profile, openProfile } = useProfile();
 
   const { sessions } = useSessions();
   const nextSession = sessions.find(s => !isPast(s));
@@ -39,6 +41,9 @@ export default function HomeScreen() {
   const lastPlayedSession = sessions.find(s => isPast(s) && s.players && s.players.length > 0);
 
   const nextReg = nextSession ? (MOCK_USER_REGISTRATIONS[nextSession.id] ?? { status: 'none' }) : null;
+
+  const displayName = profile?.name ?? MOCK_USER.name;
+  const initials = displayName.split(' ').map((w: string) => w[0]?.toUpperCase() ?? '').join('').slice(0, 2);
 
   const streak = MOCK_USER.stats.recentResults.findIndex(r => r !== MOCK_USER.stats.recentResults[0]);
   const streakCount = streak === -1 ? MOCK_USER.stats.recentResults.length : streak;
@@ -52,13 +57,20 @@ export default function HomeScreen() {
 
         {/* ─── Profil ─── */}
         <View style={styles.profileSection}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {MOCK_USER.name.slice(0, 2).toUpperCase()}
-            </Text>
-          </View>
-          <Text style={styles.userName}>{MOCK_USER.name}</Text>
-          <Text style={styles.userSub}>{MOCK_USER.groupName} · {MOCK_USER.role}</Text>
+          <TouchableOpacity onPress={openProfile} activeOpacity={0.8}>
+            {profile?.photoUri ? (
+              <Image source={{ uri: profile.photoUri }} style={styles.avatarImg} />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <Text style={styles.userName}>{displayName}</Text>
+          <Text style={styles.userSub}>{MOCK_USER.groupName}</Text>
+          {profile?.bio ? (
+            <Text style={styles.userBio} numberOfLines={2}>{profile.bio}</Text>
+          ) : null}
           {MOCK_USER.lastMvpDate && (
             <View style={styles.mvpBadge}>
               <Text style={styles.mvpBadgeText}>🏆 MVP · {MOCK_USER.lastMvpDate}</Text>
@@ -276,9 +288,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 12,
   },
+  avatarImg: { width: 72, height: 72, borderRadius: 36, marginBottom: 12 },
   avatarText: { fontSize: 24, fontWeight: '900', color: '#4CAF50' },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff', marginBottom: 4 },
-  userSub: { fontSize: 12, color: '#555', marginBottom: 10 },
+  userSub: { fontSize: 12, color: '#555', marginBottom: 6 },
+  userBio: { fontSize: 12, color: '#444', textAlign: 'center', maxWidth: 240, marginBottom: 10, lineHeight: 17 },
   mvpBadge: {
     backgroundColor: 'rgba(245,197,24,0.1)',
     borderWidth: 1, borderColor: 'rgba(245,197,24,0.3)',
