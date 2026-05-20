@@ -1,6 +1,9 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import {
   FORM_COLOR,
   PAIR_STATS,
@@ -9,18 +12,22 @@ import {
   RankMethod,
   rankPlayers,
 } from '../types/stats';
+import { isPast, SESSIONS } from '../types/session';
 
-type Section = 'classement' | 'joueurs' | 'paires';
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+type Section = 'classement' | 'joueurs' | 'paires' | 'palmares';
 
 const SECTIONS: { key: Section; label: string }[] = [
   { key: 'classement', label: 'Classement' },
   { key: 'joueurs',    label: 'Joueurs' },
   { key: 'paires',     label: 'Paires' },
+  { key: 'palmares',   label: 'Palmarès' },
 ];
 
 const METHODS: RankMethod[] = ['winrate', 'regularite', 'equilibre', 'stabilite'];
 
 export default function StatsScreen() {
+  const navigation = useNavigation<Nav>();
   const [section, setSection] = useState<Section>('classement');
   const [method, setMethod] = useState<RankMethod>('winrate');
 
@@ -51,7 +58,8 @@ export default function StatsScreen() {
           <ClassementSection method={method} onMethodChange={setMethod} />
         )}
         {section === 'joueurs' && <JoueursSection />}
-        {section === 'paires'  && <PairesSection />}
+        {section === 'paires'   && <PairesSection />}
+        {section === 'palmares' && <PalmaresSection navigation={navigation} />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -228,6 +236,89 @@ function PairesSection() {
   );
 }
 
+// ─── Palmarès ─────────────────────────────────────────────────────
+
+function PalmaresSection({ navigation }: { navigation: Nav }) {
+  const mvpSessions = SESSIONS.filter(s => isPast(s) && s.mvp);
+  const voteOpenSessions = SESSIONS.filter(s => isPast(s) && s.voteOpen && !s.mvp);
+
+  // Tally MVP counts
+  const tally: Record<string, number> = {};
+  for (const s of mvpSessions) {
+    tally[s.mvp!] = (tally[s.mvp!] ?? 0) + 1;
+  }
+  const topMvps = Object.entries(tally)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
+  return (
+    <>
+      {/* Top MVP summary */}
+      {topMvps.length > 0 && (
+        <View style={styles.hallHeader}>
+          <Text style={styles.hallTitle}>🏆 Hall of Fame</Text>
+          <View style={styles.hallPodium}>
+            {topMvps.map(([name, count], i) => (
+              <View key={name} style={styles.hallEntry}>
+                <Text style={styles.hallMedal}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</Text>
+                <Text style={styles.hallName}>{name}</Text>
+                <Text style={styles.hallCount}>{count}×</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {/* Chronological MVP list */}
+      <View style={styles.mvpList}>
+        {voteOpenSessions.map(s => (
+          <TouchableOpacity
+            key={s.id}
+            style={styles.mvpRow}
+            onPress={() => navigation.navigate('MVP', { sessionId: s.id })}
+          >
+            <View style={[styles.mvpCircle, styles.mvpCircleVote]}>
+              <Text style={styles.mvpCircleText}>⚡</Text>
+            </View>
+            <View style={styles.mvpInfo}>
+              <Text style={styles.mvpSessionDate}>Lundi {s.date}</Text>
+              <Text style={styles.mvpScore}>{s.score} · {s.scoreWinner === 'A' ? s.nameA : s.nameB} gagne</Text>
+            </View>
+            <View style={styles.mvpVoteBadge}>
+              <Text style={styles.mvpVoteBadgeText}>Voter →</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+
+        {mvpSessions.map((s, i) => {
+          const [scoreA, scoreB] = s.score.split('–').map(x => x.trim());
+          const winnerName = s.scoreWinner === 'A' ? s.nameA : s.nameB;
+
+          return (
+            <TouchableOpacity
+              key={s.id}
+              style={styles.mvpRow}
+              onPress={() => navigation.navigate('SessionDetail', { sessionId: s.id })}
+            >
+              <View style={[styles.mvpCircle, i === 0 && styles.mvpCircleFirst]}>
+                <Text style={styles.mvpCircleText}>🏆</Text>
+              </View>
+              <View style={styles.mvpInfo}>
+                <Text style={styles.mvpName}>{s.mvp}</Text>
+                <Text style={styles.mvpSessionDate}>Lundi {s.date}</Text>
+                <Text style={styles.mvpScore}>
+                  {s.nameA} {scoreA} – {scoreB} {s.nameB} · {winnerName} gagne
+                </Text>
+              </View>
+              <Text style={styles.mvpArrow}>→</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </>
+  );
+}
+
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
@@ -332,4 +423,50 @@ const styles = StyleSheet.create({
   pairBar: { flex: 1, height: 3, backgroundColor: '#1a1a1a', borderRadius: 2, overflow: 'hidden' },
   pairBarFill: { height: '100%', backgroundColor: '#2e5c2e', borderRadius: 2 },
   pairCount: { fontSize: 10, color: '#333', width: 32, textAlign: 'right' },
+
+  // Hall of Fame
+  hallHeader: {
+    backgroundColor: 'rgba(245,197,24,0.06)',
+    borderWidth: 1, borderColor: 'rgba(245,197,24,0.15)',
+    borderRadius: 12, padding: 16, marginBottom: 20,
+  },
+  hallTitle: { fontSize: 13, fontWeight: '800', color: '#f5c518', marginBottom: 12 },
+  hallPodium: { flexDirection: 'row', gap: 16 },
+  hallEntry: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  hallMedal: { fontSize: 18 },
+  hallName: { fontSize: 13, fontWeight: '700', color: '#ddd' },
+  hallCount: { fontSize: 11, color: '#555', fontWeight: '600' },
+
+  mvpList: { gap: 2 },
+  mvpRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: '#111',
+  },
+  mvpCircle: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: '#1a1a0a',
+    borderWidth: 1, borderColor: 'rgba(245,197,24,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  mvpCircleFirst: {
+    backgroundColor: 'rgba(245,197,24,0.12)',
+    borderColor: 'rgba(245,197,24,0.4)',
+  },
+  mvpCircleVote: {
+    backgroundColor: 'rgba(255,152,0,0.1)',
+    borderColor: 'rgba(255,152,0,0.3)',
+  },
+  mvpCircleText: { fontSize: 18 },
+  mvpInfo: { flex: 1, gap: 2 },
+  mvpName: { fontSize: 15, fontWeight: '800', color: '#fff' },
+  mvpSessionDate: { fontSize: 11, color: '#444', textTransform: 'capitalize' },
+  mvpScore: { fontSize: 10, color: '#333' },
+  mvpArrow: { fontSize: 14, color: '#2a2a2a' },
+  mvpVoteBadge: {
+    backgroundColor: 'rgba(255,152,0,0.12)',
+    borderWidth: 1, borderColor: 'rgba(255,152,0,0.3)',
+    borderRadius: 14, paddingHorizontal: 10, paddingVertical: 4,
+  },
+  mvpVoteBadgeText: { fontSize: 11, fontWeight: '700', color: '#FF9800' },
 });

@@ -108,6 +108,7 @@ export const SESSIONS: Session[] = [
     score: '9 – 13', scoreWinner: 'B',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 3,
+    mvp: 'Rémi',
   },
 ];
 
