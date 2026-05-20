@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { isPast, SESSIONS } from '../types/session';
 
@@ -10,6 +11,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SessionDetail'>;
 export default function SessionDetailScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
   const session = SESSIONS.find(s => s.id === sessionId)!;
+  const t = useT();
   const past = isPast(session);
 
   const [scoreA, scoreB] = past
@@ -26,7 +28,7 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerDate}>Lundi {session.date}</Text>
+        <Text style={styles.headerDate}>{t.session.mondayPrefix} {session.date}</Text>
         <View style={styles.backBtn} />
       </View>
 
@@ -52,7 +54,7 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
                 style={[styles.actionBtn, styles.actionBtnVote]}
                 onPress={() => navigation.navigate('MVP', { sessionId })}
               >
-                <Text style={styles.actionBtnVoteText}>⚡ Voter MVP</Text>
+                <Text style={styles.actionBtnVoteText}>{t.session.voteMvp}</Text>
               </TouchableOpacity>
             )}
             {session.compo && (
@@ -60,7 +62,7 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
                 style={styles.actionBtn}
                 onPress={() => navigation.navigate('Compo', { sessionId })}
               >
-                <Text style={styles.actionBtnText}>⚽ Voir la compo</Text>
+                <Text style={styles.actionBtnText}>{t.session.seeLineup}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -69,19 +71,19 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
         {/* MVP */}
         {session.mvp && (
           <View style={styles.mvpRow}>
-            <Text style={styles.mvpLabel}>🏆 MVP</Text>
+            <Text style={styles.mvpLabel}>{t.session.mvp}</Text>
             <Text style={styles.mvpName}>{session.mvp}</Text>
           </View>
         )}
 
         {/* Article */}
         {session.article ? (
-          <ArticleSection text={session.article} />
+          <ArticleSection text={session.article} shareLabel={t.session.shareArticle} />
         ) : past ? (
           <View style={styles.articlePending}>
             <Text style={styles.pendingIcon}>📰</Text>
-            <Text style={styles.pendingText}>Article en cours de génération…</Text>
-            <Text style={styles.pendingSubtext}>Disponible après la clôture du vote MVP</Text>
+            <Text style={styles.pendingText}>{t.session.articlePending}</Text>
+            <Text style={styles.pendingSubtext}>{t.session.articlePendingSub}</Text>
           </View>
         ) : null}
       </ScrollView>
@@ -89,7 +91,7 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
   );
 }
 
-function ArticleSection({ text }: { text: string }) {
+function ArticleSection({ text, shareLabel }: { text: string; shareLabel: string }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -114,7 +116,7 @@ function ArticleSection({ text }: { text: string }) {
       })}
 
       <TouchableOpacity style={styles.shareBtn}>
-        <Text style={styles.shareBtnText}>Partager l'article ↗</Text>
+        <Text style={styles.shareBtnText}>{shareLabel}</Text>
       </TouchableOpacity>
     </Animated.View>
   );

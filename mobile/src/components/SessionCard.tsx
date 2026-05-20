@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { isPast, RegistrationStatus, Session, UserRegistration } from '../types/session';
+import { useT } from '../i18n';
+import { isPast, Session, UserRegistration } from '../types/session';
 
 type Props = {
   session: Session;
@@ -20,6 +21,7 @@ export default function SessionCard({
   onPress,
 }: Props) {
   const past = isPast(session);
+  const t = useT();
   const pulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -39,11 +41,11 @@ export default function SessionCard({
       {/* Date row */}
       <View style={styles.dateRow}>
         <Text style={[styles.date, past && styles.datePast]}>
-          Lundi {session.date}
+          {t.session.mondayPrefix} {session.date}
         </Text>
         {session.voteOpen && (
           <TouchableOpacity style={styles.voteBadge} onPress={onVote}>
-            <Text style={styles.voteBadgeText}>⚡ Voter MVP</Text>
+            <Text style={styles.voteBadgeText}>{t.session.voteMvp}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -59,7 +61,7 @@ export default function SessionCard({
 
       {/* Past: MVP */}
       {past && session.mvp && (
-        <Text style={styles.mvp}>🏆 MVP — {session.mvp}</Text>
+        <Text style={styles.mvp}>{t.session.mvp} — {session.mvp}</Text>
       )}
 
       {/* Future: inscription status */}
@@ -70,12 +72,13 @@ export default function SessionCard({
           pulse={pulse}
           onRegister={onRegister}
           onUnregister={onUnregister}
+          t={t}
         />
       )}
 
       {/* Past: read article hint */}
       {past && session.article && (
-        <Text style={styles.articleHint}>📰 Lire l'article →</Text>
+        <Text style={styles.articleHint}>{t.session.articleHint}</Text>
       )}
     </View>
   );
@@ -109,18 +112,22 @@ function PastScore({ session }: { session: Session }) {
   );
 }
 
+type T = ReturnType<typeof useT>;
+
 function InscriptionStatus({
   session,
   registration,
   pulse,
   onRegister,
   onUnregister,
+  t,
 }: {
   session: Session;
   registration: UserRegistration;
   pulse: Animated.Value;
   onRegister?: () => void;
   onUnregister?: () => void;
+  t: T;
 }) {
   const { status, benchPosition } = registration;
   const total = session.confirmedCount + session.benchCount;
@@ -129,11 +136,11 @@ function InscriptionStatus({
     return (
       <View style={styles.statusRow}>
         <View style={[styles.statusBadge, styles.badgeGreen]}>
-          <Text style={styles.statusText}>✓ Confirmé</Text>
+          <Text style={styles.statusText}>{t.session.confirmed}</Text>
         </View>
         <Text style={styles.countText}>{session.confirmedCount}/{session.maxPlayers}</Text>
         <TouchableOpacity onPress={onUnregister}>
-          <Text style={styles.unregisterLink}>Se désinscrire</Text>
+          <Text style={styles.unregisterLink}>{t.session.leave}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -143,10 +150,10 @@ function InscriptionStatus({
     return (
       <View style={styles.statusRow}>
         <View style={[styles.statusBadge, styles.badgeAmber]}>
-          <Text style={styles.statusText}>🪑 Banc · {benchPosition}e dans la file</Text>
+          <Text style={styles.statusText}>{t.session.benchLine(benchPosition ?? 1)}</Text>
         </View>
         <TouchableOpacity onPress={onUnregister}>
-          <Text style={styles.unregisterLink}>Se désinscrire</Text>
+          <Text style={styles.unregisterLink}>{t.session.leave}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -156,11 +163,11 @@ function InscriptionStatus({
     return (
       <View style={styles.statusRow}>
         <View style={[styles.statusBadge, styles.badgeGrey]}>
-          <Text style={styles.statusText}>❌ Désincrit</Text>
+          <Text style={styles.statusText}>{t.session.absent}</Text>
         </View>
         {session.inscriptionsOpen && (
           <TouchableOpacity style={styles.rejoinBtn} onPress={onRegister}>
-            <Text style={styles.rejoinBtnText}>Rejoindre ({total}/{session.maxPlayers})</Text>
+            <Text style={styles.rejoinBtnText}>{t.session.rejoin} ({total}/{session.maxPlayers})</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -171,8 +178,8 @@ function InscriptionStatus({
   if (!session.inscriptionsOpen) {
     return (
       <View style={styles.statusRow}>
-        <Text style={styles.closedText}>Inscriptions bientôt</Text>
-        <Text style={styles.countText}>{total} inscrits</Text>
+        <Text style={styles.closedText}>{t.session.inscriptionsSoon}</Text>
+        <Text style={styles.countText}>{total} {t.session.inscribed}</Text>
       </View>
     );
   }
@@ -180,9 +187,9 @@ function InscriptionStatus({
   return (
     <View style={styles.openRow}>
       <Animated.View style={[styles.dot, { transform: [{ scale: pulse }] }]} />
-      <Text style={styles.openText}>Inscriptions ouvertes · {total}/{session.maxPlayers}</Text>
+      <Text style={styles.openText}>{t.session.openLine(total, session.maxPlayers)}</Text>
       <TouchableOpacity style={styles.joinBtn} onPress={onRegister}>
-        <Text style={styles.joinBtnText}>Rejoindre</Text>
+        <Text style={styles.joinBtnText}>{t.session.join}</Text>
       </TouchableOpacity>
     </View>
   );

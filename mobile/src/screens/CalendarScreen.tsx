@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SessionCard from '../components/SessionCard';
+import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { isPast, MOCK_USER_REGISTRATIONS, SESSIONS, UserRegistration } from '../types/session';
 
@@ -11,6 +12,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function CalendarScreen() {
   const navigation = useNavigation<Nav>();
+  const t = useT();
   const [registrations, setRegistrations] = useState(MOCK_USER_REGISTRATIONS);
   const listRef = useRef<FlatList>(null);
 
@@ -37,7 +39,7 @@ export default function CalendarScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Calendrier</Text>
+        <Text style={styles.title}>{t.tabs.calendar}</Text>
       </View>
       <FlatList
         ref={listRef}
@@ -64,7 +66,7 @@ export default function CalendarScreen() {
           );
         }}
         ListEmptyComponent={
-          <Text style={styles.empty}>Aucune session</Text>
+          <Text style={styles.empty}>{t.session.noSessions}</Text>
         }
       />
     </SafeAreaView>

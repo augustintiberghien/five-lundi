@@ -12,6 +12,8 @@ const fr = {
     notVotedYet: "Tu n'as pas encore voté",
     readArticle: "Lire l'article →",
     registered: '5 derniers',
+    team: "L'ÉQUIPE",
+    seeAll: 'Voir tout →',
   },
 
   // Stats screen
@@ -48,10 +50,14 @@ const fr = {
 
   // Session card / detail
   session: {
+    mondayPrefix: 'Lundi',
     inscriptionsOpen: 'Inscriptions ouvertes',
     inscriptionsSoon: 'Inscriptions bientôt',
+    inscribed: 'inscrits',
+    openLine: (count: number, max: number) => `Inscriptions ouvertes · ${count}/${max}`,
     confirmed: '✓ Confirmé',
     bench: '🪑 Banc',
+    benchLine: (n: number) => `🪑 Banc · ${n === 1 ? '1er' : `${n}e`} dans la file`,
     absent: '❌ Désinscrit',
     notRegistered: 'Non inscrit',
     join: 'Rejoindre',
@@ -62,6 +68,8 @@ const fr = {
     shareArticle: "Partager l'article ↗",
     articlePending: 'Article en cours de génération…',
     articlePendingSub: 'Disponible après la clôture du vote MVP',
+    articleHint: "📰 Lire l'article →",
+    noSessions: 'Aucune session',
     mvp: '🏆 MVP',
     voteClosed: 'Vote clos à 10 voix ou demain à 22h30',
     voteTitle: 'Vote MVP',
@@ -93,6 +101,8 @@ const en: typeof fr = {
     notVotedYet: "You haven't voted yet",
     readArticle: 'Read article →',
     registered: 'Last 5',
+    team: 'THE TEAM',
+    seeAll: 'See all →',
   },
 
   stats: {
@@ -126,10 +136,14 @@ const en: typeof fr = {
   },
 
   session: {
+    mondayPrefix: 'Monday',
     inscriptionsOpen: 'Open',
     inscriptionsSoon: 'Coming soon',
+    inscribed: 'registered',
+    openLine: (count: number, max: number) => `Open · ${count}/${max}`,
     confirmed: '✓ Confirmed',
     bench: '🪑 Bench',
+    benchLine: (n: number) => `🪑 Bench · #${n} in queue`,
     absent: '❌ Withdrawn',
     notRegistered: 'Not registered',
     join: 'Join',
@@ -140,6 +154,8 @@ const en: typeof fr = {
     shareArticle: 'Share article ↗',
     articlePending: 'Article being generated…',
     articlePendingSub: 'Available after the MVP vote closes',
+    articleHint: '📰 Read article →',
+    noSessions: 'No sessions',
     mvp: '🏆 MVP',
     voteClosed: 'Vote closes at 10 votes or tomorrow at 10:30 PM',
     voteTitle: 'MVP Vote',

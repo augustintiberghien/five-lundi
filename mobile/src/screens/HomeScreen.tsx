@@ -2,12 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
+import { FORM_COLOR, PLAYER_STATS } from '../types/stats';
 import { isPast, MOCK_USER_REGISTRATIONS, SESSIONS } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-// Remplacé par les vraies données Supabase après auth
 const MOCK_USER = {
   name: 'Michael',
   role: 'Gardien',
@@ -17,7 +18,6 @@ const MOCK_USER = {
     played: 9,
     wins: 6,
     winRate: 67,
-    // W/L des 5 derniers matchs, du plus récent au plus ancien
     recentResults: ['W', 'W', 'L', 'W', 'W'] as ('W' | 'L')[],
   },
 };
@@ -29,16 +29,20 @@ function extractArticleTitle(article: string): string {
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
+  const t = useT();
 
   const nextSession = SESSIONS.find(s => !isPast(s));
   const voteSession = SESSIONS.find(s => s.voteOpen);
   const lastArticleSession = SESSIONS.find(s => s.article);
+  const lastPlayedSession = SESSIONS.find(s => isPast(s) && s.players && s.players.length > 0);
 
   const nextReg = nextSession ? (MOCK_USER_REGISTRATIONS[nextSession.id] ?? { status: 'none' }) : null;
 
   const streak = MOCK_USER.stats.recentResults.findIndex(r => r !== MOCK_USER.stats.recentResults[0]);
   const streakCount = streak === -1 ? MOCK_USER.stats.recentResults.length : streak;
   const streakType = MOCK_USER.stats.recentResults[0];
+
+  const sessionPlayers = lastPlayedSession?.players ?? [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,19 +66,19 @@ export default function HomeScreen() {
 
         {/* ─── Stats snapshot ─── */}
         <View style={styles.statsRow}>
-          <StatTile label="Matchs" value={String(MOCK_USER.stats.played)} />
-          <StatTile label="Victoires" value={String(MOCK_USER.stats.wins)} />
-          <StatTile label="Winrate" value={`${MOCK_USER.stats.winRate}%`} />
+          <StatTile label={t.player.played} value={String(MOCK_USER.stats.played)} />
+          <StatTile label={t.player.wins} value={String(MOCK_USER.stats.wins)} />
+          <StatTile label={t.player.winrate} value={`${MOCK_USER.stats.winRate}%`} />
           <StatTile
-            label="Série"
+            label={t.player.streak}
             value={`${streakType === 'W' ? '🔥' : '❄️'}${streakCount}`}
             accent={streakType === 'W'}
           />
         </View>
 
-        {/* Forme des 5 derniers */}
+        {/* ─── Forme des 5 derniers ─── */}
         <View style={styles.recentRow}>
-          <Text style={styles.recentLabel}>5 derniers</Text>
+          <Text style={styles.recentLabel}>{t.home.registered}</Text>
           <View style={styles.resultDots}>
             {MOCK_USER.stats.recentResults.map((r, i) => (
               <View key={i} style={[styles.dot, r === 'W' ? styles.dotW : styles.dotL]}>
@@ -84,10 +88,49 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* ─── L'équipe ─── */}
+        {sessionPlayers.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{t.home.team}</Text>
+              <View style={styles.sectionLine} />
+              <TouchableOpacity onPress={() => navigation.navigate('Players')}>
+                <Text style={styles.seeAll}>{t.home.seeAll}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.teamAvatarRow}>
+              {sessionPlayers.slice(0, 8).map((p, i) => {
+                const stats = PLAYER_STATS.find(s => s.name === p.name);
+                const color = stats ? FORM_COLOR[stats.form] : '#555';
+                return (
+                  <TouchableOpacity
+                    key={p.name}
+                    style={[styles.teamAvatar, i > 0 && styles.teamAvatarOverlap]}
+                    onPress={() => navigation.navigate('Player', { playerName: p.name })}
+                  >
+                    <View style={[styles.teamAvatarCircle, { borderColor: color }]}>
+                      <Text style={[styles.teamAvatarText, { color }]}>
+                        {p.name.slice(0, 2).toUpperCase()}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+              {sessionPlayers.length > 8 && (
+                <View style={[styles.teamAvatar, styles.teamAvatarOverlap]}>
+                  <View style={styles.teamAvatarMore}>
+                    <Text style={styles.teamAvatarMoreText}>+{sessionPlayers.length - 8}</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* ─── Vote en cours ─── */}
         {voteSession && (
           <View style={styles.section}>
-            <SectionHeader title="VOTE EN COURS" />
+            <SectionHeader title={t.home.voteInProgress} />
             <TouchableOpacity
               style={styles.voteAlert}
               onPress={() => navigation.navigate('MVP', { sessionId: voteSession.id })}
@@ -95,8 +138,10 @@ export default function HomeScreen() {
               <View style={styles.voteAlertLeft}>
                 <Text style={styles.voteAlertIcon}>⚡</Text>
                 <View>
-                  <Text style={styles.voteAlertTitle}>Lundi {voteSession.date}</Text>
-                  <Text style={styles.voteAlertSub}>Tu n'as pas encore voté</Text>
+                  <Text style={styles.voteAlertTitle}>
+                    {t.session.mondayPrefix} {voteSession.date}
+                  </Text>
+                  <Text style={styles.voteAlertSub}>{t.home.notVotedYet}</Text>
                 </View>
               </View>
               <Text style={styles.voteAlertArrow}>→</Text>
@@ -107,12 +152,14 @@ export default function HomeScreen() {
         {/* ─── Prochain match ─── */}
         {nextSession && (
           <View style={styles.section}>
-            <SectionHeader title="PROCHAIN MATCH" />
+            <SectionHeader title={t.home.nextMatch} />
             <TouchableOpacity
               style={styles.nextMatchCard}
               onPress={() => navigation.navigate('SessionDetail', { sessionId: nextSession.id })}
             >
-              <Text style={styles.nextMatchDate}>Lundi {nextSession.date}</Text>
+              <Text style={styles.nextMatchDate}>
+                {t.session.mondayPrefix} {nextSession.date}
+              </Text>
               <View style={styles.nextMatchTeams}>
                 <Text style={styles.nextTeamA}>{nextSession.nameA}</Text>
                 <Text style={styles.nextVs}>vs</Text>
@@ -123,10 +170,10 @@ export default function HomeScreen() {
                 <View style={styles.countBubble}>
                   <View style={[styles.countDot, nextSession.inscriptionsOpen && styles.countDotOpen]} />
                   <Text style={styles.countText}>
-                    {nextSession.confirmedCount}/{nextSession.maxPlayers} inscrits
+                    {nextSession.confirmedCount}/{nextSession.maxPlayers} {t.session.inscribed}
                   </Text>
                 </View>
-                <RegistrationBadge status={nextReg?.status ?? 'none'} />
+                <RegistrationBadge status={nextReg?.status ?? 'none'} t={t} />
               </View>
             </TouchableOpacity>
           </View>
@@ -135,19 +182,21 @@ export default function HomeScreen() {
         {/* ─── Dernière édition ─── */}
         {lastArticleSession?.article && (
           <View style={styles.section}>
-            <SectionHeader title="DERNIÈRE ÉDITION" />
+            <SectionHeader title={t.home.lastEdition} />
             <TouchableOpacity
               style={styles.articleCard}
               onPress={() => navigation.navigate('SessionDetail', { sessionId: lastArticleSession.id })}
             >
-              <Text style={styles.articleMasthead}>L'ÉQUIPE · {lastArticleSession.date}</Text>
+              <Text style={styles.articleMasthead}>
+                L'ÉQUIPE · {lastArticleSession.date}
+              </Text>
               <Text style={styles.articleTitle}>
                 {extractArticleTitle(lastArticleSession.article)}
               </Text>
               {lastArticleSession.mvp && (
-                <Text style={styles.articleMvp}>MVP : {lastArticleSession.mvp}</Text>
+                <Text style={styles.articleMvp}>{t.session.mvp} : {lastArticleSession.mvp}</Text>
               )}
-              <Text style={styles.articleReadMore}>Lire l'article →</Text>
+              <Text style={styles.articleReadMore}>{t.home.readArticle}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -175,31 +224,33 @@ function StatTile({ label, value, accent }: { label: string; value: string; acce
   );
 }
 
-function RegistrationBadge({ status }: { status: string }) {
+type T = ReturnType<typeof useT>;
+
+function RegistrationBadge({ status, t }: { status: string; t: T }) {
   if (status === 'confirmed') {
     return (
       <View style={[styles.regBadge, styles.regBadgeGreen]}>
-        <Text style={styles.regBadgeText}>✓ Confirmé</Text>
+        <Text style={styles.regBadgeText}>{t.session.confirmed}</Text>
       </View>
     );
   }
   if (status === 'bench') {
     return (
       <View style={[styles.regBadge, styles.regBadgeAmber]}>
-        <Text style={styles.regBadgeText}>🪑 Banc</Text>
+        <Text style={styles.regBadgeText}>{t.session.bench}</Text>
       </View>
     );
   }
   if (status === 'absent') {
     return (
       <View style={[styles.regBadge, styles.regBadgeGrey]}>
-        <Text style={styles.regBadgeText}>❌ Désinscrit</Text>
+        <Text style={styles.regBadgeText}>{t.session.absent}</Text>
       </View>
     );
   }
   return (
     <View style={[styles.regBadge, styles.regBadgeGrey]}>
-      <Text style={styles.regBadgeText}>Non inscrit</Text>
+      <Text style={styles.regBadgeText}>{t.session.notRegistered}</Text>
     </View>
   );
 }
@@ -266,6 +317,24 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   sectionTitle: { fontSize: 10, fontWeight: '800', color: '#333', letterSpacing: 1.5 },
   sectionLine: { flex: 1, height: 1, backgroundColor: '#1a1a1a' },
+  seeAll: { fontSize: 11, color: '#555', fontWeight: '600' },
+
+  // ── L'équipe avatars
+  teamAvatarRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 2 },
+  teamAvatar: {},
+  teamAvatarOverlap: { marginLeft: -12 },
+  teamAvatarCircle: {
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: '#0d0d0d', borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  teamAvatarText: { fontSize: 11, fontWeight: '800' },
+  teamAvatarMore: {
+    width: 38, height: 38, borderRadius: 19,
+    backgroundColor: '#1a1a1a', borderWidth: 2, borderColor: '#2a2a2a',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  teamAvatarMoreText: { fontSize: 10, fontWeight: '700', color: '#555' },
 
   // ── Vote alert
   voteAlert: {
@@ -276,7 +345,7 @@ const styles = StyleSheet.create({
   },
   voteAlertLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   voteAlertIcon: { fontSize: 22 },
-  voteAlertTitle: { fontSize: 13, fontWeight: '700', color: '#FF9800', marginBottom: 2 },
+  voteAlertTitle: { fontSize: 13, fontWeight: '700', color: '#FF9800', marginBottom: 2, textTransform: 'capitalize' },
   voteAlertSub: { fontSize: 11, color: '#664400' },
   voteAlertArrow: { fontSize: 16, color: '#FF9800' },
 

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { SessionPlayer, SESSIONS } from '../types/session';
 
@@ -17,6 +18,7 @@ export default function MVPScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
   const session = SESSIONS.find(s => s.id === sessionId)!;
 
+  const t = useT();
   const [selected, setSelected] = useState<string | null>(null);
   const [voted, setVoted] = useState(false);
 
@@ -37,7 +39,7 @@ export default function MVPScreen({ route, navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Vote MVP</Text>
+        <Text style={styles.headerTitle}>{t.session.voteTitle}</Text>
         <View style={styles.backBtn} />
       </View>
 
@@ -46,8 +48,8 @@ export default function MVPScreen({ route, navigation }: Props) {
           <VotedConfirmation name={selected!} onBack={() => navigation.goBack()} />
         ) : (
           <>
-            <Text style={styles.sessionDate}>Lundi {session.date}</Text>
-            <Text style={styles.question}>Qui mérite le ballon d'or ce soir ?</Text>
+            <Text style={styles.sessionDate}>{t.session.mondayPrefix} {session.date}</Text>
+            <Text style={styles.question}>{t.session.voteQuestion}</Text>
 
             <TeamSection
               label={session.nameA}
@@ -68,13 +70,11 @@ export default function MVPScreen({ route, navigation }: Props) {
               disabled={!selected}
             >
               <Text style={[styles.voteBtnText, !selected && styles.voteBtnTextDisabled]}>
-                {selected ? `Voter pour ${selected} ⚡` : 'Sélectionne un joueur'}
+                {selected ? t.session.voteConfirmBtn(selected) : t.session.voteSelectPrompt}
               </Text>
             </TouchableOpacity>
 
-            <Text style={styles.closingNote}>
-              Vote clos à 10 voix ou demain à 22h30
-            </Text>
+            <Text style={styles.closingNote}>{t.session.voteClosed}</Text>
           </>
         )}
       </ScrollView>
@@ -153,18 +153,17 @@ function PlayerCard({
 }
 
 function VotedConfirmation({ name, onBack }: { name: string; onBack: () => void }) {
+  const t = useT();
   return (
     <View style={styles.confirmation}>
       <View style={styles.confirmIcon}>
         <Text style={styles.confirmCheck}>✓</Text>
       </View>
-      <Text style={styles.confirmTitle}>Vote enregistré</Text>
+      <Text style={styles.confirmTitle}>{t.session.votedTitle}</Text>
       <Text style={styles.confirmName}>{name}</Text>
-      <Text style={styles.confirmSub}>
-        Le MVP sera révélé après 10 votes{'\n'}ou demain à 22h30.
-      </Text>
+      <Text style={styles.confirmSub}>{t.session.votedSub}</Text>
       <TouchableOpacity style={styles.backBtn2} onPress={onBack}>
-        <Text style={styles.backBtn2Text}>Retour</Text>
+        <Text style={styles.backBtn2Text}>{t.session.back}</Text>
       </TouchableOpacity>
     </View>
   );
