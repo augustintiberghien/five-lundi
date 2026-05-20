@@ -1,4 +1,9 @@
-# Vision produit — App mobile Five
+# Locker Room — Vision produit
+
+> Hub de l'équipe de five-a-side : convocations, compos, vote MVP, stats et articles auto-générés.
+
+## Nom
+**Locker Room** — l'équivalent universel du vestiaire de foot. Compris instantanément dans tous les pays où le football existe.
 
 ## Concept en une phrase
 Le hub de l'équipe de five : compositions, stats, vote MVP et ambiance club — sans quitter l'app.
@@ -10,21 +15,6 @@ Les autres joueurs sont consommateurs : ils reçoivent les infos, votent, suiven
 ## Positionnement
 **"WhatsApp du five"** — pas un tracker de perf de plus, mais le point de convergence de l'équipe.
 Remplace le groupe WhatsApp pour tout ce qui touche au match : convocations, résultats, compos, ambiance.
-
----
-
-## Propositions de noms
-
-| Nom | Angle | Feeling |
-|-----|-------|---------|
-| **Cinq** | Simple, le five en français | Épuré, universel |
-| **Five HQ** | Headquarter de l'équipe | Sérieux, capitaine |
-| **Vestiaire** | Le lieu de vie de l'équipe | Chaud, communauté |
-| **Kikojoue** | "Qui joue ce soir ?" | Fun, direct, viral |
-| **Onze / Five** | Référence foot | Familier, générique |
-| **Lundi** | Ancré dans le rituel du match | Identitaire, niche |
-
-> Recommandation : **Vestiaire** — évocateur, mémorable, différenciant. Ou **Kikojoue** si on vise viral/grand public.
 
 ---
 
@@ -71,7 +61,7 @@ Partage en un tap. Différenciant, viral, crée le rituel.
 
 ## Prochaines étapes
 
-- [ ] Choisir le nom définitif
+- [x] Choisir le nom définitif → **Locker Room**
 - [ ] Scaffolding Expo + navigation (Stack + Tabs)
 - [ ] Écran Accueil — prochain match + derniers résultats
 - [ ] Écran Compo — terrain interactif
