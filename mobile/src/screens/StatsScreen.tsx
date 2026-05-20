@@ -12,7 +12,8 @@ import {
   RankMethod,
   rankPlayers,
 } from '../types/stats';
-import { isPast, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { isPast } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type T = ReturnType<typeof useT>;
@@ -223,8 +224,9 @@ function PairesSection({ t }: { t: T }) {
 // ─── Palmarès ─────────────────────────────────────────────────────
 
 function PalmaresSection({ navigation, t }: { navigation: Nav; t: T }) {
-  const mvpSessions = SESSIONS.filter(s => isPast(s) && s.mvp);
-  const voteOpenSessions = SESSIONS.filter(s => isPast(s) && s.voteOpen && !s.mvp);
+  const { sessions } = useSessions();
+  const mvpSessions = sessions.filter(s => isPast(s) && s.mvp);
+  const voteOpenSessions = sessions.filter(s => isPast(s) && s.voteOpen && !s.mvp);
 
   const tally: Record<string, number> = {};
   for (const s of mvpSessions) {

@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { FORM_COLOR, PAIR_STATS, PLAYER_STATS } from '../types/stats';
-import { isPast, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { isPast } from '../types/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Player'>;
 
@@ -12,6 +13,7 @@ export default function PlayerDetailScreen({ route, navigation }: Props) {
   const { playerName } = route.params;
   const t = useT();
 
+  const { sessions } = useSessions();
   const player = PLAYER_STATS.find(p => p.name === playerName);
   if (!player) return null;
 
@@ -31,7 +33,7 @@ export default function PlayerDetailScreen({ route, navigation }: Props) {
     .slice(0, 5);
 
   // MVP sessions
-  const mvpSessions = SESSIONS.filter(s => isPast(s) && s.mvp === playerName);
+  const mvpSessions = sessions.filter(s => isPast(s) && s.mvp === playerName);
 
   // Current streak
   const streak = player.recentResults.length > 0

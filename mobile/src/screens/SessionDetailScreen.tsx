@@ -4,13 +4,15 @@ import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { GROUP_CONFIG, isPast, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { GROUP_CONFIG, isPast } from '../types/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SessionDetail'>;
 
 export default function SessionDetailScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
-  const session = SESSIONS.find(s => s.id === sessionId)!;
+  const { sessions } = useSessions();
+  const session = sessions.find(s => s.id === sessionId)!;
   const t = useT();
   const past = isPast(session);
 

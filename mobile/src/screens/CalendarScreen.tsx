@@ -6,20 +6,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SessionCard from '../components/SessionCard';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { isPast, MOCK_USER_REGISTRATIONS, SESSIONS, UserRegistration } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { isPast, MOCK_USER_REGISTRATIONS, UserRegistration } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function CalendarScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
+  const { sessions } = useSessions();
   const [registrations, setRegistrations] = useState(MOCK_USER_REGISTRATIONS);
   const listRef = useRef<FlatList>(null);
 
-  const nextIndex = SESSIONS.findIndex(s => !isPast(s));
+  const nextIndex = sessions.findIndex(s => !isPast(s));
 
   function handleRegister(sessionId: string) {
-    const session = SESSIONS.find(s => s.id === sessionId)!;
+    const session = sessions.find(s => s.id === sessionId)!;
     const isFull = session.confirmedCount >= session.maxPlayers;
     setRegistrations(prev => ({
       ...prev,
@@ -43,7 +45,7 @@ export default function CalendarScreen() {
       </View>
       <FlatList
         ref={listRef}
-        data={SESSIONS}
+        data={sessions}
         keyExtractor={s => s.id}
         contentContainerStyle={styles.list}
         initialScrollIndex={nextIndex >= 0 ? nextIndex : 0}

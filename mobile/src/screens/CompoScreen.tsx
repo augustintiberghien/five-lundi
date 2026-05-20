@@ -18,7 +18,7 @@ import {
   FieldPos,
   POSITIONS,
 } from '../types/compo';
-import { SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Compo'>;
 
@@ -27,7 +27,8 @@ const SNAP_THRESHOLD = 55;
 
 export default function CompoScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
-  const session = SESSIONS.find(s => s.id === sessionId);
+  const { sessions } = useSessions();
+  const session = sessions.find(s => s.id === sessionId);
 
   const { width: screenWidth } = useWindowDimensions();
   const fieldWidth = screenWidth - 32;

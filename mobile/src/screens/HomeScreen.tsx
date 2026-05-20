@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { FORM_COLOR, PLAYER_STATS } from '../types/stats';
-import { isPast, MOCK_USER_REGISTRATIONS, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { isPast, MOCK_USER_REGISTRATIONS } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -31,10 +32,11 @@ export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
 
-  const nextSession = SESSIONS.find(s => !isPast(s));
-  const voteSession = SESSIONS.find(s => s.voteOpen);
-  const lastArticleSession = SESSIONS.find(s => s.article);
-  const lastPlayedSession = SESSIONS.find(s => isPast(s) && s.players && s.players.length > 0);
+  const { sessions } = useSessions();
+  const nextSession = sessions.find(s => !isPast(s));
+  const voteSession = sessions.find(s => s.voteOpen);
+  const lastArticleSession = sessions.find(s => s.article);
+  const lastPlayedSession = sessions.find(s => isPast(s) && s.players && s.players.length > 0);
 
   const nextReg = nextSession ? (MOCK_USER_REGISTRATIONS[nextSession.id] ?? { status: 'none' }) : null;
 

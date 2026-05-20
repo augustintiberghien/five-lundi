@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Pressable,
   ScrollView,
@@ -13,7 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { GROUP_CONFIG, isPast, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { GROUP_CONFIG, isPast } from '../types/session';
 import { PLAYER_STATS } from '../types/stats';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -21,19 +23,35 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function CoachScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
+  const { sessions, deleteSession } = useSessions();
 
-  const nextSession = SESSIONS.find(s => !isPast(s));
-  const scoreSession = nextSession ?? SESSIONS[0];
+  const nextSession = sessions.find(s => !isPast(s));
+  const scoreSession = nextSession ?? sessions[0];
 
-  const [inscOpen, setInscOpen]     = useState(nextSession?.inscriptionsOpen ?? false);
-  const [scoreA, setScoreA]         = useState(0);
-  const [scoreB, setScoreB]         = useState(0);
-  const [confirmed, setConfirmed]   = useState(false);
+  const [inscOpen, setInscOpen]   = useState(nextSession?.inscriptionsOpen ?? false);
+  const [scoreA, setScoreA]       = useState(0);
+  const [scoreB, setScoreB]       = useState(0);
+  const [confirmed, setConfirmed] = useState(false);
   const confirmScale = useRef(new Animated.Value(0)).current;
 
   function handleConfirm() {
     setConfirmed(true);
     Animated.spring(confirmScale, { toValue: 1, friction: 5, useNativeDriver: true }).start();
+  }
+
+  function handleDelete(sessionId: string, dateLabel: string) {
+    Alert.alert(
+      'Annuler la session ?',
+      `La session du ${dateLabel} sera supprimée définitivement.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => deleteSession(sessionId),
+        },
+      ]
+    );
   }
 
   const nextDefault = nextOccurrence(GROUP_CONFIG.defaultDayOfWeek);
@@ -58,7 +76,7 @@ export default function CoachScreen() {
           </View>
           <Text style={styles.heroName}>{GROUP_CONFIG.name}</Text>
           <Text style={styles.heroSub}>
-            {PLAYER_STATS.length} joueurs · {SESSIONS.filter(isPast).length} sessions jouées
+            {PLAYER_STATS.length} joueurs · {sessions.filter(isPast).length} sessions jouées
           </Text>
         </View>
 
@@ -87,7 +105,17 @@ export default function CoachScreen() {
           <>
             <Text style={styles.sectionLabel}>{t.coach.nextSession}</Text>
             <View style={styles.card}>
-              <Text style={styles.cardDate}>{t.formatDate(nextSession.date)}</Text>
+              {/* Date + delete button */}
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardDate}>{t.formatDate(nextSession.date)}</Text>
+                <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => handleDelete(nextSession.id, nextSession.date)}
+                >
+                  <Text style={styles.deleteBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
               <Text style={styles.cardMeta}>
                 🕐 {nextSession.time ?? GROUP_CONFIG.defaultTime}
                 {(nextSession.location ?? GROUP_CONFIG.defaultLocation)
@@ -132,31 +160,35 @@ export default function CoachScreen() {
         )}
 
         {/* Score entry */}
-        <Text style={styles.sectionLabel}>{t.coach.scoreSection}</Text>
-        <View style={styles.card}>
-          {confirmed ? (
-            <Animated.View style={[styles.confirmedBox, { transform: [{ scale: confirmScale }] }]}>
-              <Text style={styles.confirmedCheck}>✓</Text>
-              <Text style={styles.confirmedTitle}>{t.coach.scoreRecorded}</Text>
-              <Text style={styles.confirmedSub}>
-                {scoreSession.nameA}  {scoreA} – {scoreB}  {scoreSession.nameB}
-              </Text>
-            </Animated.View>
-          ) : (
-            <>
-              <View style={styles.scoreBoard}>
-                <ScoreCounter value={scoreA} onChange={setScoreA}
-                  teamName={scoreSession.nameA} color="#fff" />
-                <Text style={styles.scoreDash}>–</Text>
-                <ScoreCounter value={scoreB} onChange={setScoreB}
-                  teamName={scoreSession.nameB} color="#64B5F6" right />
-              </View>
-              <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm}>
-                <Text style={styles.confirmBtnText}>{t.coach.confirmScore}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+        {scoreSession && (
+          <>
+            <Text style={styles.sectionLabel}>{t.coach.scoreSection}</Text>
+            <View style={styles.card}>
+              {confirmed ? (
+                <Animated.View style={[styles.confirmedBox, { transform: [{ scale: confirmScale }] }]}>
+                  <Text style={styles.confirmedCheck}>✓</Text>
+                  <Text style={styles.confirmedTitle}>{t.coach.scoreRecorded}</Text>
+                  <Text style={styles.confirmedSub}>
+                    {scoreSession.nameA}  {scoreA} – {scoreB}  {scoreSession.nameB}
+                  </Text>
+                </Animated.View>
+              ) : (
+                <>
+                  <View style={styles.scoreBoard}>
+                    <ScoreCounter value={scoreA} onChange={setScoreA}
+                      teamName={scoreSession.nameA} color="#fff" />
+                    <Text style={styles.scoreDash}>–</Text>
+                    <ScoreCounter value={scoreB} onChange={setScoreB}
+                      teamName={scoreSession.nameB} color="#64B5F6" right />
+                  </View>
+                  <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm}>
+                    <Text style={styles.confirmBtnText}>{t.coach.confirmScore}</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </>
+        )}
 
       </ScrollView>
     </SafeAreaView>
@@ -282,8 +314,21 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#1e1e1e',
     padding: 16, marginBottom: 24,
   },
-  cardDate: { fontSize: 14, fontWeight: '800', color: '#fff', textTransform: 'capitalize', marginBottom: 4 },
+  cardHeader: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', marginBottom: 4,
+  },
+  cardDate: { fontSize: 14, fontWeight: '800', color: '#fff', textTransform: 'capitalize' },
   cardMeta: { fontSize: 11, color: '#444', marginBottom: 14 },
+
+  // Delete button
+  deleteBtn: {
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: 'rgba(244,67,54,0.1)',
+    borderWidth: 1, borderColor: 'rgba(244,67,54,0.3)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  deleteBtnText: { fontSize: 11, color: '#F44336', fontWeight: '700' },
 
   // Progress bar
   progRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },

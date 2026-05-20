@@ -10,13 +10,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { SessionPlayer, SESSIONS } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
+import { SessionPlayer } from '../types/session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MVP'>;
 
 export default function MVPScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
-  const session = SESSIONS.find(s => s.id === sessionId)!;
+  const { sessions } = useSessions();
+  const session = sessions.find(s => s.id === sessionId)!;
 
   const t = useT();
   const [selected, setSelected] = useState<string | null>(null);
