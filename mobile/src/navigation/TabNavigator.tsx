@@ -1,8 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import CalendarScreen from '../screens/CalendarScreen';
 import HomeScreen from '../screens/HomeScreen';
-import CompoScreen from '../screens/CompoScreen';
 import StatsScreen from '../screens/StatsScreen';
-import MVPScreen from '../screens/MVPScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,9 +19,8 @@ export default function TabNavigator() {
       }}
     >
       <Tab.Screen name="Accueil" component={HomeScreen} />
-      <Tab.Screen name="Compo" component={CompoScreen} />
+      <Tab.Screen name="Calendrier" component={CalendarScreen} />
       <Tab.Screen name="Stats" component={StatsScreen} />
-      <Tab.Screen name="MVP" component={MVPScreen} />
     </Tab.Navigator>
   );
 }
