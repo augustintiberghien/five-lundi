@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OnboardingScreen from './OnboardingScreen';
-import { OnboardingProfile, Position, Criterion } from '../store/useOnboarding';
+import { Criterion, OnboardingProfile, Position } from '../store/useOnboarding';
+import { CRITERIA_META, usePlayerRatings } from '../store/usePlayerRatings';
 
 type Props = {
   profile: OnboardingProfile;
@@ -24,34 +25,69 @@ const POSITION_LABELS: Record<Position, { label: string; icon: string }> = {
   ATT: { label: 'Attaquant', icon: '⚡' },
 };
 
-const CRITERION_LABELS: Record<Criterion, { label: string; icon: string }> = {
-  endurance:  { label: 'Endurance',  icon: '🫁' },
-  vitesse:    { label: 'Vitesse',    icon: '💨' },
-  technique:  { label: 'Technique',  icon: '🎯' },
-  vision:     { label: 'Vision',     icon: '👁️' },
-  physique:   { label: 'Physique',   icon: '💪' },
-  leadership: { label: 'Leadership', icon: '🗣️' },
+// ─── Delta logic ──────────────────────────────────────────────────
+
+type DeltaTag =
+  | 'strength-confirmed'
+  | 'strength-diverges'
+  | 'weakness-confirmed'
+  | 'weakness-diverges'
+  | null;
+
+function getDelta(
+  crit: Criterion,
+  score: number,
+  strength: Criterion,
+  weakness: Criterion
+): DeltaTag {
+  if (crit === strength) {
+    if (score >= 14) return 'strength-confirmed';
+    if (score <= 11) return 'strength-diverges';
+  }
+  if (crit === weakness) {
+    if (score <= 12) return 'weakness-confirmed';
+    if (score >= 15) return 'weakness-diverges';
+  }
+  return null;
+}
+
+const DELTA_DISPLAY: Record<Exclude<DeltaTag, null>, { label: string; color: string; icon: string }> = {
+  'strength-confirmed': { label: 'Force confirmée par le coach',   color: '#4CAF50', icon: '✓' },
+  'strength-diverges':  { label: 'Le coach voit autrement',        color: '#FF9800', icon: '⚠' },
+  'weakness-confirmed': { label: 'Faiblesse reconnue',             color: '#888',    icon: '✓' },
+  'weakness-diverges':  { label: 'Tu es meilleur que tu crois !',  color: '#64B5F6', icon: '↑' },
 };
+
+function scoreBar(v: number): string {
+  const filled = Math.round((v / 20) * 8);
+  return '█'.repeat(filled) + '░'.repeat(8 - filled);
+}
+
+function scoreColor(v: number): string {
+  if (v <= 8)  return '#F44336';
+  if (v <= 11) return '#FF9800';
+  if (v <= 15) return '#8BC34A';
+  return '#4CAF50';
+}
+
+// ─── Screen ───────────────────────────────────────────────────────
 
 export default function ProfileScreen({ profile, onSave, onClose }: Props) {
   const [editing, setEditing] = useState(false);
+  const { ratings } = usePlayerRatings();
+  const coachRatings = ratings[profile.name];
 
   if (editing) {
     return (
       <OnboardingScreen
         initial={profile}
-        onDone={(p) => {
-          onSave(p);
-          setEditing(false);
-        }}
+        onDone={(p) => { onSave(p); setEditing(false); }}
       />
     );
   }
 
   const initials = profile.name.split(' ').map(w => w[0]?.toUpperCase() ?? '').join('').slice(0, 2);
   const pos  = POSITION_LABELS[profile.position];
-  const str  = CRITERION_LABELS[profile.strength];
-  const weak = CRITERION_LABELS[profile.weakness];
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -96,31 +132,93 @@ export default function ProfileScreen({ profile, onSave, onClose }: Props) {
           </View>
         </View>
 
-        {/* Force / Faiblesse */}
-        <Text style={styles.sectionLabel}>PROFIL TECHNIQUE</Text>
+        {/* Auto-déclaratif */}
+        <Text style={styles.sectionLabel}>TON AUTO-ÉVALUATION</Text>
         <View style={styles.card}>
-          <View style={styles.statRow}>
-            <View style={styles.statBlock}>
-              <Text style={styles.statMini}>🟢 FORCE</Text>
-              <View style={styles.statChip}>
-                <Text style={styles.statIcon}>{str.icon}</Text>
-                <Text style={[styles.statLabel, { color: '#4CAF50' }]}>{str.label}</Text>
+          <View style={styles.selfRow}>
+            <View style={styles.selfBlock}>
+              <Text style={styles.selfMini}>🟢 MA FORCE</Text>
+              <View style={styles.selfChip}>
+                <Text style={styles.selfIcon}>
+                  {CRITERIA_META.find(c => c.key === profile.strength)?.icon}
+                </Text>
+                <Text style={[styles.selfLabel, { color: '#4CAF50' }]}>
+                  {CRITERIA_META.find(c => c.key === profile.strength)?.label}
+                </Text>
               </View>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statBlock}>
-              <Text style={styles.statMini}>🔴 FAIBLESSE</Text>
-              <View style={styles.statChip}>
-                <Text style={styles.statIcon}>{weak.icon}</Text>
-                <Text style={[styles.statLabel, { color: '#F44336' }]}>{weak.label}</Text>
+            <View style={styles.selfDivider} />
+            <View style={styles.selfBlock}>
+              <Text style={styles.selfMini}>🔴 MA FAIBLESSE</Text>
+              <View style={styles.selfChip}>
+                <Text style={styles.selfIcon}>
+                  {CRITERIA_META.find(c => c.key === profile.weakness)?.icon}
+                </Text>
+                <Text style={[styles.selfLabel, { color: '#F44336' }]}>
+                  {CRITERIA_META.find(c => c.key === profile.weakness)?.label}
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Note */}
+        {/* Coach evaluation + delta */}
+        <Text style={styles.sectionLabel}>ÉVALUATION COACH</Text>
+        {coachRatings ? (
+          <View style={styles.card}>
+            {CRITERIA_META.map(c => {
+              const v     = coachRatings[c.key];
+              const color = scoreColor(v);
+              const delta = getDelta(c.key, v, profile.strength, profile.weakness);
+              const tag   = delta ? DELTA_DISPLAY[delta] : null;
+
+              return (
+                <View key={c.key} style={styles.evalRow}>
+                  {/* Icon + label */}
+                  <Text style={styles.evalIcon}>{c.icon}</Text>
+                  <Text style={styles.evalLabel}>{c.label}</Text>
+
+                  {/* Bar */}
+                  <Text style={[styles.evalBar, { color }]}>{scoreBar(v)}</Text>
+
+                  {/* Score */}
+                  <Text style={[styles.evalScore, { color }]}>{v}</Text>
+
+                  {/* Delta tag */}
+                  {tag && (
+                    <View style={[styles.deltaTag, { borderColor: tag.color + '55' }]}>
+                      <Text style={[styles.deltaIcon, { color: tag.color }]}>{tag.icon}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+
+            {/* Legend */}
+            <View style={styles.legend}>
+              {Object.entries(DELTA_DISPLAY).map(([key, d]) => (
+                <View key={key} style={styles.legendRow}>
+                  <Text style={[styles.legendIcon, { color: d.color }]}>{d.icon}</Text>
+                  <Text style={styles.legendText}>{d.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <View style={styles.card}>
+            <View style={styles.pendingBox}>
+              <Text style={styles.pendingIcon}>📊</Text>
+              <Text style={styles.pendingText}>En attente de notation</Text>
+              <Text style={styles.pendingSub}>
+                Le coach n'a pas encore renseigné tes critères.
+                {'\n'}Ils apparaîtront ici une fois la notation faite.
+              </Text>
+            </View>
+          </View>
+        )}
+
         <Text style={styles.note}>
-          Ces informations aident le coach à équilibrer les équipes.
+          Ces informations aident à équilibrer les équipes.
           {'\n'}Elles sont visibles uniquement au sein de ton groupe.
         </Text>
 
@@ -158,28 +256,55 @@ const styles = StyleSheet.create({
   heroBio:  { fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 19, maxWidth: 280 },
   addBio:   { fontSize: 13, color: '#333', fontWeight: '600' },
 
-  sectionLabel: {
-    fontSize: 10, fontWeight: '800', color: '#333',
-    letterSpacing: 1.5, marginBottom: 10,
-  },
+  sectionLabel: { fontSize: 10, fontWeight: '800', color: '#333', letterSpacing: 1.5, marginBottom: 10 },
 
   card: {
     backgroundColor: '#111', borderRadius: 14,
     borderWidth: 1, borderColor: '#1e1e1e',
-    padding: 16, marginBottom: 24,
+    padding: 16, marginBottom: 20,
   },
 
+  // Position
   posRow:   { flexDirection: 'row', alignItems: 'center', gap: 12 },
   posIcon:  { fontSize: 28 },
   posLabel: { fontSize: 18, fontWeight: '800', color: '#fff' },
 
-  statRow: { flexDirection: 'row', alignItems: 'center' },
-  statBlock: { flex: 1, alignItems: 'center', gap: 8, paddingVertical: 6 },
-  statDivider: { width: 1, height: 56, backgroundColor: '#1e1e1e' },
-  statMini: { fontSize: 9, fontWeight: '800', color: '#333', letterSpacing: 1 },
-  statChip: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  statIcon:  { fontSize: 18 },
-  statLabel: { fontSize: 14, fontWeight: '800' },
+  // Self-assessment
+  selfRow:    { flexDirection: 'row', alignItems: 'center' },
+  selfBlock:  { flex: 1, alignItems: 'center', gap: 8, paddingVertical: 6 },
+  selfDivider:{ width: 1, height: 56, backgroundColor: '#1e1e1e' },
+  selfMini:   { fontSize: 9, fontWeight: '800', color: '#333', letterSpacing: 1 },
+  selfChip:   { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  selfIcon:   { fontSize: 18 },
+  selfLabel:  { fontSize: 14, fontWeight: '800' },
+
+  // Coach eval rows
+  evalRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingVertical: 6,
+    borderBottomWidth: 1, borderBottomColor: '#0e0e0e',
+  },
+  evalIcon:  { fontSize: 14, width: 20 },
+  evalLabel: { fontSize: 11, fontWeight: '700', color: '#666', width: 72 },
+  evalBar:   { fontSize: 9, flex: 1, letterSpacing: -0.5 },
+  evalScore: { fontSize: 13, fontWeight: '900', width: 24, textAlign: 'right' },
+  deltaTag: {
+    width: 22, height: 22, borderRadius: 6,
+    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
+  },
+  deltaIcon: { fontSize: 11, fontWeight: '900' },
+
+  // Legend
+  legend: { marginTop: 14, gap: 5 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendIcon: { fontSize: 11, fontWeight: '900', width: 14, textAlign: 'center' },
+  legendText: { fontSize: 10, color: '#333' },
+
+  // Pending
+  pendingBox: { alignItems: 'center', paddingVertical: 20, gap: 8 },
+  pendingIcon: { fontSize: 32 },
+  pendingText: { fontSize: 14, fontWeight: '700', color: '#555' },
+  pendingSub:  { fontSize: 12, color: '#333', textAlign: 'center', lineHeight: 17 },
 
   note: { fontSize: 11, color: '#2a2a2a', textAlign: 'center', lineHeight: 17 },
 });
