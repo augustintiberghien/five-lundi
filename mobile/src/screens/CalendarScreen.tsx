@@ -59,6 +59,7 @@ export default function CalendarScreen() {
               onRegister={() => handleRegister(session.id)}
               onUnregister={() => handleUnregister(session.id)}
               onPress={isPast(session) ? () => navigation.navigate('SessionDetail', { sessionId: session.id }) : undefined}
+              onVote={session.voteOpen ? () => navigation.navigate('MVP', { sessionId: session.id }) : undefined}
             />
           );
         }}

@@ -1,10 +1,14 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CompoScreen from '../screens/CompoScreen';
+import MVPScreen from '../screens/MVPScreen';
 import SessionDetailScreen from '../screens/SessionDetailScreen';
 import TabNavigator from './TabNavigator';
 
 export type RootStackParamList = {
   Main: undefined;
   SessionDetail: { sessionId: string };
+  Compo: { sessionId: string };
+  MVP: { sessionId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,6 +24,8 @@ export default function RootNavigator() {
     >
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="SessionDetail" component={SessionDetailScreen} />
+      <Stack.Screen name="Compo" component={CompoScreen} />
+      <Stack.Screen name="MVP" component={MVPScreen} />
     </Stack.Navigator>
   );
 }

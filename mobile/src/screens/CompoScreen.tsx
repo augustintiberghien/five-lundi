@@ -1,30 +1,44 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PitchField from '../components/PitchField';
 import PlayerToken from '../components/PlayerToken';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import {
   DEFAULT_ASSIGNMENT,
   DEFAULT_BENCH,
   FieldPos,
   POSITIONS,
 } from '../types/compo';
+import { SESSIONS } from '../types/session';
 
-const FIELD_H_RATIO = 1.45; // fieldHeight = fieldWidth * ratio
-const SNAP_THRESHOLD = 55;   // px — max distance to snap to a position
+type Props = NativeStackScreenProps<RootStackParamList, 'Compo'>;
 
-export default function CompoScreen() {
+const FIELD_H_RATIO = 1.45;
+const SNAP_THRESHOLD = 55;
+
+export default function CompoScreen({ route, navigation }: Props) {
+  const { sessionId } = route.params;
+  const session = SESSIONS.find(s => s.id === sessionId);
+
   const { width: screenWidth } = useWindowDimensions();
   const fieldWidth = screenWidth - 32;
   const fieldHeight = Math.round(fieldWidth * FIELD_H_RATIO);
 
-  const [assignment, setAssignment] = useState<Record<string, string>>(DEFAULT_ASSIGNMENT);
+  const initialAssignment = session?.compo ?? DEFAULT_ASSIGNMENT;
+  const [assignment, setAssignment] = useState<Record<string, string>>(initialAssignment);
+
+  const benchNames = session?.players
+    ? [] // bench would come from session registration data later
+    : DEFAULT_BENCH;
 
   function toAbsPx(pos: FieldPos) {
     return {
@@ -60,20 +74,31 @@ export default function CompoScreen() {
     }
   }
 
-  const teamALabel = 'Blanche ⚪';
-  const teamBLabel = 'Bleue 🔵';
+  const nameA = session?.nameA ?? 'Blanche ⚪';
+  const nameB = session?.nameB ?? 'Bleue 🔵';
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Text style={styles.backArrow}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
+          {session ? `Compo · ${session.date}` : 'Composition'}
+        </Text>
+        <View style={styles.backBtn} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll} bounces={false}>
-        {/* Header */}
-        <View style={styles.header}>
+        {/* Team labels */}
+        <View style={styles.teamsRow}>
           <View style={styles.teamBadge}>
-            <Text style={[styles.teamLabel, styles.teamAText]}>{teamALabel}</Text>
+            <Text style={[styles.teamLabel, styles.teamAText]}>{nameA}</Text>
           </View>
           <Text style={styles.vs}>vs</Text>
           <View style={styles.teamBadge}>
-            <Text style={[styles.teamLabel, styles.teamBText]}>{teamBLabel}</Text>
+            <Text style={[styles.teamLabel, styles.teamBText]}>{nameB}</Text>
           </View>
         </View>
 
@@ -97,16 +122,18 @@ export default function CompoScreen() {
         </View>
 
         {/* Bench */}
-        <View style={styles.benchSection}>
-          <Text style={styles.benchTitle}>Banc</Text>
-          <View style={styles.benchRow}>
-            {DEFAULT_BENCH.map(name => (
-              <View key={name} style={styles.benchToken}>
-                <Text style={styles.benchName}>{name}</Text>
-              </View>
-            ))}
+        {benchNames.length > 0 && (
+          <View style={styles.benchSection}>
+            <Text style={styles.benchTitle}>Banc</Text>
+            <View style={styles.benchRow}>
+              {benchNames.map(name => (
+                <View key={name} style={styles.benchToken}>
+                  <Text style={styles.benchName}>{name}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -114,9 +141,22 @@ export default function CompoScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0a0a0a' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1a1a1a',
+  },
+  backBtn: { width: 40 },
+  backArrow: { fontSize: 22, color: '#fff' },
+  headerTitle: { fontSize: 14, fontWeight: '700', color: '#888' },
+
   scroll: { paddingHorizontal: 16, paddingBottom: 24 },
 
-  header: {
+  teamsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -131,7 +171,10 @@ const styles = StyleSheet.create({
   fieldWrapper: { borderRadius: 8, overflow: 'hidden' },
 
   benchSection: { marginTop: 16 },
-  benchTitle: { color: '#666', fontSize: 11, fontWeight: '600', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 },
+  benchTitle: {
+    color: '#666', fontSize: 11, fontWeight: '600',
+    marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1,
+  },
   benchRow: { flexDirection: 'row', gap: 10 },
   benchToken: {
     backgroundColor: '#1a1a1a',

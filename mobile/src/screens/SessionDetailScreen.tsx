@@ -44,6 +44,28 @@ export default function SessionDetailScreen({ route, navigation }: Props) {
           </View>
         </View>
 
+        {/* Action buttons */}
+        {(session.voteOpen || session.compo) && (
+          <View style={styles.actionsRow}>
+            {session.voteOpen && (
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.actionBtnVote]}
+                onPress={() => navigation.navigate('MVP', { sessionId })}
+              >
+                <Text style={styles.actionBtnVoteText}>⚡ Voter MVP</Text>
+              </TouchableOpacity>
+            )}
+            {session.compo && (
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => navigation.navigate('Compo', { sessionId })}
+              >
+                <Text style={styles.actionBtnText}>⚽ Voir la compo</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
         {/* MVP */}
         {session.mvp && (
           <View style={styles.mvpRow}>
@@ -149,6 +171,22 @@ const styles = StyleSheet.create({
   scoreNum: { fontSize: 52, fontWeight: '900', color: '#333', lineHeight: 56 },
   winner: { color: '#fff' },
   scoreSep: { fontSize: 32, color: '#333', fontWeight: '300' },
+
+  actionsRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
+  actionBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  actionBtnVote: {
+    backgroundColor: 'rgba(255,152,0,0.1)',
+    borderColor: '#FF9800',
+  },
+  actionBtnVoteText: { fontSize: 13, fontWeight: '700', color: '#FF9800' },
+  actionBtnText: { fontSize: 13, fontWeight: '600', color: '#555' },
 
   mvpRow: {
     flexDirection: 'row',

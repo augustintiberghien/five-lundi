@@ -2,6 +2,8 @@ export type ScoreWinner = 'A' | 'B' | '';
 
 export type RegistrationStatus = 'confirmed' | 'bench' | 'absent' | 'none';
 
+export type SessionPlayer = { name: string; team: 'A' | 'B' };
+
 export type Session = {
   id: string;
   date: string;           // "25 mai 2026"
@@ -17,6 +19,8 @@ export type Session = {
   mvp?: string;
   voteOpen?: boolean;
   article?: string;
+  players?: SessionPlayer[];           // qui a joué
+  compo?: Record<string, string>;      // posId → playerName
 };
 
 export type UserRegistration = {
@@ -57,6 +61,19 @@ export const SESSIONS: Session[] = [
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 3,
     mvp: 'Michael', voteOpen: false,
+    players: [
+      { name: 'Michael',  team: 'A' }, { name: 'Henri',    team: 'A' },
+      { name: 'LM',       team: 'A' }, { name: 'Khalid',   team: 'A' },
+      { name: 'Hugo',     team: 'A' }, { name: 'Rémi',     team: 'B' },
+      { name: 'Edouard',  team: 'B' }, { name: 'Flo',      team: 'B' },
+      { name: 'Ibrahima', team: 'B' }, { name: 'Dylan',    team: 'B' },
+    ],
+    compo: {
+      A_GK: 'Michael', A_DL: 'Henri',   A_DR: 'LM',
+      A_ML: 'Khalid',  A_MR: 'Hugo',
+      B_GK: 'Rémi',    B_DL: 'Edouard', B_DR: 'Flo',
+      B_ML: 'Ibrahima',B_MR: 'Dylan',
+    },
     article: `**UNE BLANCHE ÉCLATANTE**\n\nLe cinq du lundi a vécu lundi soir l'un de ses matchs les plus irréels depuis des semaines. Blanche 12, Bleue 7 : un écart qui ne raconte qu'une partie de la vérité.\n\n**Le match**\n\nDès les premières secondes, Blanche imposait son tempo avec une agressivité rarement vue sur ce terrain synthétique. Bleue résistait, grappillait, tentait ses contre-attaques habituelles — mais la muraille blanche tenait bon. La première mi-temps s'achevait sur un avantage confortable pour l'équipe au maillot immaculé. La seconde période ne fit que confirmer la domination, avec un Michael impérial dans les cages et une ligne défensive qui aurait rendu jaloux Guardiola lui-même.\n\n**L'homme du match**\n\nMichael. Le gardien au calme olympien a multiplié les arrêts décisifs, notamment un double arrêt à la 23e qui a brisé les derniers espoirs bleus. Élu MVP à l'unanimité, il accepta le titre avec la modestie de ceux qui savent.\n\n**La stat du soir**\n\nBlanche a encaissé seulement 7 buts sur les 5 dernières rencontres. À ce rythme, l'équipe blanche postule au Ballon d'Or collectif.\n\n**La parole au coach**\n\n"On a été sérieux du début à la fin. C'est exactement ce qu'on avait préparé."\n\n**La note de la rédaction**\n\n8/10 — Un match propre, dominé, presque trop facile. Il manquait juste un peu de drama.`,
   },
   {
@@ -64,7 +81,20 @@ export const SESSIONS: Session[] = [
     score: '3 – 4', scoreWinner: 'B',
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 2,
-    mvp: 'Rémi',
+    voteOpen: true,
+    players: [
+      { name: 'Michael',  team: 'A' }, { name: 'Henri',   team: 'A' },
+      { name: 'Jack',     team: 'A' }, { name: 'Khalid',  team: 'A' },
+      { name: 'Hugo',     team: 'A' }, { name: 'Rémi',    team: 'B' },
+      { name: 'Edouard',  team: 'B' }, { name: 'Théo',   team: 'B' },
+      { name: 'Flo',      team: 'B' }, { name: 'Dylan',   team: 'B' },
+    ],
+    compo: {
+      A_GK: 'Michael', A_DL: 'Henri',  A_DR: 'Jack',
+      A_ML: 'Khalid',  A_MR: 'Hugo',
+      B_GK: 'Rémi',   B_DL: 'Edouard', B_DR: 'Théo',
+      B_ML: 'Flo',    B_MR: 'Dylan',
+    },
   },
   {
     id: 's7', date: '4 mai 2026', dateISO: '2026-05-04',
