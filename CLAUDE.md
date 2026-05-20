@@ -81,6 +81,26 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - Prochaine étape : doc de vision (nom, positionnement, 5 features core)
 - Rythme : ~30 min/jour
 
+## Mobile — Todo backlog
+
+### Coach / gestion sessions
+- [ ] **Suppression de session** — bouton dans CoachScreen/SessionDetail (annulation centre ou pas assez d'inscrits), avec confirmation
+
+### Profil joueur
+- [ ] **Photo de profil** — récupération auto via Google OAuth si connexion Gmail, sinon upload depuis la galerie
+- [ ] **Bio** — champ libre sur le profil
+- [ ] **Onboarding première connexion** — wizard : position naturelle sur le terrain (GK / DEF / MIL / ATT), + 1 force principale et 1 faiblesse principale parmi les 6 critères de notation
+
+### Notation & équilibrage
+- [ ] **Notation coach** — interface pour noter tous les joueurs sur 20 selon les 6 critères (endurance, vitesse, technique, vision, physique, leadership ou équivalents) ; la position naturelle est remplie par le joueur lui-même
+- [ ] **Delta force/faiblesse** — système +1/−1 : comparaison auto-déclaratif joueur vs évaluation coach, affiché sur le profil
+- [ ] **Équilibrage automatique des équipes** — reprendre la logique du HTML (notes + critères + positions) pour générer la compo équilibrée directement dans l'app
+
+### Infra
+- [ ] **Authentification** — connexion Google OAuth (+ email/password fallback)
+- [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
+- [ ] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
+
 ## Joueurs actifs (s9 — 18 mai 2026)
 Blanche ⚪ : Michael (GK), Henri, LM, Khalid, Hugo
 Bleue 🔵 : Rémi (GK), Edouard, Flo, Ibrahima, Dylan

@@ -1,0 +1,84 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRef, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import SessionCard from '../components/SessionCard';
+import { useT } from '../i18n';
+import { RootStackParamList } from '../navigation/RootNavigator';
+import { useSessions } from '../store/SessionsContext';
+import { isPast, MOCK_USER_REGISTRATIONS, UserRegistration } from '../types/session';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+export default function CalendarScreen() {
+  const navigation = useNavigation<Nav>();
+  const t = useT();
+  const { sessions } = useSessions();
+  const [registrations, setRegistrations] = useState(MOCK_USER_REGISTRATIONS);
+  const listRef = useRef<FlatList>(null);
+
+  const nextIndex = sessions.findIndex(s => !isPast(s));
+
+  function handleRegister(sessionId: string) {
+    const session = sessions.find(s => s.id === sessionId)!;
+    const isFull = session.confirmedCount >= session.maxPlayers;
+    setRegistrations(prev => ({
+      ...prev,
+      [sessionId]: isFull
+        ? { status: 'bench', benchPosition: session.benchCount + 1 }
+        : { status: 'confirmed' },
+    }));
+  }
+
+  function handleUnregister(sessionId: string) {
+    setRegistrations(prev => ({
+      ...prev,
+      [sessionId]: { status: 'absent' },
+    }));
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{t.tabs.calendar}</Text>
+      </View>
+      <FlatList
+        ref={listRef}
+        data={sessions}
+        keyExtractor={s => s.id}
+        contentContainerStyle={styles.list}
+        initialScrollIndex={nextIndex >= 0 ? nextIndex : 0}
+        getItemLayout={(_, index) => ({
+          length: 130,
+          offset: 130 * index,
+          index,
+        })}
+        renderItem={({ item: session }) => {
+          const reg: UserRegistration = registrations[session.id] ?? { status: 'none' };
+          return (
+            <SessionCard
+              session={session}
+              registration={reg}
+              onRegister={() => handleRegister(session.id)}
+              onUnregister={() => handleUnregister(session.id)}
+              onPress={isPast(session) ? () => navigation.navigate('SessionDetail', { sessionId: session.id }) : undefined}
+              onVote={session.voteOpen ? () => navigation.navigate('MVP', { sessionId: session.id }) : undefined}
+            />
+          );
+        }}
+        ListEmptyComponent={
+          <Text style={styles.empty}>{t.session.noSessions}</Text>
+        }
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  header: { paddingHorizontal: 16, paddingVertical: 12 },
+  title: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  list: { paddingHorizontal: 16, paddingBottom: 24 },
+  empty: { color: '#555', textAlign: 'center', marginTop: 40 },
+});
