@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { isPast, RegistrationStatus, Session, UserRegistration } from '../types/session';
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
   onRegister?: () => void;
   onUnregister?: () => void;
   onVote?: () => void;
+  onPress?: () => void;
 };
 
 export default function SessionCard({
@@ -16,6 +17,7 @@ export default function SessionCard({
   onRegister,
   onUnregister,
   onVote,
+  onPress,
 }: Props) {
   const past = isPast(session);
   const pulse = useRef(new Animated.Value(1)).current;
@@ -32,8 +34,8 @@ export default function SessionCard({
     return () => pulse.stopAnimation();
   }, [session.inscriptionsOpen, registration.status, past, pulse]);
 
-  return (
-    <View style={[styles.card, past && styles.cardPast]}>
+  const cardContent = (
+    <View style={[styles.card, past && styles.cardPast, !!onPress && styles.cardTappable]}>
       {/* Date row */}
       <View style={styles.dateRow}>
         <Text style={[styles.date, past && styles.datePast]}>
@@ -70,8 +72,22 @@ export default function SessionCard({
           onUnregister={onUnregister}
         />
       )}
+
+      {/* Past: read article hint */}
+      {past && session.article && (
+        <Text style={styles.articleHint}>📰 Lire l'article →</Text>
+      )}
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableWithoutFeedback onPress={onPress}>
+        {cardContent}
+      </TouchableWithoutFeedback>
+    );
+  }
+  return cardContent;
 }
 
 function PastScore({ session }: { session: Session }) {
@@ -183,6 +199,14 @@ const styles = StyleSheet.create({
   },
   cardPast: {
     opacity: 0.65,
+  },
+  cardTappable: {
+    borderColor: '#2a2a2a',
+  },
+  articleHint: {
+    fontSize: 11,
+    color: '#444',
+    marginTop: 8,
   },
 
   dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },

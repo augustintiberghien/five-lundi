@@ -16,6 +16,7 @@ export type Session = {
   benchCount: number;
   mvp?: string;
   voteOpen?: boolean;
+  article?: string;
 };
 
 export type UserRegistration = {
@@ -56,6 +57,7 @@ export const SESSIONS: Session[] = [
     nameA: 'Blanche ⚪', nameB: 'Bleue 🔵',
     inscriptionsOpen: false, maxPlayers: 10, confirmedCount: 10, benchCount: 3,
     mvp: 'Michael', voteOpen: false,
+    article: `**UNE BLANCHE ÉCLATANTE**\n\nLe cinq du lundi a vécu lundi soir l'un de ses matchs les plus irréels depuis des semaines. Blanche 12, Bleue 7 : un écart qui ne raconte qu'une partie de la vérité.\n\n**Le match**\n\nDès les premières secondes, Blanche imposait son tempo avec une agressivité rarement vue sur ce terrain synthétique. Bleue résistait, grappillait, tentait ses contre-attaques habituelles — mais la muraille blanche tenait bon. La première mi-temps s'achevait sur un avantage confortable pour l'équipe au maillot immaculé. La seconde période ne fit que confirmer la domination, avec un Michael impérial dans les cages et une ligne défensive qui aurait rendu jaloux Guardiola lui-même.\n\n**L'homme du match**\n\nMichael. Le gardien au calme olympien a multiplié les arrêts décisifs, notamment un double arrêt à la 23e qui a brisé les derniers espoirs bleus. Élu MVP à l'unanimité, il accepta le titre avec la modestie de ceux qui savent.\n\n**La stat du soir**\n\nBlanche a encaissé seulement 7 buts sur les 5 dernières rencontres. À ce rythme, l'équipe blanche postule au Ballon d'Or collectif.\n\n**La parole au coach**\n\n"On a été sérieux du début à la fin. C'est exactement ce qu'on avait préparé."\n\n**La note de la rédaction**\n\n8/10 — Un match propre, dominé, presque trop facile. Il manquait juste un peu de drama.`,
   },
   {
     id: 's8', date: '11 mai 2026', dateISO: '2026-05-11',

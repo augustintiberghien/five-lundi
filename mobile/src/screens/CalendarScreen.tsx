@@ -1,10 +1,16 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SessionCard from '../components/SessionCard';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import { isPast, MOCK_USER_REGISTRATIONS, SESSIONS, UserRegistration } from '../types/session';
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function CalendarScreen() {
+  const navigation = useNavigation<Nav>();
   const [registrations, setRegistrations] = useState(MOCK_USER_REGISTRATIONS);
   const listRef = useRef<FlatList>(null);
 
@@ -52,6 +58,7 @@ export default function CalendarScreen() {
               registration={reg}
               onRegister={() => handleRegister(session.id)}
               onUnregister={() => handleUnregister(session.id)}
+              onPress={isPast(session) ? () => navigation.navigate('SessionDetail', { sessionId: session.id }) : undefined}
             />
           );
         }}
