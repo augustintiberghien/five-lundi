@@ -22,7 +22,7 @@ type Props = {
 
 const ROLE_LABELS: Record<Role, { label: string; icon: string; color: string }> = {
   coach:  { label: 'Coach',  icon: '🎯', color: '#FF9800' },
-  player: { label: 'Joueur', icon: '👟', color: '#4CAF50' },
+  player: { label: 'Joueur', icon: '👟', color: '#FFD600' },
 };
 
 const POSITION_LABELS: Record<Position, { label: string; icon: string }> = {
@@ -59,7 +59,7 @@ function getDelta(
 }
 
 const DELTA_DISPLAY: Record<Exclude<DeltaTag, null>, { label: string; color: string; icon: string }> = {
-  'strength-confirmed': { label: 'Force confirmée par le coach',   color: '#4CAF50', icon: '✓' },
+  'strength-confirmed': { label: 'Force confirmée par le coach',   color: '#FFD600', icon: '✓' },
   'strength-diverges':  { label: 'Le coach voit autrement',        color: '#FF9800', icon: '⚠' },
   'weakness-confirmed': { label: 'Faiblesse reconnue',             color: '#888',    icon: '✓' },
   'weakness-diverges':  { label: 'Tu es meilleur que tu crois !',  color: '#64B5F6', icon: '↑' },
@@ -187,7 +187,7 @@ export default function ProfileScreen({ profile, onSave, onClose = undefined }: 
                     <Text style={styles.selfIcon}>
                       {CRITERIA_META.find(c => c.key === profile.strength)?.icon}
                     </Text>
-                    <Text style={[styles.selfLabel, { color: '#4CAF50' }]}>
+                    <Text style={[styles.selfLabel, { color: '#FFD600' }]}>
                       {CRITERIA_META.find(c => c.key === profile.strength)?.label}
                     </Text>
                   </View>
@@ -274,7 +274,7 @@ export default function ProfileScreen({ profile, onSave, onClose = undefined }: 
 const AVATAR_SIZE = 90;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   headerBtn:     { width: 64 },
   headerBtnText: { fontSize: 22, color: '#fff' },
-  editBtnText:   { fontSize: 13, color: '#4CAF50', fontWeight: '700', textAlign: 'right' },
+  editBtnText:   { fontSize: 13, color: '#FFD600', fontWeight: '700', textAlign: 'right' },
   headerTitle:   { fontSize: 15, fontWeight: '800', color: '#fff' },
 
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
@@ -318,8 +318,8 @@ const styles = StyleSheet.create({
   sectionLabel: { fontSize: 10, fontWeight: '800', color: '#333', letterSpacing: 1.5, marginBottom: 10 },
 
   card: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     padding: 16, marginBottom: 20,
   },
 

@@ -188,7 +188,7 @@ function StatTile({ label, value, accent }: { label: string; value: string; acce
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,
@@ -212,8 +212,8 @@ const styles = StyleSheet.create({
   // Stats
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     marginBottom: 24, overflow: 'hidden',
   },
   statTile: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1, borderRightColor: '#1e1e1e',
   },
   statValue: { fontSize: 20, fontWeight: '900', color: '#fff', marginBottom: 3 },
-  statAccent: { color: '#4CAF50' },
+  statAccent: { color: '#FFD600' },
   statLabel: { fontSize: 9, color: '#444', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
 
   // Sections
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     width: 32, height: 32, borderRadius: 16,
     alignItems: 'center', justifyContent: 'center',
   },
-  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#4CAF50' },
+  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#FFD600' },
   dotL: { backgroundColor: 'rgba(244,67,54,0.12)', borderWidth: 1, borderColor: '#F44336' },
   dotText: { fontSize: 11, fontWeight: '800', color: '#fff' },
   moreDataHint: { fontSize: 10, color: '#2a2a2a', flex: 1, marginLeft: 4 },
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   pairInfo: { flex: 1 },
   pairNameRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   pairName: { fontSize: 13, fontWeight: '700', color: '#ddd' },
-  pairWr: { fontSize: 12, fontWeight: '700', color: '#4CAF50' },
+  pairWr: { fontSize: 12, fontWeight: '700', color: '#FFD600' },
   pairBarTrack: { height: 3, backgroundColor: '#1a1a1a', borderRadius: 2, overflow: 'hidden', marginBottom: 3 },
   pairBarFill: { height: '100%', backgroundColor: '#2e5c2e', borderRadius: 2 },
   pairCount: { fontSize: 10, color: '#333' },
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   mvpList: { gap: 2 },
   mvpRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#111',
+    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   mvpTrophy: { fontSize: 22 },
   mvpInfo: { flex: 1 },

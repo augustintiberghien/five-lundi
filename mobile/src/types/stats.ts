@@ -208,7 +208,7 @@ export const RANK_METHOD_LABELS: Record<RankMethod, string> = {
 
 export const FORM_COLOR: Record<PlayerStats['form'], string> = {
   'En feu 🔥':      '#FF9800',
-  'Invincible 🛡️':  '#4CAF50',
+  'Invincible 🛡️':  '#FFD600',
   'En forme 📈':    '#64B5F6',
   'En galère 😤':   '#9E9E9E',
   'Maudit ☠️':     '#F44336',

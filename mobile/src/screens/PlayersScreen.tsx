@@ -58,7 +58,7 @@ export default function PlayersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 20, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
     gap: 14,
   },
   avatar: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 15, fontWeight: '700', color: '#ddd', marginBottom: 3 },
   form: { fontSize: 11, fontWeight: '600' },
   statsGroup: { alignItems: 'flex-end', gap: 3 },
-  wr: { fontSize: 15, fontWeight: '800', color: '#4CAF50' },
+  wr: { fontSize: 15, fontWeight: '800', color: '#FFD600' },
   played: { fontSize: 10, color: '#333', fontWeight: '600' },
   chevron: { fontSize: 20, color: '#2a2a2a', fontWeight: '300' },
 });

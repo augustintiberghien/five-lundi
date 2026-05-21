@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#222',
+    borderColor: '#1c2333',
   },
   cardPast: {
     opacity: 0.65,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
 
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' },
   statusBadge: { borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  badgeGreen: { backgroundColor: 'rgba(76, 175, 80, 0.2)', borderWidth: 1, borderColor: '#4CAF50' },
+  badgeGreen: { backgroundColor: 'rgba(76, 175, 80, 0.2)', borderWidth: 1, borderColor: '#FFD600' },
   badgeAmber: { backgroundColor: 'rgba(255, 160, 0, 0.15)', borderWidth: 1, borderColor: '#FFA000' },
   badgeGrey:  { backgroundColor: '#1a1a1a', borderWidth: 1, borderColor: '#333' },
   statusText: { fontSize: 12, fontWeight: '600', color: '#eee' },
@@ -253,12 +253,12 @@ const styles = StyleSheet.create({
   unregisterLink: { fontSize: 11, color: '#555', textDecorationLine: 'underline' },
 
   openRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50' },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFD600' },
   openText: { fontSize: 12, color: '#aaa', flex: 1 },
-  joinBtn: { backgroundColor: '#4CAF50', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 6 },
+  joinBtn: { backgroundColor: '#FFD600', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 6 },
   joinBtnText: { fontSize: 13, fontWeight: '700', color: '#fff' },
 
-  rejoinBtn: { backgroundColor: '#222', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 1, borderColor: '#444' },
+  rejoinBtn: { backgroundColor: '#1c2333', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 1, borderColor: '#444' },
   rejoinBtnText: { fontSize: 12, color: '#aaa' },
 
   closedText: { fontSize: 12, color: '#444', flex: 1 },

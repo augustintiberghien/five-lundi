@@ -256,17 +256,17 @@ function StatTile({ label, value, accent }: { label: string; value: string; acce
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
 
   profileSection: { alignItems: 'center', paddingTop: 28, paddingBottom: 24 },
   avatar: {
     width: 72, height: 72, borderRadius: 36,
-    backgroundColor: '#1a3a1a', borderWidth: 2, borderColor: '#4CAF50',
+    backgroundColor: '#1a3a1a', borderWidth: 2, borderColor: '#FFD600',
     alignItems: 'center', justifyContent: 'center', marginBottom: 12,
   },
   avatarImg: { width: 72, height: 72, borderRadius: 36, marginBottom: 12 },
-  avatarText: { fontSize: 24, fontWeight: '900', color: '#4CAF50' },
+  avatarText: { fontSize: 24, fontWeight: '900', color: '#FFD600' },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff', marginBottom: 4 },
   userSub: { fontSize: 12, color: '#555', marginBottom: 6 },
   userBio: { fontSize: 12, color: '#444', textAlign: 'center', maxWidth: 240, marginBottom: 10, lineHeight: 17 },
@@ -277,14 +277,14 @@ const styles = StyleSheet.create({
   },
   mvpBadgeText: { fontSize: 11, fontWeight: '700', color: '#f5c518' },
   coachBtn: {
-    marginTop: 12, backgroundColor: '#111', borderRadius: 20,
-    borderWidth: 1, borderColor: '#1e1e1e', paddingHorizontal: 14, paddingVertical: 6,
+    marginTop: 12, backgroundColor: '#111827', borderRadius: 20,
+    borderWidth: 1, borderColor: '#1e2a3a', paddingHorizontal: 14, paddingVertical: 6,
   },
   coachBtnText: { fontSize: 11, color: '#444', fontWeight: '700' },
 
   statsRow: {
-    flexDirection: 'row', backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e', marginBottom: 10, overflow: 'hidden',
+    flexDirection: 'row', backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a', marginBottom: 10, overflow: 'hidden',
   },
   statTile: {
     flex: 1, alignItems: 'center', paddingVertical: 16,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   recentLabel: { fontSize: 10, color: '#333', fontWeight: '700', textTransform: 'uppercase' },
   resultDots: { flexDirection: 'row', gap: 6 },
   dot: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#4CAF50' },
+  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#FFD600' },
   dotL: { backgroundColor: 'rgba(244,67,54,0.15)', borderWidth: 1, borderColor: '#F44336' },
   dotText: { fontSize: 9, fontWeight: '800', color: '#fff' },
 
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   voteAlertArrow: { fontSize: 16, color: '#FF9800' },
 
   nextMatchCard: {
-    backgroundColor: '#111', borderRadius: 14, borderWidth: 1, borderColor: '#1e1e1e', padding: 16,
+    backgroundColor: '#111827', borderRadius: 14, borderWidth: 1, borderColor: '#1e2a3a', padding: 16,
   },
   nextMatchDate: { fontSize: 11, color: '#444', fontWeight: '600', marginBottom: 10, textTransform: 'capitalize' },
   nextMatchTeams: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
@@ -348,14 +348,14 @@ const styles = StyleSheet.create({
   nextMatchFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   countBubble: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   countDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#333' },
-  countDotOpen: { backgroundColor: '#4CAF50' },
+  countDotOpen: { backgroundColor: '#FFD600' },
   countText: { fontSize: 11, color: '#444' },
 
   articleCard: {
-    backgroundColor: '#111', borderRadius: 14, borderWidth: 1, borderColor: '#1e1e1e', padding: 16,
+    backgroundColor: '#111827', borderRadius: 14, borderWidth: 1, borderColor: '#1e2a3a', padding: 16,
   },
   articleMasthead: { fontSize: 9, color: '#333', fontWeight: '700', letterSpacing: 1.5, marginBottom: 8 },
   articleTitle: { fontSize: 17, fontWeight: '900', color: '#fff', marginBottom: 6, lineHeight: 22 },
   articleMvp: { fontSize: 11, color: '#f5c518', marginBottom: 12 },
-  articleReadMore: { fontSize: 12, color: '#4CAF50', fontWeight: '700' },
+  articleReadMore: { fontSize: 12, color: '#FFD600', fontWeight: '700' },
 });

@@ -321,7 +321,7 @@ function ScoreCounter({
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   toolsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   toolCard: {
     flex: 1, backgroundColor: '#0d1a0d',
-    borderWidth: 1.5, borderColor: '#4CAF50',
+    borderWidth: 1.5, borderColor: '#FFD600',
     borderRadius: 14, paddingVertical: 14, alignItems: 'center', gap: 6,
   },
   toolCardAlt:     { backgroundColor: '#0a0a1a', borderColor: '#64B5F6' },
@@ -360,19 +360,19 @@ const styles = StyleSheet.create({
   createCard: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#0d1a0d',
-    borderWidth: 1.5, borderColor: '#4CAF50',
+    borderWidth: 1.5, borderColor: '#FFD600',
     borderRadius: 14, padding: 16, marginBottom: 28,
   },
   createLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   createIconCircle: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FFD600',
     alignItems: 'center', justifyContent: 'center',
   },
   createIconText: { fontSize: 20, color: '#fff', fontWeight: '700', lineHeight: 24 },
-  createTitle: { fontSize: 15, fontWeight: '800', color: '#4CAF50', marginBottom: 2 },
+  createTitle: { fontSize: 15, fontWeight: '800', color: '#FFD600', marginBottom: 2 },
   createSub: { fontSize: 11, color: '#2e5c2e', textTransform: 'capitalize' },
-  createArrow: { fontSize: 18, color: '#4CAF50' },
+  createArrow: { fontSize: 18, color: '#FFD600' },
 
   // Sections
   sectionLabel: {
@@ -382,8 +382,8 @@ const styles = StyleSheet.create({
 
   // Generic card
   card: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     padding: 16, marginBottom: 24,
   },
   cardHeader: {
@@ -407,12 +407,12 @@ const styles = StyleSheet.create({
   progLabel: { fontSize: 12, color: '#888', fontWeight: '600' },
   progBench: { fontSize: 11, color: '#555' },
   progTrack: { height: 4, backgroundColor: '#1a1a1a', borderRadius: 2, overflow: 'hidden', marginBottom: 14 },
-  progFill: { height: '100%', backgroundColor: '#4CAF50', borderRadius: 2 },
+  progFill: { height: '100%', backgroundColor: '#FFD600', borderRadius: 2 },
 
   // Card action buttons
   cardActions: { flexDirection: 'row', gap: 8 },
   actionBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', borderWidth: 1 },
-  actionOpen:  { backgroundColor: 'rgba(76,175,80,0.1)', borderColor: '#4CAF50' },
+  actionOpen:  { backgroundColor: 'rgba(76,175,80,0.1)', borderColor: '#FFD600' },
   actionClose: { backgroundColor: 'rgba(244,67,54,0.08)', borderColor: '#F44336' },
   actionCompo: { backgroundColor: 'rgba(100,181,246,0.08)', borderColor: '#64B5F6' },
   actionBtnText: { fontSize: 12, fontWeight: '700', color: '#ddd' },
@@ -436,19 +436,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a1a', borderWidth: 1, borderColor: '#2a2a2a',
     alignItems: 'center', justifyContent: 'center',
   },
-  cBtnPlus: { backgroundColor: '#1a3a1a', borderColor: '#4CAF50' },
+  cBtnPlus: { backgroundColor: '#1a3a1a', borderColor: '#FFD600' },
   cBtnText: { fontSize: 20, fontWeight: '600', color: '#888', lineHeight: 24 },
 
   // Confirm button
   confirmBtn: {
-    backgroundColor: '#4CAF50', borderRadius: 12,
+    backgroundColor: '#FFD600', borderRadius: 12,
     paddingVertical: 14, alignItems: 'center',
   },
   confirmBtnText: { fontSize: 13, fontWeight: '800', color: '#fff' },
 
   // Score confirmed state
   confirmedBox: { alignItems: 'center', paddingVertical: 20, gap: 8 },
-  confirmedCheck: { fontSize: 40, color: '#4CAF50' },
+  confirmedCheck: { fontSize: 40, color: '#FFD600' },
   confirmedTitle: { fontSize: 16, fontWeight: '800', color: '#fff' },
   confirmedSub: { fontSize: 13, color: '#555', textAlign: 'center' },
 

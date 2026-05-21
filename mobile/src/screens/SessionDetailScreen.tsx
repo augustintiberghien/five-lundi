@@ -159,7 +159,7 @@ function RichText({ text, style }: { text: string; style: object }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row', gap: 20,
     paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   metaItem: { fontSize: 12, color: '#555', fontWeight: '500' },
 
