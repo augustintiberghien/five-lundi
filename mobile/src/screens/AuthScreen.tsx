@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from '../components/Logo';
+import GoogleG from '../components/GoogleG';
 import { useAuth } from '../store/AuthContext';
 
 export default function AuthScreen() {
