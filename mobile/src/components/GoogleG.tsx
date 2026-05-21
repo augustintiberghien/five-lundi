@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
   letter: {
     fontWeight: '700',
     color: '#4285F4',
-    lineHeight: undefined,
     includeFontPadding: false,
   },
 });
