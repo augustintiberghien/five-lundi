@@ -4,38 +4,52 @@ type Props = {
   size?: 'sm' | 'md' | 'lg';
 };
 
-const SIZES = {
-  sm: { mark: 36, vSize: 16, name: 10, sub: 7, gap: 6 },
-  md: { mark: 52, vSize: 24, name: 13, sub: 8, gap: 8 },
-  lg: { mark: 72, vSize: 33, name: 17, sub: 9, gap: 12 },
-};
-
 const YELLOW = '#FFD600';
+const BG = '#0d1117';
 
+// Three locker doors side by side — universally recognisable as a changing room
 export default function Logo({ size = 'lg' }: Props) {
-  const s = SIZES[size];
+  const scale = size === 'lg' ? 1 : size === 'md' ? 0.7 : 0.5;
+  const w = Math.round(28 * scale);   // locker width
+  const h = Math.round(42 * scale);   // locker height
+  const gap = Math.round(4 * scale);
+  const r = Math.round(3 * scale);
+  const handleW = Math.round(6 * scale);
+  const handleH = Math.round(2 * scale);
+  const ventH = Math.round(2 * scale);
+  const nameSize = size === 'lg' ? 17 : size === 'md' ? 13 : 9;
+  const tagSize = size === 'lg' ? 9 : size === 'md' ? 7 : 6;
+
+  const locker = (highlighted: boolean) => (
+    <View style={[
+      styles.locker,
+      {
+        width: w, height: h, borderRadius: r,
+        borderWidth: Math.max(1, Math.round(1.5 * scale)),
+        borderColor: highlighted ? YELLOW : 'rgba(255,214,0,0.35)',
+        backgroundColor: highlighted ? 'rgba(255,214,0,0.08)' : 'transparent',
+      },
+    ]}>
+      {/* Ventilation slot */}
+      <View style={[styles.vent, { width: w * 0.5, height: ventH, marginTop: Math.round(5 * scale), borderRadius: 1 }]} />
+      {/* Handle */}
+      <View style={[styles.handle, { width: handleW, height: handleH, borderRadius: handleH / 2, marginTop: 'auto', marginBottom: Math.round(7 * scale) }]} />
+    </View>
+  );
 
   return (
     <View style={styles.root}>
-      {/* Mark — V made of two angled strokes */}
-      <View style={[styles.mark, { width: s.mark, height: s.mark }]}>
-        <View style={[
-          styles.stroke,
-          styles.strokeLeft,
-          { width: s.mark * 0.22, height: s.mark * 0.62 },
-        ]} />
-        <View style={[
-          styles.stroke,
-          styles.strokeRight,
-          { width: s.mark * 0.22, height: s.mark * 0.62 },
-        ]} />
-        <View style={[styles.topLine, { width: s.mark * 0.6 }]} />
+      {/* Three lockers */}
+      <View style={[styles.row, { gap }]}>
+        {locker(false)}
+        {locker(true)}
+        {locker(false)}
       </View>
 
       {/* Wordmark */}
-      <View style={{ alignItems: 'center', marginTop: s.gap, gap: 2 }}>
-        <Text style={[styles.name, { fontSize: s.name }]}>VESTIAIRE</Text>
-        <Text style={[styles.tagline, { fontSize: s.sub }]}>TON FIVE · TES STATS</Text>
+      <View style={{ alignItems: 'center', marginTop: Math.round(10 * scale), gap: 2 }}>
+        <Text style={[styles.name, { fontSize: nameSize }]}>VESTIAIRE</Text>
+        <Text style={[styles.tagline, { fontSize: tagSize }]}>TON FIVE · TES STATS</Text>
       </View>
     </View>
   );
@@ -43,14 +57,20 @@ export default function Logo({ size = 'lg' }: Props) {
 
 const styles = StyleSheet.create({
   root: { alignItems: 'center' },
-  mark: { alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  stroke: { position: 'absolute', backgroundColor: YELLOW, borderRadius: 3 },
-  strokeLeft: { transform: [{ rotate: '-20deg' }], left: '18%', top: '10%' },
-  strokeRight: { transform: [{ rotate: '20deg' }], right: '18%', top: '10%' },
-  topLine: {
-    position: 'absolute', top: '8%', height: 2,
-    backgroundColor: YELLOW, opacity: 0.35, borderRadius: 1,
+  row: { flexDirection: 'row', alignItems: 'flex-end' },
+  locker: { alignItems: 'center' },
+  vent: { backgroundColor: YELLOW, opacity: 0.5 },
+  handle: { backgroundColor: YELLOW },
+  name: {
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: 4,
+    textAlign: 'center',
   },
-  name: { fontWeight: '900', color: '#fff', letterSpacing: 4, textAlign: 'center' },
-  tagline: { fontWeight: '600', color: 'rgba(255,255,255,0.28)', letterSpacing: 2, textAlign: 'center' },
+  tagline: {
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.28)',
+    letterSpacing: 2,
+    textAlign: 'center',
+  },
 });
