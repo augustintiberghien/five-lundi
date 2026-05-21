@@ -126,7 +126,7 @@ Après chaque match : article façon L'Équipe généré par IA. Partage en un t
 - [x] Écran Compo — terrain interactif, drag & drop, snap-to-position, banc
 - [ ] Refacto nav Coach vs Joueur
 - [ ] Écran Stats
-- [ ] Écran Profil
+- [x] Écran Profil
 - [ ] Auth Supabase
 - [ ] Inscriptions réelles (Supabase)
 - [ ] Notifications push (Expo Notifications)

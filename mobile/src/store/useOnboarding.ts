@@ -36,7 +36,6 @@ export function useOnboarding() {
       name: p.name,
       role: p.role,
       bio: p.bio ?? null,
-      photo_uri: p.photoUri ?? null,
       position: p.position ?? null,
       strength: p.strength ?? null,
       weakness: p.weakness ?? null,

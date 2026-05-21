@@ -1,41 +1,76 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SessionCard from '../components/SessionCard';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
+import { supabase } from '../lib/supabase';
+import { useProfile } from '../store/ProfileContext';
 import { useSessions } from '../store/SessionsContext';
-import { isPast, MOCK_USER_REGISTRATIONS, UserRegistration } from '../types/session';
+import { isPast, UserRegistration } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+type RegRow = { session_id: string; status: string; bench_position?: number };
 
 export default function CalendarScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
   const { sessions } = useSessions();
-  const [registrations, setRegistrations] = useState(MOCK_USER_REGISTRATIONS);
+  const { profile } = useProfile();
+  const [registrations, setRegistrations] = useState<Record<string, UserRegistration>>({});
   const listRef = useRef<FlatList>(null);
 
+  const playerName = profile?.name ?? '';
   const nextIndex = sessions.findIndex(s => !isPast(s));
 
-  function handleRegister(sessionId: string) {
+  // Load registrations from Supabase for this player
+  useEffect(() => {
+    if (!playerName) return;
+    supabase
+      .from('registrations')
+      .select('session_id, status, bench_position')
+      .eq('player_name', playerName)
+      .then(({ data }) => {
+        if (!data) return;
+        const map: Record<string, UserRegistration> = {};
+        for (const row of data as RegRow[]) {
+          map[row.session_id] = {
+            status: row.status as UserRegistration['status'],
+            benchPosition: row.bench_position,
+          };
+        }
+        setRegistrations(map);
+      });
+  }, [playerName]);
+
+  async function handleRegister(sessionId: string) {
     const session = sessions.find(s => s.id === sessionId)!;
     const isFull = session.confirmedCount >= session.maxPlayers;
-    setRegistrations(prev => ({
-      ...prev,
-      [sessionId]: isFull
-        ? { status: 'bench', benchPosition: session.benchCount + 1 }
-        : { status: 'confirmed' },
-    }));
+    const newReg: UserRegistration = isFull
+      ? { status: 'bench', benchPosition: session.benchCount + 1 }
+      : { status: 'confirmed' };
+
+    setRegistrations(prev => ({ ...prev, [sessionId]: newReg }));
+
+    await supabase.from('registrations').upsert({
+      session_id: sessionId,
+      player_name: playerName,
+      status: newReg.status,
+      bench_position: newReg.benchPosition ?? null,
+    }, { onConflict: 'session_id,player_name' });
   }
 
-  function handleUnregister(sessionId: string) {
-    setRegistrations(prev => ({
-      ...prev,
-      [sessionId]: { status: 'absent' },
-    }));
+  async function handleUnregister(sessionId: string) {
+    setRegistrations(prev => ({ ...prev, [sessionId]: { status: 'absent' } }));
+    await supabase.from('registrations').upsert({
+      session_id: sessionId,
+      player_name: playerName,
+      status: 'absent',
+      bench_position: null,
+    }, { onConflict: 'session_id,player_name' });
   }
 
   return (
