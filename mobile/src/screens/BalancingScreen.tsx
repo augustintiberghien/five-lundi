@@ -277,7 +277,7 @@ function avgStr(name: string, ratings: ReturnType<typeof usePlayerRatings>['rati
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   // Player rows (select phase)
   playerRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#111',
+    paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   playerRowDim: { opacity: 0.4 },
   check: {
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: '#333',
     alignItems: 'center', justifyContent: 'center',
   },
-  checkOn: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
+  checkOn: { backgroundColor: '#FFD600', borderColor: '#FFD600' },
   checkMark: { fontSize: 12, color: '#fff', fontWeight: '900' },
   playerName: { flex: 1, fontSize: 14, fontWeight: '700', color: '#ddd' },
   playerNameDim: { color: '#555' },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   posPill: {
     paddingHorizontal: 10, paddingVertical: 4,
     borderRadius: 8, borderWidth: 1, borderColor: '#252525',
-    backgroundColor: '#111',
+    backgroundColor: '#111827',
   },
   posPillOn: { borderColor: '#444', backgroundColor: '#1a1a1a' },
   posPillText: { fontSize: 11, fontWeight: '700', color: '#888' },
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   // Footer (select phase)
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: '#1a1a1a' },
   genBtn: {
-    backgroundColor: '#4CAF50', borderRadius: 12,
+    backgroundColor: '#FFD600', borderRadius: 12,
     paddingVertical: 15, alignItems: 'center',
   },
   genBtnDisabled: { backgroundColor: '#1a2a1a' },
@@ -338,15 +338,15 @@ const styles = StyleSheet.create({
   },
   balanceBadge: {
     backgroundColor: '#0d1a0d', borderRadius: 10, borderWidth: 1,
-    borderColor: '#4CAF50', paddingHorizontal: 12, paddingVertical: 6, gap: 2,
+    borderColor: '#FFD600', paddingHorizontal: 12, paddingVertical: 6, gap: 2,
   },
-  balanceLabel: { fontSize: 9, fontWeight: '700', color: '#4CAF50', letterSpacing: 1 },
+  balanceLabel: { fontSize: 9, fontWeight: '700', color: '#FFD600', letterSpacing: 1 },
   balanceValue: { fontSize: 18, fontWeight: '900', color: '#fff' },
   swapHint: { flex: 1, fontSize: 11, color: '#444', textAlign: 'right', marginLeft: 12 },
 
   teamCard: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     padding: 16, marginBottom: 16,
   },
   teamLabel: { fontSize: 13, fontWeight: '900', marginBottom: 12 },

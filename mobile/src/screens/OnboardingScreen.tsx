@@ -434,7 +434,7 @@ const AVATAR = 80;
 const PHOTO  = 140;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingVertical: 14 },
   dot:       { width: 7, height: 7, borderRadius: 4, backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#2a2a2a' },
   dotDone:   { backgroundColor: '#1e3a1e', borderColor: '#2e5c2e' },
-  dotActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50', width: 22 },
+  dotActive: { backgroundColor: '#FFD600', borderColor: '#FFD600', width: 22 },
 
   scrollContent: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 32 },
 
@@ -467,8 +467,8 @@ const styles = StyleSheet.create({
   },
   avatarInitialsText: { fontSize: 28, fontWeight: '900', color: '#555' },
   nameInput: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     paddingHorizontal: 18, paddingVertical: 16,
     fontSize: 22, color: '#fff', fontWeight: '700',
     textAlign: 'center', marginBottom: 8,
@@ -483,19 +483,19 @@ const styles = StyleSheet.create({
   photoImg: { width: PHOTO, height: PHOTO, borderRadius: PHOTO / 2 },
   photoPlaceholder: {
     width: PHOTO, height: PHOTO, borderRadius: PHOTO / 2,
-    backgroundColor: '#111', borderWidth: 1.5, borderColor: '#2a2a2a',
+    backgroundColor: '#111827', borderWidth: 1.5, borderColor: '#2a2a2a',
     borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', gap: 6,
   },
   photoPlaceholderIcon: { fontSize: 36 },
   photoPlaceholderText: { fontSize: 11, color: '#444', fontWeight: '600' },
   photoChange: { marginTop: 12 },
-  photoChangeText: { fontSize: 13, color: '#4CAF50', fontWeight: '700' },
+  photoChangeText: { fontSize: 13, color: '#FFD600', fontWeight: '700' },
   skipNote: { fontSize: 12, color: '#2a2a2a', textAlign: 'center', lineHeight: 17 },
 
   // Step 2: Bio
   bioInput: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     paddingHorizontal: 16, paddingVertical: 14,
     fontSize: 15, color: '#fff', lineHeight: 22,
     minHeight: 110, textAlignVertical: 'top', marginBottom: 6,
@@ -505,11 +505,11 @@ const styles = StyleSheet.create({
   // Step 3: Position
   grid2: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 12 },
   optCard: {
-    width: '47%', backgroundColor: '#111', borderRadius: 16,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    width: '47%', backgroundColor: '#111827', borderRadius: 16,
+    borderWidth: 1, borderColor: '#1e2a3a',
     padding: 18, alignItems: 'center', gap: 6,
   },
-  optCardOn:  { backgroundColor: '#0d1a0d', borderColor: '#4CAF50' },
+  optCardOn:  { backgroundColor: '#0d1a0d', borderColor: '#FFD600' },
   optIcon:    { fontSize: 28 },
   optLabel:   { fontSize: 14, fontWeight: '800', color: '#666' },
   optLabelOn: { color: '#fff' },
@@ -520,28 +520,28 @@ const styles = StyleSheet.create({
   sectionMini: { fontSize: 10, fontWeight: '800', color: '#333', letterSpacing: 1.5, marginBottom: 10 },
   grid3: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   critCard: {
-    width: '30%', backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    width: '30%', backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     paddingVertical: 14, alignItems: 'center', gap: 5,
   },
-  critStrength: { backgroundColor: '#0d1a0d', borderColor: '#4CAF50' },
+  critStrength: { backgroundColor: '#0d1a0d', borderColor: '#FFD600' },
   critWeakness: { backgroundColor: '#1a0a0a', borderColor: '#F44336' },
   critDim:      { opacity: 0.25 },
   critIcon:     { fontSize: 20 },
   critLabel:    { fontSize: 11, fontWeight: '700', color: '#555', textAlign: 'center' },
-  critLabelGreen: { color: '#4CAF50' },
+  critLabelGreen: { color: '#FFD600' },
   critLabelRed:   { color: '#F44336' },
 
   // Nav row
   navRow: { flexDirection: 'row', gap: 10, marginTop: 28 },
   prevBtn: {
     width: 48, height: 52, borderRadius: 14,
-    backgroundColor: '#111', borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderWidth: 1, borderColor: '#1e2a3a',
     alignItems: 'center', justifyContent: 'center',
   },
   prevBtnText: { fontSize: 20, color: '#555' },
   nextBtn: {
-    flex: 1, backgroundColor: '#4CAF50', borderRadius: 14,
+    flex: 1, backgroundColor: '#FFD600', borderRadius: 14,
     paddingVertical: 16, alignItems: 'center',
   },
   nextBtnOff: { backgroundColor: '#1a1a1a' },
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
 
   // Done
   doneBox:   { alignItems: 'center', gap: 14 },
-  doneCheck: { fontSize: 64, color: '#4CAF50' },
+  doneCheck: { fontSize: 64, color: '#FFD600' },
   doneTitle: { fontSize: 26, fontWeight: '900', color: '#fff' },
   doneSub:   { fontSize: 14, color: '#555' },
 });

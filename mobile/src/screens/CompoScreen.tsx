@@ -141,7 +141,7 @@ export default function CompoScreen({ route, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

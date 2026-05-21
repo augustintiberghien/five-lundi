@@ -1,46 +1,56 @@
 export const C = {
-  // Backgrounds
-  bg: '#0a0a0a',
-  bgDark: '#0d0d0d',
-  bgCard: '#0e0e0e',
-  bgElevated: '#111',
-  bgInput: '#111',
+  // Backgrounds — aligned with the web app (#0d1117 palette)
+  bg: '#0d1117',
+  bgDark: '#080b10',
+  bgCard: '#111827',
+  bgElevated: '#161d2b',
+  bgInput: '#111827',
 
   // Borders / dividers
-  border: '#1a1a1a',
-  borderLight: '#1e1e1e',
-  borderMuted: '#2a2a2a',
-  borderSubtle: '#252525',
+  border: '#1c2333',
+  borderLight: '#1e2a3a',
+  borderMuted: '#253045',
+  borderSubtle: '#202840',
 
   // Text
   textWhite: '#fff',
-  textPrimary: '#ddd',
-  textSecondary: '#aaa',
-  textTertiary: '#888',
-  textDim: '#555',
-  textMuted: '#444',
-  textFaint: '#333',
+  textPrimary: '#e6eaf0',
+  textSecondary: '#8b9ab5',
+  textTertiary: '#6b7a95',
+  textDim: '#4a566e',
+  textMuted: '#3a4558',
+  textFaint: '#2a3348',
 
-  // Accent — green
-  green: '#4CAF50',
-  greenLight: '#8BC34A',
-  greenDark: '#2e5c2e',
-  greenBg: '#0d1a0d',
-  greenBgMid: '#1a3a1a',
+  // Accent — yellow (primary, matches web #FFD600)
+  yellow: '#FFD600',
+  yellowLight: '#FFE033',
+  yellowDark: '#b89800',
+  yellowBg: '#1a1500',
+  yellowBgMid: '#2a2200',
+
+  // Alias for legacy C.green refs
+  green: '#FFD600',
+  greenLight: '#FFE033',
+  greenDark: '#b89800',
+  greenBg: '#1a1500',
+  greenBgMid: '#2a2200',
 
   // Accent — red
-  red: '#F44336',
+  red: '#ef4444',
 
   // Accent — orange
   orange: '#FF9800',
 
-  // Accent — blue (team B)
-  blue: '#64B5F6',
-  blueDark: '#1565C0',
-  blueDarker: '#0D47A1',
+  // Team A — white / neutral
+  teamA: '#ffffff',
+
+  // Team B — blue (matches web #4d9fff)
+  blue: '#4d9fff',
+  blueDark: '#1a4a8a',
+  blueDarker: '#0d2a5a',
 
   // Gold / MVP
-  gold: '#FFD700',
+  gold: '#FFD600',
   goldVote: '#FFD600',
-  goldMvp: '#f5c518',
+  goldMvp: '#FFD600',
 } as const;

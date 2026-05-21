@@ -330,7 +330,7 @@ function SummaryRow({ icon, value, dim }: { icon: string; value: string; dim?: b
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     width: 7, height: 7, borderRadius: 4,
     backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#2a2a2a',
   },
-  dotActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50', width: 22 },
+  dotActive: { backgroundColor: '#FFD600', borderColor: '#FFD600', width: 22 },
 
   stepContainer: { flex: 1, paddingHorizontal: 24 },
   scrollContent: { paddingTop: 8, paddingBottom: 32 },
@@ -360,14 +360,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 14,
     borderRadius: 14, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14,
   },
-  chipOn:  { backgroundColor: '#0d1a0d', borderColor: '#4CAF50' },
-  chipOff: { backgroundColor: '#0e0e0e', borderColor: '#1e1e1e' },
+  chipOn:  { backgroundColor: '#0d1a0d', borderColor: '#FFD600' },
+  chipOff: { backgroundColor: '#0e0e0e', borderColor: '#1e2a3a' },
   chipBox: {
     width: 22, height: 22, borderRadius: 11,
     borderWidth: 1.5, borderColor: '#2a2a2a',
     alignItems: 'center', justifyContent: 'center',
   },
-  chipBoxOn: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
+  chipBoxOn: { backgroundColor: '#FFD600', borderColor: '#FFD600' },
   chipTick: { fontSize: 12, color: '#fff', fontWeight: '900' },
   chipTexts: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   chipDay:  { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 0.5 },
@@ -389,8 +389,8 @@ const styles = StyleSheet.create({
   inputBlock: { marginBottom: 24 },
   inputLabel: { fontSize: 10, color: '#333', fontWeight: '700', letterSpacing: 1.5, marginBottom: 8 },
   textInput: {
-    backgroundColor: '#111', borderRadius: 12,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 12,
+    borderWidth: 1, borderColor: '#1e2a3a',
     paddingHorizontal: 16, paddingVertical: 14,
     fontSize: 15, color: '#fff', fontWeight: '600',
   },
@@ -405,21 +405,21 @@ const styles = StyleSheet.create({
 
   // Buttons
   nextBtn: {
-    backgroundColor: '#4CAF50', borderRadius: 14,
+    backgroundColor: '#FFD600', borderRadius: 14,
     paddingVertical: 16, alignItems: 'center',
   },
   nextBtnOff: { backgroundColor: '#1a1a1a' },
   nextBtnText: { fontSize: 14, fontWeight: '800', color: '#fff' },
   publishBtn: {
-    backgroundColor: '#4CAF50', borderRadius: 14,
+    backgroundColor: '#FFD600', borderRadius: 14,
     paddingVertical: 18, alignItems: 'center',
   },
   publishBtnText: { fontSize: 16, fontWeight: '900', color: '#fff', letterSpacing: 0.5 },
 
   // Summary card
   summaryCard: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     padding: 16, gap: 12, marginBottom: 24,
   },
   summaryDatesRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
 
   // Done animation
   doneBox: { alignItems: 'center', gap: 12 },
-  doneCheck: { fontSize: 64, color: '#4CAF50' },
+  doneCheck: { fontSize: 64, color: '#FFD600' },
   doneTitle: { fontSize: 22, fontWeight: '900', color: '#fff', textAlign: 'center' },
   doneSub: { fontSize: 14, color: '#555' },
 });

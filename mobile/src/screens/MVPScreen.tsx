@@ -247,7 +247,7 @@ function VotedConfirmation({ name, onBack }: { name: string; onBack: () => void 
 const CIRCLE = 56;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -286,16 +286,16 @@ const styles = StyleSheet.create({
   },
   circleA: { backgroundColor: '#f5f5f5', borderColor: '#ccc' },
   circleB: { backgroundColor: '#1565C0', borderColor: '#0D47A1' },
-  circleSelected: { borderColor: '#4CAF50', borderWidth: 2.5 },
+  circleSelected: { borderColor: '#FFD600', borderWidth: 2.5 },
   initials: { fontSize: 16, fontWeight: '800', color: '#1a1a1a' },
   initialsLight: { color: '#fff' },
-  checkmark: { fontSize: 22, color: '#4CAF50', fontWeight: '900' },
+  checkmark: { fontSize: 22, color: '#FFD600', fontWeight: '900' },
 
   playerName: { fontSize: 11, fontWeight: '600', color: '#666', textAlign: 'center' },
-  playerNameSelected: { color: '#4CAF50' },
+  playerNameSelected: { color: '#FFD600' },
 
   voteBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#FFD600',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -309,8 +309,8 @@ const styles = StyleSheet.create({
   closingNote: { fontSize: 11, color: '#333', textAlign: 'center' },
 
   resultsCard: {
-    marginTop: 8, backgroundColor: '#111',
-    borderRadius: 14, borderWidth: 1, borderColor: '#1e1e1e', padding: 16, gap: 10,
+    marginTop: 8, backgroundColor: '#111827',
+    borderRadius: 14, borderWidth: 1, borderColor: '#1e2a3a', padding: 16, gap: 10,
   },
   resultsTitle: { fontSize: 13, fontWeight: '800', color: '#FFD600', marginBottom: 4 },
   resultRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -327,14 +327,14 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     backgroundColor: 'rgba(76,175,80,0.15)',
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    borderColor: '#FFD600',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
-  confirmCheck: { fontSize: 32, color: '#4CAF50' },
+  confirmCheck: { fontSize: 32, color: '#FFD600' },
   confirmTitle: { fontSize: 18, fontWeight: '800', color: '#fff' },
-  confirmName: { fontSize: 22, fontWeight: '900', color: '#4CAF50' },
+  confirmName: { fontSize: 22, fontWeight: '900', color: '#FFD600' },
   confirmSub: { fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 20, marginTop: 4 },
   backBtn2: {
     marginTop: 32,

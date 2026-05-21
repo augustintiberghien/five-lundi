@@ -306,7 +306,7 @@ function PalmaresSection({ navigation, t }: { navigation: Nav; t: T }) {
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
   header: { paddingHorizontal: 20, paddingVertical: 12 },
   title: { fontSize: 22, fontWeight: '800', color: '#fff' },
 
@@ -314,12 +314,12 @@ const styles = StyleSheet.create({
   segmentRow: {
     flexDirection: 'row',
     marginHorizontal: 20,
-    backgroundColor: '#111',
+    backgroundColor: '#111827',
     borderRadius: 10,
     padding: 3,
     marginBottom: 4,
     borderWidth: 1,
-    borderColor: '#1e1e1e',
+    borderColor: '#1e2a3a',
   },
   segment: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
   segmentActive: { backgroundColor: '#1e1e1e' },
@@ -332,35 +332,35 @@ const styles = StyleSheet.create({
   methodRow: { gap: 8, paddingBottom: 16 },
   methodPill: {
     paddingHorizontal: 14, paddingVertical: 6,
-    borderRadius: 20, borderWidth: 1, borderColor: '#222',
-    backgroundColor: '#111',
+    borderRadius: 20, borderWidth: 1, borderColor: '#1c2333',
+    backgroundColor: '#111827',
   },
-  methodPillActive: { backgroundColor: 'rgba(76,175,80,0.15)', borderColor: '#4CAF50' },
+  methodPillActive: { backgroundColor: 'rgba(76,175,80,0.15)', borderColor: '#FFD600' },
   methodText: { fontSize: 12, fontWeight: '600', color: '#444' },
-  methodTextActive: { color: '#4CAF50' },
+  methodTextActive: { color: '#FFD600' },
 
   // Rank list
   rankList: { gap: 2 },
   rankRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 10, gap: 10,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   rankPos: { width: 28, fontSize: 12, color: '#444', fontWeight: '700', textAlign: 'center' },
   rankPosPodium: { fontSize: 16 },
   rankInfo: { flex: 1, gap: 5 },
   rankNameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   rankName: { fontSize: 14, fontWeight: '700', color: '#ddd' },
-  rankWr: { fontSize: 12, fontWeight: '700', color: '#4CAF50' },
+  rankWr: { fontSize: 12, fontWeight: '700', color: '#FFD600' },
   rankBar: { height: 3, backgroundColor: '#1a1a1a', borderRadius: 2, overflow: 'hidden' },
-  rankBarFill: { height: '100%', backgroundColor: '#4CAF50', borderRadius: 2 },
+  rankBarFill: { height: '100%', backgroundColor: '#FFD600', borderRadius: 2 },
   rankPlayed: { fontSize: 10, color: '#333', width: 24, textAlign: 'right' },
   methodNote: { fontSize: 10, color: '#333', marginTop: 16, lineHeight: 16 },
 
   // Player list
   playerList: { gap: 8 },
   playerCard: {
-    backgroundColor: '#111',
+    backgroundColor: '#111827',
     borderRadius: 12, borderWidth: 1, borderColor: '#1a1a1a',
     padding: 12, flexDirection: 'row',
     alignItems: 'center', justifyContent: 'space-between',
@@ -378,14 +378,14 @@ const styles = StyleSheet.create({
   playerStatRow: { flexDirection: 'row', gap: 12 },
   miniStat: { alignItems: 'center' },
   miniStatVal: { fontSize: 14, fontWeight: '800', color: '#ccc' },
-  miniStatAccent: { color: '#4CAF50' },
+  miniStatAccent: { color: '#FFD600' },
   miniStatLabel: { fontSize: 8, color: '#444', fontWeight: '700', textTransform: 'uppercase' },
   resultDots: { flexDirection: 'row', gap: 4 },
   resultDot: {
     width: 18, height: 18, borderRadius: 9,
     alignItems: 'center', justifyContent: 'center',
   },
-  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#4CAF50' },
+  dotW: { backgroundColor: 'rgba(76,175,80,0.2)', borderWidth: 1, borderColor: '#FFD600' },
   dotL: { backgroundColor: 'rgba(244,67,54,0.12)', borderWidth: 1, borderColor: '#F44336' },
   resultDotText: { fontSize: 7, fontWeight: '800', color: '#fff' },
 
@@ -395,14 +395,14 @@ const styles = StyleSheet.create({
   pairRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   pairRank: { width: 20, fontSize: 12, color: '#444', fontWeight: '700', textAlign: 'center' },
   pairInfo: { flex: 1, gap: 5 },
   pairNames: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   pairName: { fontSize: 13, fontWeight: '700', color: '#ddd' },
   pairPlus: { fontSize: 11, color: '#333' },
-  pairWr: { marginLeft: 'auto', fontSize: 12, fontWeight: '700', color: '#4CAF50' },
+  pairWr: { marginLeft: 'auto', fontSize: 12, fontWeight: '700', color: '#FFD600' },
   pairBarRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   pairBar: { flex: 1, height: 3, backgroundColor: '#1a1a1a', borderRadius: 2, overflow: 'hidden' },
   pairBarFill: { height: '100%', backgroundColor: '#2e5c2e', borderRadius: 2 },
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   mvpRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   mvpCircle: {
     width: 40, height: 40, borderRadius: 20,

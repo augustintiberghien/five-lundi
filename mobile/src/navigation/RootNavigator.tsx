@@ -30,7 +30,7 @@ export default function RootNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0a0a0a' },
+        contentStyle: { backgroundColor: '#0d1117' },
         animation: 'slide_from_bottom',
       }}
     >

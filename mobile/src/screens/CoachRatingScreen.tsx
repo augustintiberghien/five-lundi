@@ -506,7 +506,7 @@ function ScoreSlider({
 // ─── Styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0d1117' },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -515,18 +515,18 @@ const styles = StyleSheet.create({
   },
   headerBtn:   { width: 64 },
   backArrow:   { fontSize: 22, color: '#fff' },
-  summaryLink: { fontSize: 12, color: '#4CAF50', fontWeight: '700', textAlign: 'right' },
+  summaryLink: { fontSize: 12, color: '#FFD600', fontWeight: '700', textAlign: 'right' },
   headerTitle: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 1 },
 
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, paddingVertical: 14 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#1e1e1e', borderWidth: 1, borderColor: '#2a2a2a' },
   dotDone:   { backgroundColor: '#1e3a1e', borderColor: '#2e5c2e' },
-  dotActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50', width: 28, borderRadius: 4 },
+  dotActive: { backgroundColor: '#FFD600', borderColor: '#FFD600', width: 28, borderRadius: 4 },
 
   critHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     paddingHorizontal: 20, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: '#111',
+    borderBottomWidth: 1, borderBottomColor: '#111827',
   },
   critIcon: { fontSize: 36 },
   critName: { fontSize: 18, fontWeight: '900', color: '#fff', letterSpacing: 1 },
@@ -551,12 +551,12 @@ const styles = StyleSheet.create({
   trackFill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 14, opacity: 0.7 },
   thumb: {
     position: 'absolute', width: 22, height: 22, borderRadius: 11,
-    backgroundColor: '#0a0a0a', borderWidth: 2.5, marginLeft: -11, top: 3, zIndex: 2,
+    backgroundColor: '#0d1117', borderWidth: 2.5, marginLeft: -11, top: 3, zIndex: 2,
   },
 
   scoreBadge: {
     width: 34, height: 34, borderRadius: 8,
-    backgroundColor: '#111', borderWidth: 1,
+    backgroundColor: '#111827', borderWidth: 1,
     alignItems: 'center', justifyContent: 'center',
   },
   scoreNum: { fontSize: 13, fontWeight: '900' },
@@ -567,10 +567,10 @@ const styles = StyleSheet.create({
   },
   resetBtn: {
     paddingHorizontal: 16, paddingVertical: 13,
-    borderRadius: 12, borderWidth: 1, borderColor: '#2a2a2a', backgroundColor: '#111',
+    borderRadius: 12, borderWidth: 1, borderColor: '#2a2a2a', backgroundColor: '#111827',
   },
   resetBtnText: { fontSize: 12, color: '#555', fontWeight: '700' },
-  nextBtn: { flex: 1, backgroundColor: '#4CAF50', borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
+  nextBtn: { flex: 1, backgroundColor: '#FFD600', borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
   nextBtnText: { fontSize: 13, fontWeight: '800', color: '#fff' },
 
   // Summary
@@ -579,10 +579,10 @@ const styles = StyleSheet.create({
   summaryTitle: { fontSize: 12, fontWeight: '900', color: '#fff', letterSpacing: 2 },
   summarySub:   { fontSize: 11, color: '#333', marginBottom: 16 },
   addPlayerBtn: {
-    backgroundColor: '#0d1a0d', borderWidth: 1, borderColor: '#4CAF50',
+    backgroundColor: '#0d1a0d', borderWidth: 1, borderColor: '#FFD600',
     borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5,
   },
-  addPlayerBtnText: { fontSize: 11, color: '#4CAF50', fontWeight: '700' },
+  addPlayerBtnText: { fontSize: 11, color: '#FFD600', fontWeight: '700' },
 
   gridRow:        { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
   gridNameCell:   { width: 80 },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   },
   gridVal: { fontSize: 11, fontWeight: '900' },
 
-  saveBtn: { marginTop: 24, backgroundColor: '#4CAF50', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
+  saveBtn: { marginTop: 24, backgroundColor: '#FFD600', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveBtnText: { fontSize: 15, fontWeight: '900', color: '#fff' },
 });
 
@@ -614,10 +614,10 @@ const pvStyles = StyleSheet.create({
   playerName: { fontSize: 20, fontWeight: '900', color: '#fff' },
   newBadge: {
     marginTop: 4, backgroundColor: 'rgba(76,175,80,0.15)',
-    borderWidth: 1, borderColor: '#4CAF50',
+    borderWidth: 1, borderColor: '#FFD600',
     borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2,
   },
-  newBadgeText: { fontSize: 10, color: '#4CAF50', fontWeight: '800', letterSpacing: 1 },
+  newBadgeText: { fontSize: 10, color: '#FFD600', fontWeight: '800', letterSpacing: 1 },
 
   scroll: { paddingHorizontal: 16, paddingBottom: 24, gap: 10 },
 
@@ -633,14 +633,14 @@ const pvStyles = StyleSheet.create({
   sliderArea: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   scoreBadge: {
     width: 34, height: 34, borderRadius: 8,
-    backgroundColor: '#111', borderWidth: 1,
+    backgroundColor: '#111827', borderWidth: 1,
     alignItems: 'center', justifyContent: 'center',
   },
   scoreNum: { fontSize: 13, fontWeight: '900' },
 
   bottom: { paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#1a1a1a' },
   doneBtn: {
-    backgroundColor: '#111', borderRadius: 12, borderWidth: 1, borderColor: '#2a2a2a',
+    backgroundColor: '#111827', borderRadius: 12, borderWidth: 1, borderColor: '#2a2a2a',
     paddingVertical: 13, alignItems: 'center',
   },
   doneBtnText: { fontSize: 13, color: '#555', fontWeight: '700' },
@@ -653,8 +653,8 @@ const addStyles = StyleSheet.create({
   title:    { fontSize: 24, fontWeight: '900', color: '#fff', marginBottom: 6 },
   sub:      { fontSize: 13, color: '#444', marginBottom: 28, lineHeight: 18 },
   input: {
-    backgroundColor: '#111', borderRadius: 14,
-    borderWidth: 1, borderColor: '#1e1e1e',
+    backgroundColor: '#111827', borderRadius: 14,
+    borderWidth: 1, borderColor: '#1e2a3a',
     paddingHorizontal: 18, paddingVertical: 16,
     fontSize: 20, color: '#fff', fontWeight: '700', marginBottom: 6,
   },
@@ -666,7 +666,7 @@ const addStyles = StyleSheet.create({
     borderRadius: 12, borderWidth: 1, borderColor: '#2a2a2a',
   },
   cancelText: { fontSize: 13, color: '#555', fontWeight: '700' },
-  addBtn: { flex: 1, backgroundColor: '#4CAF50', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  addBtn: { flex: 1, backgroundColor: '#FFD600', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   addBtnOff: { backgroundColor: '#1a1a1a' },
   addBtnText: { fontSize: 14, fontWeight: '800', color: '#fff' },
 });
