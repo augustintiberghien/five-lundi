@@ -171,14 +171,35 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              {/* ── Step 0: Nom ── */}
+              {/* ── Step 0: Rôle ── */}
               {step === 0 && (
                 <>
                   <Text style={styles.stepCount}>ÉTAPE 1 / {TOTAL_STEPS}</Text>
+                  <Text style={styles.title}>Tu es…</Text>
+                  <Text style={styles.subtitle}>Ton rôle dans le groupe</Text>
+
+                  <View style={styles.grid2}>
+                    {ROLES.map(r => (
+                      <OptionCard
+                        key={r.key}
+                        icon={r.icon}
+                        label={r.label}
+                        desc={r.desc}
+                        selected={role === r.key}
+                        onPress={() => setRole(r.key)}
+                      />
+                    ))}
+                  </View>
+                </>
+              )}
+
+              {/* ── Step 1: Nom ── */}
+              {step === 1 && (
+                <>
+                  <Text style={styles.stepCount}>ÉTAPE 2 / {TOTAL_STEPS}</Text>
                   <Text style={styles.title}>Comment tu t'appelles ?</Text>
                   <Text style={styles.subtitle}>Ton prénom visible par tout le groupe</Text>
 
-                  {/* Avatar preview */}
                   <View style={styles.avatarPreview}>
                     {photoUri ? (
                       <Image source={{ uri: photoUri }} style={styles.avatarImg} />
@@ -202,12 +223,16 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
                 </>
               )}
 
-              {/* ── Step 1: Photo ── */}
-              {step === 1 && (
+              {/* ── Step 2: Photo ── */}
+              {step === 2 && (
                 <>
-                  <Text style={styles.stepCount}>ÉTAPE 2 / {TOTAL_STEPS}</Text>
+                  <Text style={styles.stepCount}>ÉTAPE 3 / {TOTAL_STEPS}</Text>
                   <Text style={styles.title}>Ta photo de profil</Text>
-                  <Text style={styles.subtitle}>Optionnel — tes coéquipiers te reconnaîtront plus facilement</Text>
+                  <Text style={styles.subtitle}>
+                    {role === 'coach'
+                      ? 'Optionnel — tes joueurs te reconnaîtront plus facilement'
+                      : 'Optionnel — tes coéquipiers te reconnaîtront plus facilement'}
+                  </Text>
 
                   <View style={styles.photoCenter}>
                     <Pressable style={styles.photoPicker} onPress={pickPhoto}>
@@ -234,18 +259,26 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
                 </>
               )}
 
-              {/* ── Step 2: Bio ── */}
-              {step === 2 && (
+              {/* ── Step 3: Bio ── */}
+              {step === 3 && (
                 <>
-                  <Text style={styles.stepCount}>ÉTAPE 3 / {TOTAL_STEPS}</Text>
+                  <Text style={styles.stepCount}>ÉTAPE 4 / {TOTAL_STEPS}</Text>
                   <Text style={styles.title}>Quelques mots sur toi</Text>
-                  <Text style={styles.subtitle}>Optionnel — ton style de jeu, ta légende…</Text>
+                  <Text style={styles.subtitle}>
+                    {role === 'coach'
+                      ? 'Optionnel — ton approche, ta philosophie…'
+                      : 'Optionnel — ton style de jeu, ta légende…'}
+                  </Text>
 
                   <TextInput
                     style={styles.bioInput}
                     value={bio}
                     onChangeText={setBio}
-                    placeholder="Ex: Virevoltant mais fragile des chevilles. Meilleure passe de tout le groupe."
+                    placeholder={
+                      role === 'coach'
+                        ? 'Ex: Pressing haut, jeu de possession. Sévère mais juste.'
+                        : 'Ex: Virevoltant mais fragile des chevilles. Meilleure passe de tout le groupe.'
+                    }
                     placeholderTextColor="#2a2a2a"
                     multiline
                     numberOfLines={4}
@@ -256,10 +289,10 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
                 </>
               )}
 
-              {/* ── Step 3: Position ── */}
-              {step === 3 && (
+              {/* ── Step 4: Position (player only) ── */}
+              {step === 4 && (
                 <>
-                  <Text style={styles.stepCount}>ÉTAPE 4 / {TOTAL_STEPS}</Text>
+                  <Text style={styles.stepCount}>ÉTAPE 5 / {TOTAL_STEPS}</Text>
                   <Text style={styles.title}>Ta position naturelle</Text>
                   <Text style={styles.subtitle}>Là où tu te sens le plus à l'aise</Text>
 
@@ -278,10 +311,10 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
                 </>
               )}
 
-              {/* ── Step 4: Force + Faiblesse ── */}
-              {step === 4 && (
+              {/* ── Step 5: Force + Faiblesse (player only) ── */}
+              {step === 5 && (
                 <>
-                  <Text style={styles.stepCount}>ÉTAPE 5 / {TOTAL_STEPS}</Text>
+                  <Text style={styles.stepCount}>ÉTAPE 6 / {TOTAL_STEPS}</Text>
                   <Text style={styles.title}>Force & faiblesse</Text>
                   <Text style={styles.subtitle}>Être honnête aide à équilibrer les équipes</Text>
 
@@ -335,10 +368,11 @@ export default function OnboardingScreen({ onDone, initial }: Props) {
                   }}
                 >
                   <Text style={styles.nextBtnText}>
-                    {step === 0 && !name.trim() ? 'Entre ton prénom'
+                    {step === 0 && !role ? 'Choisis ton rôle'
+                      : step === 1 && !name.trim() ? 'Entre ton prénom'
                       : step === TOTAL_STEPS - 1 ? (isEdit ? 'Enregistrer ✓' : 'Terminer →')
-                      : step === 1 && !photoUri ? 'Passer →'
-                      : step === 2 && !bio.trim() ? 'Passer →'
+                      : step === 2 && !photoUri ? 'Passer →'
+                      : step === 3 && !bio.trim() ? 'Passer →'
                       : 'Suivant →'}
                   </Text>
                 </TouchableOpacity>

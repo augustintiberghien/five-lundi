@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 import { FORM_COLOR, PAIR_STATS, PLAYER_STATS } from '../types/stats';
 import { useSessions } from '../store/SessionsContext';
 import { isPast } from '../types/session';
+import { pct } from '../utils/formatting';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Player'>;
 
@@ -128,7 +129,7 @@ export default function PlayerDetailScreen({ route, navigation }: Props) {
                         <Text style={styles.pairWr}>{pairWr}%</Text>
                       </View>
                       <View style={styles.pairBarTrack}>
-                        <View style={[styles.pairBarFill, { width: `${(pair.wr / maxWr) * 100}%` as any }]} />
+                        <View style={[styles.pairBarFill, { width: pct((pair.wr / maxWr) * 100) }]} />
                       </View>
                       <Text style={styles.pairCount}>
                         {pair.wins}/{pair.together} · {pair.together} {t.player.together}

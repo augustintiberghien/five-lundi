@@ -15,6 +15,7 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 import { useSessions } from '../store/SessionsContext';
 import { useProfile } from '../store/ProfileContext';
 import { SessionPlayer } from '../types/session';
+import { getInitials, pct } from '../utils/formatting';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MVP'>;
 
@@ -174,11 +175,7 @@ function PlayerCard({
   isSelected: boolean;
   onPress: () => void;
 }) {
-  const initials = player.name
-    .split(' ')
-    .map(w => w[0]?.toUpperCase() ?? '')
-    .join('')
-    .slice(0, 2);
+  const initials = getInitials(player.name);
 
   const isA = player.team === 'A';
 
@@ -219,7 +216,7 @@ function VoteResults({ votes, players }: { votes: VoteRow[]; players: SessionPla
           <Text style={[styles.resultName, count === max && styles.resultNameWinner]}>{name}</Text>
           <View style={styles.resultBarTrack}>
             <View style={[styles.resultBarFill, {
-              width: `${(count / max) * 100}%` as any,
+              width: pct((count / max) * 100),
               backgroundColor: count === max ? '#FFD600' : '#2a2a2a',
             }]} />
           </View>
