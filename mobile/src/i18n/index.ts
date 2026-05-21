@@ -2,13 +2,13 @@ import { getLocales } from 'expo-localization';
 
 // ─── Date formatting ──────────────────────────────────────────────
 
-const FR_MONTH_NUM: Record<string, number> = {
+export const FR_MONTH_NUM: Record<string, number> = {
   'janvier': 0, 'février': 1, 'mars': 2, 'avril': 3,
   'mai': 4, 'juin': 5, 'juillet': 6, 'août': 7,
   'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11,
 };
-const FR_DAY_NAMES   = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-const FR_MONTH_NAMES = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+export const FR_DAY_NAMES   = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+export const FR_MONTH_NAMES = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 const EN_DAY_NAMES   = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const EN_MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 

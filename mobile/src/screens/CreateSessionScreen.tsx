@@ -14,14 +14,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useT } from '../i18n';
+import { useT, FR_MONTH_NAMES, FR_DAY_NAMES } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { GROUP_CONFIG } from '../types/session';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const FR_MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-const FR_DAYS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const FR_MONTHS = FR_MONTH_NAMES;
+const FR_DAYS   = FR_DAY_NAMES;
 
 function dateKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;

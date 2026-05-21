@@ -14,6 +14,7 @@ import {
 } from '../types/stats';
 import { useSessions } from '../store/SessionsContext';
 import { isPast } from '../types/session';
+import { pct } from '../utils/formatting';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type T = ReturnType<typeof useT>;
@@ -110,7 +111,7 @@ function ClassementSection({
                   <Text style={styles.rankWr}>{wr}%</Text>
                 </View>
                 <View style={styles.rankBar}>
-                  <View style={[styles.rankBarFill, { width: `${barWidth}%` as any }]} />
+                  <View style={[styles.rankBarFill, { width: pct(barWidth) }]} />
                 </View>
               </View>
               <Text style={styles.rankPlayed}>{player.played}m</Text>
@@ -209,7 +210,7 @@ function PairesSection({ t }: { t: T }) {
               </View>
               <View style={styles.pairBarRow}>
                 <View style={styles.pairBar}>
-                  <View style={[styles.pairBarFill, { width: `${barW}%` as any }]} />
+                  <View style={[styles.pairBarFill, { width: pct(barW) }]} />
                 </View>
                 <Text style={styles.pairCount}>{pair.wins}/{pair.together}</Text>
               </View>

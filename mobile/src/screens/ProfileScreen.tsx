@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OnboardingScreen from './OnboardingScreen';
-import { Criterion, OnboardingProfile, Position } from '../store/useOnboarding';
+import { Criterion, OnboardingProfile, Position, Role } from '../store/useOnboarding';
 import { CRITERIA_META, usePlayerRatings } from '../store/usePlayerRatings';
 import { getInitials, scoreColor } from '../utils/formatting';
 
@@ -18,6 +18,11 @@ type Props = {
   profile: OnboardingProfile;
   onSave: (p: OnboardingProfile) => void;
   onClose?: () => void;
+};
+
+const ROLE_LABELS: Record<Role, { label: string; icon: string; color: string }> = {
+  coach:  { label: 'Coach',  icon: '🎯', color: '#FF9800' },
+  player: { label: 'Joueur', icon: '👟', color: '#4CAF50' },
 };
 
 const POSITION_LABELS: Record<Position, { label: string; icon: string }> = {
@@ -39,8 +44,8 @@ type DeltaTag =
 function getDelta(
   crit: Criterion,
   score: number,
-  strength: Criterion,
-  weakness: Criterion
+  strength: Criterion | undefined,
+  weakness: Criterion | undefined
 ): DeltaTag {
   if (crit === strength) {
     if (score >= 14) return 'strength-confirmed';
@@ -136,6 +141,18 @@ export default function ProfileScreen({ profile, onSave, onClose = undefined }: 
             </View>
           </TouchableOpacity>
           <Text style={styles.heroName}>{profile.name}</Text>
+
+          {/* Role badge */}
+          {(() => {
+            const r = ROLE_LABELS[profile.role];
+            return (
+              <View style={[styles.roleBadge, { borderColor: r.color + '55' }]}>
+                <Text style={styles.roleBadgeIcon}>{r.icon}</Text>
+                <Text style={[styles.roleBadgeText, { color: r.color }]}>{r.label}</Text>
+              </View>
+            );
+          })()}
+
           {profile.bio ? (
             <Text style={styles.heroBio}>{profile.bio}</Text>
           ) : (
@@ -145,8 +162,8 @@ export default function ProfileScreen({ profile, onSave, onClose = undefined }: 
           )}
         </View>
 
-        {/* Position */}
-        {pos && (
+        {/* Position — player only */}
+        {profile.role === 'player' && pos && (
           <>
             <Text style={styles.sectionLabel}>POSITION</Text>
             <View style={styles.card}>
@@ -158,94 +175,95 @@ export default function ProfileScreen({ profile, onSave, onClose = undefined }: 
           </>
         )}
 
-        {/* Auto-déclaratif */}
-        <Text style={styles.sectionLabel}>TON AUTO-ÉVALUATION</Text>
-        <View style={styles.card}>
-          <View style={styles.selfRow}>
-            <View style={styles.selfBlock}>
-              <Text style={styles.selfMini}>🟢 MA FORCE</Text>
-              <View style={styles.selfChip}>
-                <Text style={styles.selfIcon}>
-                  {CRITERIA_META.find(c => c.key === profile.strength)?.icon}
-                </Text>
-                <Text style={[styles.selfLabel, { color: '#4CAF50' }]}>
-                  {CRITERIA_META.find(c => c.key === profile.strength)?.label}
-                </Text>
+        {/* Auto-déclaratif — player only */}
+        {profile.role === 'player' && (
+          <>
+            <Text style={styles.sectionLabel}>TON AUTO-ÉVALUATION</Text>
+            <View style={styles.card}>
+              <View style={styles.selfRow}>
+                <View style={styles.selfBlock}>
+                  <Text style={styles.selfMini}>🟢 MA FORCE</Text>
+                  <View style={styles.selfChip}>
+                    <Text style={styles.selfIcon}>
+                      {CRITERIA_META.find(c => c.key === profile.strength)?.icon}
+                    </Text>
+                    <Text style={[styles.selfLabel, { color: '#4CAF50' }]}>
+                      {CRITERIA_META.find(c => c.key === profile.strength)?.label}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.selfDivider} />
+                <View style={styles.selfBlock}>
+                  <Text style={styles.selfMini}>🔴 MA FAIBLESSE</Text>
+                  <View style={styles.selfChip}>
+                    <Text style={styles.selfIcon}>
+                      {CRITERIA_META.find(c => c.key === profile.weakness)?.icon}
+                    </Text>
+                    <Text style={[styles.selfLabel, { color: '#F44336' }]}>
+                      {CRITERIA_META.find(c => c.key === profile.weakness)?.label}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
-            <View style={styles.selfDivider} />
-            <View style={styles.selfBlock}>
-              <Text style={styles.selfMini}>🔴 MA FAIBLESSE</Text>
-              <View style={styles.selfChip}>
-                <Text style={styles.selfIcon}>
-                  {CRITERIA_META.find(c => c.key === profile.weakness)?.icon}
-                </Text>
-                <Text style={[styles.selfLabel, { color: '#F44336' }]}>
-                  {CRITERIA_META.find(c => c.key === profile.weakness)?.label}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
+          </>
+        )}
 
-        {/* Coach evaluation + delta */}
-        <Text style={styles.sectionLabel}>ÉVALUATION COACH</Text>
-        {coachRatings ? (
-          <View style={styles.card}>
-            {CRITERIA_META.map(c => {
-              const v     = coachRatings[c.key];
-              const color = scoreColor(v);
-              const delta = getDelta(c.key, v, profile.strength ?? 'endurance', profile.weakness ?? 'endurance');
-              const tag   = delta ? DELTA_DISPLAY[delta] : null;
+        {/* Coach evaluation + delta — player only */}
+        {profile.role === 'player' && (
+          <>
+            <Text style={styles.sectionLabel}>ÉVALUATION COACH</Text>
+            {coachRatings ? (
+              <View style={styles.card}>
+                {CRITERIA_META.map(c => {
+                  const v     = coachRatings[c.key];
+                  const color = scoreColor(v);
+                  const delta = getDelta(c.key, v, profile.strength, profile.weakness);
+                  const tag   = delta ? DELTA_DISPLAY[delta] : null;
 
-              return (
-                <View key={c.key} style={styles.evalRow}>
-                  {/* Icon + label */}
-                  <Text style={styles.evalIcon}>{c.icon}</Text>
-                  <Text style={styles.evalLabel}>{c.label}</Text>
-
-                  {/* Bar */}
-                  <Text style={[styles.evalBar, { color }]}>{scoreBar(v)}</Text>
-
-                  {/* Score */}
-                  <Text style={[styles.evalScore, { color }]}>{v}</Text>
-
-                  {/* Delta tag */}
-                  {tag && (
-                    <View style={[styles.deltaTag, { borderColor: tag.color + '55' }]}>
-                      <Text style={[styles.deltaIcon, { color: tag.color }]}>{tag.icon}</Text>
+                  return (
+                    <View key={c.key} style={styles.evalRow}>
+                      <Text style={styles.evalIcon}>{c.icon}</Text>
+                      <Text style={styles.evalLabel}>{c.label}</Text>
+                      <Text style={[styles.evalBar, { color }]}>{scoreBar(v)}</Text>
+                      <Text style={[styles.evalScore, { color }]}>{v}</Text>
+                      {tag && (
+                        <View style={[styles.deltaTag, { borderColor: tag.color + '55' }]}>
+                          <Text style={[styles.deltaIcon, { color: tag.color }]}>{tag.icon}</Text>
+                        </View>
+                      )}
                     </View>
-                  )}
-                </View>
-              );
-            })}
+                  );
+                })}
 
-            {/* Legend */}
-            <View style={styles.legend}>
-              {Object.entries(DELTA_DISPLAY).map(([key, d]) => (
-                <View key={key} style={styles.legendRow}>
-                  <Text style={[styles.legendIcon, { color: d.color }]}>{d.icon}</Text>
-                  <Text style={styles.legendText}>{d.label}</Text>
+                <View style={styles.legend}>
+                  {Object.entries(DELTA_DISPLAY).map(([key, d]) => (
+                    <View key={key} style={styles.legendRow}>
+                      <Text style={[styles.legendIcon, { color: d.color }]}>{d.icon}</Text>
+                      <Text style={styles.legendText}>{d.label}</Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
-          </View>
-        ) : (
-          <View style={styles.card}>
-            <View style={styles.pendingBox}>
-              <Text style={styles.pendingIcon}>📊</Text>
-              <Text style={styles.pendingText}>En attente de notation</Text>
-              <Text style={styles.pendingSub}>
-                Le coach n'a pas encore renseigné tes critères.
-                {'\n'}Ils apparaîtront ici une fois la notation faite.
-              </Text>
-            </View>
-          </View>
+              </View>
+            ) : (
+              <View style={styles.card}>
+                <View style={styles.pendingBox}>
+                  <Text style={styles.pendingIcon}>📊</Text>
+                  <Text style={styles.pendingText}>En attente de notation</Text>
+                  <Text style={styles.pendingSub}>
+                    Le coach n'a pas encore renseigné tes critères.
+                    {'\n'}Ils apparaîtront ici une fois la notation faite.
+                  </Text>
+                </View>
+              </View>
+            )}
+          </>
         )}
 
         <Text style={styles.note}>
-          Ces informations aident à équilibrer les équipes.
-          {'\n'}Elles sont visibles uniquement au sein de ton groupe.
+          {profile.role === 'coach'
+            ? 'Ton profil est visible par les joueurs de ton groupe.'
+            : 'Ces informations aident à équilibrer les équipes.\nElles sont visibles uniquement au sein de ton groupe.'}
         </Text>
 
       </ScrollView>
@@ -287,6 +305,13 @@ const styles = StyleSheet.create({
   },
   cameraBadgeIcon: { fontSize: 13 },
   heroName: { fontSize: 24, fontWeight: '900', color: '#fff', marginBottom: 8 },
+  roleBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    borderWidth: 1, borderRadius: 20,
+    paddingHorizontal: 10, paddingVertical: 4, marginBottom: 10,
+  },
+  roleBadgeIcon: { fontSize: 12 },
+  roleBadgeText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
   heroBio:  { fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 19, maxWidth: 280 },
   addBio:   { fontSize: 13, color: '#333', fontWeight: '600' },
 

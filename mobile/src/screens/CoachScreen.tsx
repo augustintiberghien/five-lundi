@@ -17,16 +17,19 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 import { useSessions } from '../store/SessionsContext';
 import { GROUP_CONFIG, isPast } from '../types/session';
 import { PLAYER_STATS } from '../types/stats';
+import { sendPushNotification } from '../utils/sendPush';
+import { pct } from '../utils/formatting';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function CoachScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
-  const { sessions, deleteSession } = useSessions();
+  const { sessions, deleteSession, updateSession } = useSessions();
 
   const nextSession = sessions.find(s => !isPast(s));
   const scoreSession = nextSession ?? sessions[0];
+  const lastSession = sessions.find(isPast);
 
   const [inscOpen, setInscOpen]   = useState(nextSession?.inscriptionsOpen ?? false);
   const [scoreA, setScoreA]       = useState(0);
@@ -159,7 +162,7 @@ export default function CoachScreen() {
               </View>
               <View style={styles.progTrack}>
                 <View style={[styles.progFill, {
-                  width: `${Math.min((nextSession.confirmedCount / nextSession.maxPlayers) * 100, 100)}%` as any,
+                  width: pct(Math.min((nextSession.confirmedCount / nextSession.maxPlayers) * 100, 100)),
                 }]} />
               </View>
 
@@ -214,6 +217,38 @@ export default function CoachScreen() {
             </View>
           </>
         )}
+
+        {/* Vote MVP */}
+        {lastSession && !lastSession.mvp && (
+          <>
+            <Text style={styles.sectionLabel}>VOTE MVP</Text>
+            <View style={styles.card}>
+              <Text style={styles.cardDate}>{t.formatDate(lastSession.date)}</Text>
+              <Text style={styles.cardMeta}>
+                {lastSession.voteOpen ? '🟢 Vote en cours' : '⚪ Vote pas encore ouvert'}
+              </Text>
+              {!lastSession.voteOpen ? (
+                <TouchableOpacity
+                  style={styles.voteBtn}
+                  onPress={() => {
+                    updateSession(lastSession.id, { voteOpen: true });
+                    sendPushNotification('vote_open', lastSession.id);
+                  }}
+                >
+                  <Text style={styles.voteBtnText}>Ouvrir le vote MVP 🏆</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.voteBtn, styles.voteBtnClose]}
+                  onPress={() => updateSession(lastSession.id, { voteOpen: false })}
+                >
+                  <Text style={styles.voteBtnText}>Clôturer le vote</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </>
+        )}
+
 
       </ScrollView>
     </SafeAreaView>
@@ -416,4 +451,13 @@ const styles = StyleSheet.create({
   confirmedCheck: { fontSize: 40, color: '#4CAF50' },
   confirmedTitle: { fontSize: 16, fontWeight: '800', color: '#fff' },
   confirmedSub: { fontSize: 13, color: '#555', textAlign: 'center' },
+
+  // Vote MVP button
+  voteBtn: {
+    backgroundColor: 'rgba(245,197,24,0.1)',
+    borderWidth: 1, borderColor: '#F5C518',
+    borderRadius: 12, paddingVertical: 12, alignItems: 'center',
+  },
+  voteBtnClose: { backgroundColor: 'rgba(100,100,100,0.1)', borderColor: '#555' },
+  voteBtnText: { fontSize: 13, fontWeight: '700', color: '#F5C518' },
 });

@@ -31,6 +31,7 @@ export default function BalancingScreen() {
   // Sync positions when remote data loads
   useEffect(() => {
     setPositions(storedPositions);
+  // JSON.stringify used for deep comparison — avoids re-running on every render when object reference changes but content stays the same
   }, [JSON.stringify(storedPositions)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync selected when players change
@@ -40,6 +41,7 @@ export default function BalancingScreen() {
       players.forEach(p => next.add(p));
       return next;
     });
+  // players.length used intentionally — we only need to add new players, not react to position changes here
   }, [players.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function togglePlayer(name: string) {

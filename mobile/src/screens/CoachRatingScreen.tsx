@@ -21,19 +21,13 @@ import {
   usePlayerRatings,
 } from '../store/usePlayerRatings';
 import { PLAYER_STATS } from '../types/stats';
+import { getInitials, pct, scoreColor } from '../utils/formatting';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CoachRating'>;
 type Mode = 'criterion' | 'summary' | 'player';
 
 // Base player list + any extras added by coach
 const BASE_PLAYERS = PLAYER_STATS.map(p => p.name);
-
-function scoreColor(v: number): string {
-  if (v <= 8)  return '#F44336';
-  if (v <= 11) return '#FF9800';
-  if (v <= 15) return '#8BC34A';
-  return '#4CAF50';
-}
 
 // ─── Individual player rating ─────────────────────────────────────
 
@@ -50,7 +44,7 @@ function PlayerRatingView({
   onBack: () => void;
   isNew?: boolean;
 }) {
-  const initials = playerName.split(' ').map(w => w[0]?.toUpperCase() ?? '').join('').slice(0, 2);
+  const initials = getInitials(playerName);
 
   return (
     <View style={{ flex: 1 }}>
@@ -495,7 +489,7 @@ function ScoreSlider({
     })
   ).current;
 
-  const fillPct = `${(value / 20) * 100}%` as any;
+  const fillPct = pct((value / 20) * 100);
 
   return (
     <View

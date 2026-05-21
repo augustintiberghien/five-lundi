@@ -99,7 +99,7 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 ### Infra
 - [ ] **Authentification** — connexion Google OAuth (+ email/password fallback)
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
-- [ ] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
+- [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
 ## Joueurs actifs (s9 — 18 mai 2026)
 Blanche ⚪ : Michael (GK), Henri, LM, Khalid, Hugo
