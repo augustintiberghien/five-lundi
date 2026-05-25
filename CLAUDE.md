@@ -35,12 +35,20 @@ git push -u origin claude/setup-html-project-wSe4F
   - Bleue   : GK(50,92), DL(12,76), DR(88,76), ML(35,62), MR(65,62)
 - `bench` : ordre de remplacement, visible jusqu'à 21h30 Paris le soir du match
 
+## Règle : composition figée à 21h30
+
+La composition (tableau `players`) est **figée définitivement à 21h30** le soir du match, quand tous les joueurs ont confirmé. Elle ne doit **jamais** être recalculée ou modifiée après cette heure, même si les notes ajustées évoluent.
+
+**⚠️ INTERDIT** : regénérer `_genBalancedTeams` après 21h30, ou modifier `players` après que le score est connu. Si une composition semble incorrecte, demander confirmation à l'utilisateur avant tout changement.
+
+Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
+
 ## Règle : mise à jour automatique après un score
 
 Quand l'utilisateur donne le score d'un match (ex : "s9 : 12-5 Blanche"), effectuer **dans cet ordre** :
 
 1. **SESSIONS** — mettre à jour `score` et `scoreWinner` de la session concernée (`'A'` si Blanche gagne, `'B'` si Bleue gagne)
-2. **PLAYER_STATS** — incrémenter `played` (+1) et `wins` (+1 si gagné) pour chaque joueur présent dans `s.players`
+2. **PLAYER_STATS** — incrémenter `played` (+1) et `wins` (+1 si gagné) pour chaque joueur présent dans `s.players`, **en lisant la composition depuis le screenshot ou la confirmation explicite de l'utilisateur**, pas depuis le HTML (qui peut être désynchronisé)
 3. **PAIR_STATS** — pour chaque paire de la même équipe dans `s.players`, incrémenter `together` (+1) et `wins` (+1 si gagné)
 
 **NE PAS TOUCHER** :
@@ -63,7 +71,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s10 | 25 mai 2026 | — vs — | ✅ |
+| s10 | 25 mai 2026 | 8 – 7 (A) | ✅ |
 | s9 | 18 mai 2026 | 12 – 7 (A) | |
 | s8 | 11 mai 2026 | 3 – 4 (B) | |
 | s7 | 4 mai 2026 | 8 – 12 (B) | |
@@ -101,7 +109,7 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s9 — 18 mai 2026)
-Blanche ⚪ : Michael (GK), Henri, LM, Khalid, Hugo
-Bleue 🔵 : Rémi (GK), Edouard, Flo, Ibrahima, Dylan
-Banc : Jack, Tim, Théo
+## Joueurs actifs (s10 — 25 mai 2026)
+Blanche ⚪ : Rémi (GK), Khalid, Ibrahima, Hugo, Théo
+Bleue 🔵 : Michael (GK), Johann, Gugu, Alex, Spy
+Banc : Edouard, Henri, Jack (Flo absent)
