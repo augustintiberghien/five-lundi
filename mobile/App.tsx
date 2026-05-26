@@ -12,8 +12,12 @@ import { navigationRef } from './src/navigation/navigationRef';
 import { SessionsProvider } from './src/store/SessionsContext';
 import { ProfileContext } from './src/store/ProfileContext';
 import { AuthProvider, useAuth } from './src/store/AuthContext';
-import { useOnboarding } from './src/store/useOnboarding';
+import { useOnboarding, OnboardingProfile } from './src/store/useOnboarding';
 import { usePushNotifications } from './src/store/usePushNotifications';
+
+const DEV_SKIP_AUTH = __DEV__;
+
+const DEV_PROFILE: OnboardingProfile = { role: 'coach', name: 'Dev' };
 
 function AppContent() {
   const { user, loading: authLoading } = useAuth();
@@ -26,17 +30,19 @@ function AppContent() {
     return <View style={{ flex: 1, backgroundColor: '#0d1117' }} />;
   }
 
-  if (!user) {
+  if (!user && !DEV_SKIP_AUTH) {
     return <AuthScreen />;
   }
 
-  if (!profile) {
+  const activeProfile = profile ?? (DEV_SKIP_AUTH ? DEV_PROFILE : null);
+
+  if (!activeProfile) {
     return <OnboardingScreen onDone={saveProfile} />;
   }
 
   return (
     <ProfileContext.Provider value={{
-      profile,
+      profile: activeProfile,
       saveProfile,
       openProfile: () => setShowProfile(true),
     }}>
@@ -47,7 +53,7 @@ function AppContent() {
 
       <Modal visible={showProfile} animationType="slide" presentationStyle="pageSheet">
         <ProfileScreen
-          profile={profile}
+          profile={activeProfile}
           onSave={async (p) => { await saveProfile(p); }}
           onClose={() => setShowProfile(false)}
         />

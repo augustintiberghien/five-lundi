@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useEffect, useRef, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Animated, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
@@ -12,8 +12,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SessionDetail'>;
 export default function SessionDetailScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
   const { sessions } = useSessions();
-  const session = sessions.find(s => s.id === sessionId)!;
+  const session = sessions.find(s => s.id === sessionId);
   const t = useT();
+
+  useLayoutEffect(() => {
+    if (!session) navigation.goBack();
+  }, [session, navigation]);
+
+  if (!session) return null;
+
   const past = isPast(session);
 
   const [scoreA, scoreB] = past
@@ -130,7 +137,7 @@ function ArticleSection({ text, shareLabel }: { text: string; shareLabel: string
         return <RichText key={i} text={para} style={styles.articleBody} />;
       })}
 
-      <TouchableOpacity style={styles.shareBtn}>
+      <TouchableOpacity style={styles.shareBtn} onPress={() => Share.share({ message: text })}>
         <Text style={styles.shareBtnText}>{shareLabel}</Text>
       </TouchableOpacity>
     </Animated.View>

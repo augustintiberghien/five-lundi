@@ -16,7 +16,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useT, FR_MONTH_NAMES, FR_DAY_NAMES } from '../i18n';
 import { RootStackParamList } from '../navigation/RootNavigator';
-import { GROUP_CONFIG } from '../types/session';
+import { GROUP_CONFIG, Session, dateToISO } from '../types/session';
+import { useSessions } from '../store/SessionsContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -46,6 +47,7 @@ function toFrStr(d: Date): string {
 export default function CreateSessionScreen() {
   const navigation = useNavigation<Nav>();
   const t = useT();
+  const { addSessions } = useSessions();
 
   const upcomingDates = useState(() => nextNOccurrences(GROUP_CONFIG.defaultDayOfWeek, 6))[0];
 
@@ -91,6 +93,25 @@ export default function CreateSessionScreen() {
   }
 
   function handlePublish() {
+    const newSessions: Session[] = selectedDates.map(d => {
+      const frDate = toFrStr(d);
+      return {
+        id: `session_${dateToISO(frDate)}`,
+        date: frDate,
+        dateISO: dateToISO(frDate),
+        score: '— vs —',
+        scoreWinner: '' as const,
+        nameA: 'Blanche ⚪',
+        nameB: 'Bleue 🔵',
+        inscriptionsOpen: true,
+        maxPlayers,
+        confirmedCount: 0,
+        benchCount: 0,
+        time: timeStr,
+        location: location || undefined,
+      };
+    });
+    addSessions(newSessions);
     setPublished(true);
     Animated.spring(doneScale, { toValue: 1, friction: 4, useNativeDriver: true }).start();
     setTimeout(() => navigation.goBack(), 2200);
@@ -219,7 +240,8 @@ export default function CreateSessionScreen() {
                 </View>
               </View>
 
-              <TouchableOpacity style={[styles.nextBtn, { marginTop: 'auto' as any }]} onPress={() => goTo(2)}>
+              <View style={{ flex: 1 }} />
+              <TouchableOpacity style={styles.nextBtn} onPress={() => goTo(2)}>
                 <Text style={styles.nextBtnText}>{t.coach.next}</Text>
               </TouchableOpacity>
             </View>
