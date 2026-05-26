@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -24,7 +24,7 @@ type VoteRow = { voter: string; motm: string; comment?: string };
 export default function MVPScreen({ route, navigation }: Props) {
   const { sessionId } = route.params;
   const { sessions } = useSessions();
-  const session = sessions.find(s => s.id === sessionId)!;
+  const session = sessions.find(s => s.id === sessionId);
   const { profile } = useProfile();
 
   const t = useT();
@@ -32,10 +32,6 @@ export default function MVPScreen({ route, navigation }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [votes, setVotes] = useState<VoteRow[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
-
-  const players = session.players ?? [];
-  const teamA = players.filter(p => p.team === 'A');
-  const teamB = players.filter(p => p.team === 'B');
 
   // Load existing votes on mount
   useEffect(() => {
@@ -52,6 +48,16 @@ export default function MVPScreen({ route, navigation }: Props) {
       }
     })();
   }, [sessionId, profile]);
+
+  useLayoutEffect(() => {
+    if (!session) navigation.goBack();
+  }, [session, navigation]);
+
+  if (!session) return null;
+
+  const players = session.players ?? [];
+  const teamA = players.filter(p => p.team === 'A');
+  const teamB = players.filter(p => p.team === 'B');
 
   async function handleVote() {
     if (!selected || !profile) return;

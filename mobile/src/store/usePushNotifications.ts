@@ -63,9 +63,9 @@ async function registerAndSaveToken(userId: string): Promise<void> {
   if (!Device.isDevice) return;
 
   try {
-    const { data: tokenData } = await Notifications.getExpoPushTokenAsync();
+    const { data: pushToken } = await Notifications.getExpoPushTokenAsync();
     await supabase.from('push_tokens').upsert(
-      { user_id: userId, token: tokenData.data, updated_at: new Date().toISOString() },
+      { user_id: userId, token: pushToken, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     );
   } catch {

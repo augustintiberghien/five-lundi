@@ -29,11 +29,12 @@ export default function CalendarScreen() {
   // Load registrations from Supabase for this player
   useEffect(() => {
     if (!playerName) return;
-    supabase
-      .from('registrations')
-      .select('session_id, status, bench_position')
-      .eq('player_name', playerName)
-      .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('registrations')
+          .select('session_id, status, bench_position')
+          .eq('player_name', playerName);
         if (!data) return;
         const map: Record<string, UserRegistration> = {};
         for (const row of data as RegRow[]) {
@@ -43,11 +44,15 @@ export default function CalendarScreen() {
           };
         }
         setRegistrations(map);
-      });
+      } catch {
+        // offline — no registration state loaded
+      }
+    })();
   }, [playerName]);
 
   async function handleRegister(sessionId: string) {
-    const session = sessions.find(s => s.id === sessionId)!;
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session) return;
     const isFull = session.confirmedCount >= session.maxPlayers;
     const newReg: UserRegistration = isFull
       ? { status: 'bench', benchPosition: session.benchCount + 1 }

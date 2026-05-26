@@ -32,8 +32,9 @@ export default function Logo({ size = 'lg' }: Props) {
     ]}>
       {/* Ventilation slot */}
       <View style={[styles.vent, { width: w * 0.5, height: ventH, marginTop: Math.round(5 * scale), borderRadius: 1 }]} />
+      <View style={{ flex: 1 }} />
       {/* Handle */}
-      <View style={[styles.handle, { width: handleW, height: handleH, borderRadius: handleH / 2, marginTop: 'auto', marginBottom: Math.round(7 * scale) }]} />
+      <View style={[styles.handle, { width: handleW, height: handleH, borderRadius: handleH / 2, marginBottom: Math.round(7 * scale) }]} />
     </View>
   );
 
