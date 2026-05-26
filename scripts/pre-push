@@ -1,0 +1,48 @@
+#!/bin/sh
+# Vérifie la syntaxe JS de index.html avant chaque push
+
+if [ ! -f index.html ]; then
+  exit 0
+fi
+
+echo "🔍 Vérification syntaxe JS (index.html)..."
+
+node - <<'EOF'
+const fs = require('fs');
+const html = fs.readFileSync('index.html', 'utf8');
+
+const scripts = [];
+let pos = 0;
+while (true) {
+  const start = html.indexOf('<script>', pos);
+  if (start === -1) break;
+  const end = html.indexOf('</script>', start);
+  if (end === -1) break;
+  scripts.push({ content: html.slice(start + 8, end), offset: start });
+  pos = end + 9;
+}
+
+if (scripts.length === 0) {
+  console.log('Aucun bloc <script> trouvé.');
+  process.exit(0);
+}
+
+let hasError = false;
+scripts.forEach(({ content, offset }, i) => {
+  try {
+    new Function(content);
+  } catch (e) {
+    console.error(`\n❌ Erreur JS dans le bloc <script> n°${i + 1} (offset HTML: ${offset})`);
+    console.error(`   ${e.message}`);
+    hasError = true;
+  }
+});
+
+if (hasError) {
+  console.error('\n🚫 Push bloqué — corrige les erreurs JS avant de pusher.\n');
+  process.exit(1);
+} else {
+  console.log(`✅ ${scripts.length} bloc(s) <script> OK`);
+  process.exit(0);
+}
+EOF
