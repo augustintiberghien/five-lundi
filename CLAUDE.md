@@ -21,7 +21,7 @@ git push -u origin claude/setup-html-project-wSe4F
 - **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (fichier trop grand pour les outils Read/Edit)
 
 ## Architecture du fichier index.html
-- `SESSIONS` array (newest first : s9 → s1) — chaque session a `id`, `date`, `score`, `scoreWinner`, `current`, `bench`, `nameA`, `nameB`, `players`
+- `SESSIONS` array (newest first : s11 → s1) — chaque session a `id`, `date`, `score`, `scoreWinner`, `current`, `bench`, `nameA`, `nameB`, `players`
 - `PLAYER_STATS` — stats agrégées par joueur (played, wins)
 - `PAIR_STATS` — stats par duo (p1, p2, together, wins)
 - `ARTICLES` — articles L'Équipe par session id
@@ -71,6 +71,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
+| s11 | 1 juin 2026 | — | ✅ |
 | s10 | 25 mai 2026 | 8 – 7 (A) | |
 | s9 | 18 mai 2026 | 12 – 7 (A) | |
 | s8 | 11 mai 2026 | 3 – 4 (B) | |
@@ -109,7 +110,7 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s10 — 25 mai 2026)
-Blanche ⚪ : Rémi (GK), Khalid, Ibrahima, Hugo, Théo
-Bleue 🔵 : Michael (GK), Johann, Gugu, Alex, Spy
-Banc : Edouard, Henri, Jack (Flo absent)
+## Joueurs actifs (s11 — 1 juin 2026)
+Blanche ⚪ : Michael (GK), Henri, Gugu, Spy, Quentin
+Bleue 🔵 : Rémi (GK), Ibrahima, Landry, Alex, Flo
+Banc : —
