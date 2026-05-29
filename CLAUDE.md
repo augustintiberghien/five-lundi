@@ -41,6 +41,17 @@ La composition (tableau `players`) est **figée définitivement à 21h30** le so
 
 **⚠️ INTERDIT** : regénérer `_genBalancedTeams` après 21h30, ou modifier `players` après que le score est connu. Si une composition semble incorrecte, demander confirmation à l'utilisateur avant tout changement.
 
+### Promotion du créneau en session (le geste du lock)
+
+Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en entrée `SESSIONS`** avec des `players` explicites. C'est ce qui rend la compo **immunisée contre les notes ajustées** (une entrée `SESSIONS` n'est jamais recalculée) et **identique pour tout le monde** (sinon chaque navigateur regénère via `_genBalancedTeams` avec les notes du moment + cache `localStorage` local). Le `_dateKey` de `buildTabs()` fait alors primer la session sur le créneau → 1 seul onglet par date, plus de double statut inscrits/titulaires.
+
+**Procédure** (le soir du match, dès 21h30, page ouverte sur le créneau verrouillé) :
+1. Console : `exportSessionEntry()` (ou `exportSessionEntry('ins_jun_29')`) → l'entrée `SESSIONS` prête à coller est copiée dans le presse-papier.
+2. La coller en **tête** du tableau `SESSIONS` (plus récente d'abord), passer `current:true` (et `current:false` sur l'ancienne).
+3. commit / push / PR / merge, puis mettre à jour la table Sessions ci-dessous.
+
+`exportSessionEntry` **sérialise la compo déjà figée** (`s.players`), il ne la recalcule pas. Cas tournoi (4 équipes, ex. 22 juin) non géré par l'outil → promotion manuelle.
+
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 
 ## Règle : mise à jour automatique après un score
