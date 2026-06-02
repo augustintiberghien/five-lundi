@@ -82,7 +82,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s11 | 1 juin 2026 | — | ✅ |
+| s11 | 1 juin 2026 | 8 – 6 (A) | |
 | s10 | 25 mai 2026 | 8 – 7 (A) | |
 | s9 | 18 mai 2026 | 12 – 7 (A) | |
 | s8 | 11 mai 2026 | 3 – 4 (B) | |
