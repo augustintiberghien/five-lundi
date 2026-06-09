@@ -2638,7 +2638,7 @@ function buildStatsView(){
           html += '<div style="position:relative;display:flex;align-items:center;justify-content:center;height:56px">';
           d.winners.forEach(function(w, wi) {
             var ph = null;
-            SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===w && !ph){ var m=p.html.match(/src="([^"]+)"/); if(m) ph=m[1]; } }); });
+            SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===w && !ph){ var m=p.html&&p.html.match(/src="([^"]+)"/); if(m) ph=m[1]; } }); });
             var ml = wi === 1 ? '-6px' : '0';
             var zi = wi === 0 ? '2' : '1';
             if (ph) html += '<img src="'+ph+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600;margin-left:'+ml+';position:relative;z-index:'+zi+'">';
@@ -2649,7 +2649,7 @@ function buildStatsView(){
           html += '<div style="font-family:Oswald,sans-serif;font-size:.58rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.2">'+d.winners.join(' &\n')+'</div>';
         } else {
           var photo = null;
-          SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===d.winner && !photo){ var m=p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
+          SESSIONS.forEach(function(s){ s.players.forEach(function(p){ if(p.name===d.winner && !photo){ var m=p.html&&p.html.match(/src="([^"]+)"/); if(m) photo=m[1]; } }); });
           var totalTitles = titleCount[d.winner];
           var medal = totalTitles >= 3 ? '🥇' : totalTitles === 2 ? '🥈' : '🏅';
           html += '<div style="position:relative">';
@@ -3371,7 +3371,7 @@ function renderBench(s) {
     SESSIONS.forEach(function(sess) {
       if (photo) return;
       var p = sess.players.find(function(pl) { return pl.name === name; });
-      if (p) { var m = p.html.match(/src="([^"]+)"/); if (m) photo = m[1]; }
+      if (p) { var m = p.html && p.html.match(/src="([^"]+)"/); if (m) photo = m[1]; }
     });
     html += '<div class="bench-item" data-bench-name="' + name + '">';
     html += '<div class="bench-rank">' + (i+1) + '</div>';
@@ -3470,7 +3470,7 @@ function getPlayerPhoto(name) {
   SESSIONS.forEach(function(sess) {
     if (photo) return;
     var p = sess.players.find(function(pl) { return pl.name === name; });
-    if (p) { var m = p.html.match(/src="([^"]+)"/); if (m) photo = m[1]; }
+    if (p) { var m = p.html && p.html.match(/src="([^"]+)"/); if (m) photo = m[1]; }
   });
   return photo;
 }
@@ -3907,7 +3907,7 @@ function mvpGetPhoto(name, players) {
   var p = players.find(function(x){ return x.name === name; });
   if (!p) return null;
   // Extraire le src de l'img dans p.html
-  var m = p.html.match(/src="([^"]+)"/);
+  var m = p.html && p.html.match(/src="([^"]+)"/);
   return m ? m[1] : null;
 }
 
