@@ -1749,9 +1749,10 @@ function renderTournament(s) {
 }
 
 function renderSession(s){
+  // Tournoi avant le check formation (un tournoi a s.players=[] mais s.tournamentTeams défini)
+  if(s.fromInscription && s.tournamentTeams){ renderTournament(s); return; }
   // Sessions d'inscription en formation (< 10 joueurs)
   if(s.fromInscription && !(s.players && s.players.length >= 10)){ renderInFormation(s); return; }
-  if(s.fromInscription && s.tournamentTeams){ renderTournament(s); return; }
   // Nettoyage bannière en formation et vue tournoi si on revient sur une session normale
   var fb=document.getElementById('forming-banner');
   if(fb) fb.style.display='none';
