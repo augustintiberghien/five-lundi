@@ -2249,6 +2249,7 @@ function patchRoles() {
       // Patcher le crole dans le html de la carte
       // Remplacer crole existant OU insérer si absent
       var html = p.html;
+      if(!html) return;
       // Ne pas patcher la carte Panini de Gugu (elle a un style inline sur cphoto)
       if(html.indexOf('cphoto\" style=') !== -1) return;
       if(html.indexOf('class=\"crole\"') !== -1) {
