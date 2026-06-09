@@ -4664,7 +4664,9 @@ async function _loadInscriptionSessions(){
       if(partsFb.length>=3) shortDateFb=partsFb.slice(1).join(' ').replace(/[ᵉʳˢᵉⁱᵒ]+/g,'');
       else shortDateFb=slot.label.replace(/[ᵉʳˢᵉⁱᵒ]+/g,'');
       shortDateFb=shortDateFb.replace(/\s*\([^)]*\)/g,'').trim();
-      _INS_SESSIONS.push({id:slot.id,date:slot.label,shortDate:shortDateFb,fromInscription:true,regCount:0,players:[],locked:!slot.open,regCount:0,regs:[],bench:[],nameA:'Blanche ⚪',nameB:'Bleue 🔵',score:'— vs —',current:false,players:[]});
+      var _fbS={id:slot.id,date:slot.label,shortDate:shortDateFb,fromInscription:true,regCount:0,players:[],locked:!slot.open,regs:[],bench:[],nameA:'Blanche ⚪',nameB:'Bleue 🔵',score:'— vs —',current:false};
+      if(slot.tournament) _setTournamentTeams(_fbS,[],slot);
+      _INS_SESSIONS.push(_fbS);
     });
   });
   await Promise.all(promises);
