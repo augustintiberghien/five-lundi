@@ -1,0 +1,66 @@
+name: Force compo 15 juin (trio Gugu-Quentin-Samy)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publier la compo dans slot_sessions
+        run: |
+          python3 - <<'EOF'
+          import json, re, sys, urllib.request
+          from datetime import datetime, timezone
+
+          html = open('index.html', encoding='utf-8').read()
+          SB_URL = re.search(r"var SB_URL\s*=\s*'([^']+)'", html).group(1)
+          SB_KEY = re.search(r"var SB_KEY\s*=\s*'([^']+)'", html).group(1)
+          HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+
+          def req(path, method='GET', payload=None, extra=None):
+              h = dict(HDR)
+              if extra: h.update(extra)
+              data = json.dumps(payload).encode() if payload is not None else None
+              r = urllib.request.Request(SB_URL + path, method=method, data=data, headers=h)
+              with urllib.request.urlopen(r, timeout=30) as resp:
+                  return resp.status, resp.read().decode()
+
+          PLAYERS = [
+            {"x":50,"y":8, "name":"Ibrahima","teamA":True},
+            {"x":12,"y":24,"name":"Gugu",    "teamA":True},
+            {"x":88,"y":24,"name":"Théo",    "teamA":True},
+            {"x":35,"y":38,"name":"Quentin", "teamA":True},
+            {"x":65,"y":38,"name":"Samy",    "teamA":True},
+            {"x":50,"y":92,"name":"Rémi",    "teamA":False},
+            {"x":12,"y":76,"name":"Michael", "teamA":False},
+            {"x":88,"y":76,"name":"Hugo",    "teamA":False},
+            {"x":35,"y":62,"name":"Dylan",   "teamA":False},
+            {"x":65,"y":62,"name":"Landry",  "teamA":False},
+          ]
+          EXPECTED = sorted(p['name'] for p in PLAYERS)
+
+          st, body = req('/rest/v1/registrations?slot_id=eq.ins_jun_15&order=registered_at.asc&select=player_name')
+          top10 = [r['player_name'] for r in json.loads(body)][:10]
+          print('Top 10 inscrits :', ', '.join(top10))
+          if sorted(top10) != EXPECTED:
+              print('❌ Les 10 titulaires ont changé depuis l\'analyse — publication annulée.')
+              print('   Attendu :', EXPECTED)
+              sys.exit(1)
+
+          payload = {
+              'slot_id': 'ins_jun_15',
+              'roster_key': ','.join(sorted(top10)),
+              'players': PLAYERS,
+              'note_a': 71.0,
+              'note_b': 71.0,
+              'updated_at': datetime.now(timezone.utc).isoformat(),
+          }
+          st, body = req('/rest/v1/slot_sessions?on_conflict=slot_id', 'POST', payload,
+                         {'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'})
+          print('Upsert HTTP', st)
+          assert st in (200, 201, 204), body
+          print('✅ Compo publiée — Blanche : Ibrahima (GK), Gugu, Théo, Quentin, Samy | Bleue : Rémi (GK), Michael, Hugo, Dylan, Landry')
+          EOF
