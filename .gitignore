@@ -2,3 +2,4 @@ mobile/node_modules/
 mobile/.expo/
 mobile/dist/
 mobile/build/
+.github/scripts/__pycache__/
