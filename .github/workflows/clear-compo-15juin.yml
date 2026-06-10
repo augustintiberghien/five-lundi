@@ -1,0 +1,21 @@
+name: Clear compo 15 juin (temporaire)
+on:
+  workflow_dispatch:
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Supprimer la ligne slot_sessions du 15 juin
+        run: |
+          python3 - <<'EOF'
+          import re, urllib.request
+          html = open('index.html', encoding='utf-8').read()
+          SB_URL = re.search(r"var SB_URL\s*=\s*'([^']+)'", html).group(1)
+          SB_KEY = re.search(r"var SB_KEY\s*=\s*'([^']+)'", html).group(1)
+          HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+          r = urllib.request.Request(SB_URL + '/rest/v1/slot_sessions?slot_id=eq.ins_jun_15', method='DELETE', headers=HDR)
+          with urllib.request.urlopen(r, timeout=30) as resp:
+              print('DELETE slot_sessions ins_jun_15 → HTTP', resp.status)
+          print('✅ Ligne supprimée — le front regénèrera la compo naturellement')
+          EOF
