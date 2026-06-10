@@ -43,7 +43,7 @@ La composition (tableau `players`) est **figée définitivement à 21h30** le so
 
 ### Compo partagée (table Supabase `slot_sessions`) — depuis juin 2026
 
-Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).
+Dès **10 titulaires effectifs** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. Les **titulaires effectifs** = inscrits dans l'ordre + banc (trié `benchPriority`), **moins les absents** de la feuille de match (`presences`) ; `roster_key` = ces 10 noms triés. À **chaque changement des 10 effectifs** (désistement, absence ❌, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B). `applyAutoTeams` (feuille de match) **respecte la compo publiée** si les 10 correspondent — c'est ce qui permet de **forcer une compo manuelle** (la publier dans `slot_sessions` avec le `roster_key` des 10 effectifs) : elle tient tant que les 10 ne bougent pas, puis l'algo reprend la main. Migration : `supabase/migrations/20260610_slot_sessions.sql`.
 
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
