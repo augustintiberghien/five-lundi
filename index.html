@@ -987,6 +987,15 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .forming-banner{text-align:center;padding:2rem 1rem;color:rgba(255,255,255,.5)}
 .forming-count{font-family:Oswald,sans-serif;font-size:2.5rem;font-weight:700;color:#FFD600;line-height:1}
 .forming-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem;color:rgba(255,255,255,.35)}
+.loading-banner{display:flex;flex-direction:column;align-items:center;gap:1.1rem;padding:2.8rem 1rem}
+.loading-ball{font-size:2.4rem;line-height:1;animation:ballBounce .65s cubic-bezier(.35,0,.65,1) infinite alternate;filter:drop-shadow(0 14px 7px rgba(0,0,0,.5))}
+@keyframes ballBounce{0%{transform:translateY(-20px) rotate(-12deg)}100%{transform:translateY(8px) rotate(12deg)}}
+.loading-phrases{position:relative;height:1.5em;width:100%;text-align:center}
+.loading-phrases span{position:absolute;left:0;right:0;opacity:0;font-family:Oswald,sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#FFD600;animation:phraseCycle 8s infinite}
+.loading-phrases span:nth-child(2){animation-delay:2s}
+.loading-phrases span:nth-child(3){animation-delay:4s}
+.loading-phrases span:nth-child(4){animation-delay:6s}
+@keyframes phraseCycle{0%{opacity:0}6%,20%{opacity:1}26%,100%{opacity:0}}
 .forming-players{margin-top:1.2rem;display:flex;flex-direction:column;gap:.3rem;width:min(340px,90%);margin-left:auto;margin-right:auto}
 .forming-player-row{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:8px;padding:.35rem .7rem;font-family:Barlow,sans-serif;font-size:.82rem;color:rgba(255,255,255,.7)}
 .forming-rank{font-family:Oswald,sans-serif;font-size:.65rem;color:rgba(255,255,255,.3);width:1.2rem}
@@ -1030,7 +1039,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div class="mvp-section" id="mvp-section" style="display:none;margin-bottom:1.6rem"></div>
 
-<div id="view-pitch"><div id="forming-banner"><div class="forming-banner"><div class="forming-count">0<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">Chargement…</div></div></div>  <div class="pitch-wrap" style="display:none">
+<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><span>Échauffement en cours…</span><span>On gonfle le ballon…</span><span>Distribution des chasubles…</span><span>Le coach griffonne la compo…</span></div></div></div>  <div class="pitch-wrap" style="display:none">
     <div class="pitch" id="pitch">
       <div class="pitch-bg">
         <div class="stripe" style="top:0;height:20%"></div>
@@ -1527,7 +1536,7 @@ function renderInFormation(s){
   formBanner.style.display='';
   var _hasCache=(s.regs&&s.regs.length>0)||(s.regCount>0);
   formBanner.innerHTML=_hasCache?_buildFormingBannerHtml(s,s.regs||[],s.matchRegs||[])
-    :'<div class="forming-banner"><div class="forming-label" style="opacity:.5;font-size:.8rem;letter-spacing:.1em">Chargement…</div></div>';
+    :'<div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><span>Échauffement en cours…</span><span>On gonfle le ballon…</span><span>Distribution des chasubles…</span><span>Le coach griffonne la compo…</span></div></div>';
   formBanner.style.display='block';
 
   setActiveTab(s.id);
@@ -3042,7 +3051,11 @@ function refreshPresenceSummary(presences, waiting) {
   var counts = {playing:0, maybe:0, absent:0};
   presences.forEach(function(p){ if (counts[p.status] !== undefined) counts[p.status]++; });
   var wasComplete = el.dataset.complete === '1';
-  var isComplete = counts.playing >= 10;
+  // Tournoi (4 équipes, ex. 22 juin) : il faut 20 confirmés, pas 10
+  var _curSlot = (window._cur && typeof INSCRIPTION_SLOTS !== 'undefined')
+    ? INSCRIPTION_SLOTS.find(function(x){ return x.id === window._cur.id; }) : null;
+  var _requiredPlaying = (_curSlot && _curSlot.tournament) ? 20 : 10;
+  var isComplete = counts.playing >= _requiredPlaying;
   var chips = '';
   if (isComplete) {
     chips += '<span class="psummary-chip psummary-complet" style="background:rgba(34,197,94,.2);color:#22c55e;border:1px solid rgba(34,197,94,.4)">🎉 Équipe au complet !</span>';
