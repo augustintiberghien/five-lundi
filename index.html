@@ -2746,15 +2746,24 @@ function _duoPairScore(team) {
   return score;
 }
 
-function _genBalancedTeams(names10) {
+function _genBalancedTeams(names10, together) {
   // Pre-compute top-2 by adjusted note (à séparer si possible)
   var sorted = names10.slice().sort(function(a,b){ return _adjustedNote(b)-_adjustedNote(a); });
   var top2 = [sorted[0], sorted[1]];
+
+  // Contrainte exceptionnelle (slot.together) : garder ces joueurs dans la même équipe.
+  // Seuls les membres effectivement présents comptent ; à 0 ou 1 présent, pas de contrainte.
+  var grp = (together || []).filter(function(n){ return names10.indexOf(n) !== -1; });
+  if (grp.length < 2) grp = null;
 
   // Collecter toutes les combinaisons C(10,5)
   var allCombos = [];
   function combo(start, chosen) {
     if (chosen.length === 5) {
+      if (grp) {
+        var gIn = grp.filter(function(n){ return chosen.indexOf(n) !== -1; }).length;
+        if (gIn !== 0 && gIn !== grp.length) return; // groupe séparé → split exclu
+      }
       var tB = names10.filter(function(n){ return chosen.indexOf(n) === -1; });
       var smA = 0, smB = 0, nA = 0, nB = 0;
       chosen.forEach(function(n){ smA += _playerSM(n); nA += _adjustedNote(n); });
@@ -2936,7 +2945,8 @@ function applyAutoTeams(s, playing10) {
   var key = playing10.slice().sort().join(',');
   if (s._autoTeamKey === key) return;
   s._autoTeamKey = key;
-  var result = _genBalancedTeams(playing10);
+  var _slotT = INSCRIPTION_SLOTS.find(function(sl){ return sl.id === s.id; });
+  var result = _genBalancedTeams(playing10, _slotT && _slotT.together);
   if (!result) return;
   s.balanceNoteA = result.noteA; s.balanceNoteB = result.noteB;
   var posA = _assignPositions(result.teamA, true);
@@ -3113,7 +3123,7 @@ async function sbDeletePresence(sessionId, name) {
 var INSCRIPTION_SLOTS = [
   { id:'ins_jun_01', label:'Lundi 1ᵉʳ juin 2026', open:false },
   { id:'ins_jun_08', label:'Lundi 8 juin 2026',   open:false, benchPriority:['Spy'] },
-  { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:true },
+  { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:true, together:['Samy','Gugu','Quentin'] },
   { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']]},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
   { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:true },
 ];
@@ -3188,7 +3198,7 @@ async function syncSharedTeams(s, regs){
   }
   // Après le lock, on ne génère plus jamais (règle : composition figée à 21h30)
   if(locked) return false;
-  var res=_genBalancedTeams(top10);
+  var res=_genBalancedTeams(top10, slot&&slot.together);
   if(!res) return false;
   var pA=_assignPositions(res.teamA,true);
   var pB=_assignPositions(res.teamB,false);
