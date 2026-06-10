@@ -2936,28 +2936,26 @@ function applyAutoTeams(s, playing10) {
   var key = playing10.slice().sort().join(',');
   if (s._autoTeamKey === key) return;
   s._autoTeamKey = key;
-  // Une compo partagée publiée pour exactement ces 10 joueurs prime sur le recalcul
-  var shared = (window._SHARED_ROWS || {})[s.id];
-  if (shared && shared.roster_key === key && shared.players && shared.players.length === 10) {
-    if (shared.note_a != null) s.balanceNoteA = shared.note_a;
-    if (shared.note_b != null) s.balanceNoteB = shared.note_b;
-    s.players = _buildPlayersHtml(shared.players);
-  } else {
-    var result = _genBalancedTeams(playing10);
-    if (!result) return;
-    s.balanceNoteA = result.noteA; s.balanceNoteB = result.noteB;
-    var posA = _assignPositions(result.teamA, true);
-    var posB = _assignPositions(result.teamB, false);
-    s.players = _buildPlayersHtml(posA.concat(posB));
-    // Titulaires modifiés → ré-équilibrage publié pour tout le monde
-    var raw = s.players.map(function(p){ return {x:p.x, y:p.y, name:p.name, teamA:p.teamA}; });
-    window._SHARED_ROWS = window._SHARED_ROWS || {};
-    window._SHARED_ROWS[s.id] = {roster_key:key, players:raw, note_a:result.noteA, note_b:result.noteB};
-    var _slotA = INSCRIPTION_SLOTS.find(function(sl){ return sl.id === s.id; });
-    if (s.fromInscription && _slotA && !_slotA.tournament && !_slotLocked(_slotA)) {
-      sbUpsertSharedCompo(s.id, key, raw, result.noteA, result.noteB).catch(function(){});
+  var result = _genBalancedTeams(playing10);
+  if (!result) return;
+  s.balanceNoteA = result.noteA; s.balanceNoteB = result.noteB;
+  var posA = _assignPositions(result.teamA, true);
+  var posB = _assignPositions(result.teamB, false);
+  s.players = posA.concat(posB).map(function(p){
+    var html = _getPlayerHtml(p.name);
+    html = html.replace(/class="card team-[ab]"/, 'class="card ' + (p.teamA ? 'team-a' : 'team-b') + '"');
+    // Patch GK role based on position
+    var isGK = (p.y <= 10 || p.y >= 90);
+    var role = isGK ? 'Gardien' : (PLAYER_ROLES[p.name] || '');
+    if (role && html.indexOf('cphoto" style=') === -1) {
+      if (html.indexOf('class="crole"') !== -1) {
+        html = html.replace(/<div class="crole">[^<]*<\/div>/, '<div class="crole">' + role + '<\/div>');
+      } else {
+        html = html.replace('<div class="cphoto">', '<div class="cphoto"><div class="crole">' + role + '<\/div>');
+      }
     }
-  }
+    return {x:p.x, y:p.y, name:p.name, teamA:p.teamA, html:html};
+  });
   var layer = document.getElementById('players');
   if (!layer) return;
   layer.innerHTML = '';
@@ -2975,6 +2973,7 @@ function applyAutoTeams(s, playing10) {
   setTimeout(injectTrophies, 50);
   if (window._cur) renderBalanceExplain(window._cur);
 }
+
 function _updateTournamentPresenceMarks(byName) {
   document.querySelectorAll('[data-tname]').forEach(function(el) {
     var name = el.getAttribute('data-tname');
@@ -3174,24 +3173,13 @@ async function syncSharedTeams(s, regs){
   var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
   if(slot&&slot.tournament) return s.players&&s.players.length>0;
   if(!regs||regs.length<10){ s.players=[]; return false; }
-  var names=regs.map(function(r){return r.player_name;}).filter(function(n){return !!n;});
-  // Titulaires effectifs : ordre d'inscription, banc (trié par priorité), absents feuille de match exclus
-  var starters=names.slice(0,10), bench=names.slice(10);
-  if(slot&&slot.benchPriority){var _bp=slot.benchPriority;bench.sort(function(a,b){var ai=_bp.indexOf(a),bi=_bp.indexOf(b);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
-  var absent={};
-  try{
-    var pres=await sbGetPresences(s.id);
-    (pres||[]).forEach(function(p){ if(p.status==='absent') absent[p.name]=true; });
-  }catch(e){}
-  var top10=starters.concat(bench).filter(function(n){return !absent[n];}).slice(0,10);
-  if(top10.length<10){ s.players=[]; return false; }
+  var top10=regs.slice(0,10).map(function(r){return r.player_name;}).filter(function(n){return !!n;});
+  if(top10.length<10) return false;
   var rosterKey=top10.slice().sort().join(',');
   var row=null;
   try{ row=await sbGetSharedCompo(s.id); }catch(e){}
   var locked=slot?_slotLocked(slot):false;
-  window._SHARED_ROWS=window._SHARED_ROWS||{};
-  if(row) window._SHARED_ROWS[s.id]=row;
-  // Compo publiée encore valable (mêmes 10 effectifs) ou verrouillée : on la prend telle quelle
+  // Compo publiée encore valable (ou verrouillée) : on la prend telle quelle
   if(row&&row.players&&row.players.length>0&&(locked||row.roster_key===rosterKey)){
     s.players=_buildPlayersHtml(row.players);
     if(row.note_a!=null) s.balanceNoteA=row.note_a;
@@ -3207,7 +3195,6 @@ async function syncSharedTeams(s, regs){
   var raw=pA.concat(pB).map(function(p){return {x:p.x,y:p.y,name:p.name,teamA:p.teamA};});
   s.players=_buildPlayersHtml(raw);
   s.balanceNoteA=res.noteA; s.balanceNoteB=res.noteB;
-  window._SHARED_ROWS[s.id]={roster_key:rosterKey,players:raw,note_a:res.noteA,note_b:res.noteB};
   sbUpsertSharedCompo(s.id, rosterKey, raw, res.noteA, res.noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
   return true;
 }
