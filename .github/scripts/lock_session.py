@@ -100,7 +100,16 @@ if not rows or not rows[0].get('players') or len(rows[0]['players']) != 10:
 
 row = rows[0]
 players = row['players']
-bench = [r['player_name'] for r in regs[10:]]
+
+# Banc = inscrits hors compo et non absents (feuille de match)
+try:
+    pres = sb_get(f'/rest/v1/presences?session_id=eq.{sid_q}&select=name,status')
+except Exception:
+    pres = []
+absents = {p['name'] for p in pres if p.get('status') == 'absent'}
+compo_names = {p['name'] for p in players}
+bench = [r['player_name'] for r in regs
+         if r['player_name'] not in compo_names and r['player_name'] not in absents]
 
 # benchPriority éventuel du slot (ordre de remplacement prioritaire)
 bp = re.search(r"benchPriority:\[([^\]]*)\]", today_slot['line'])

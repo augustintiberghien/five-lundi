@@ -1,0 +1,73 @@
+name: Force compo trio 15 juin v2 (temporaire)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publier la compo trio (clé = 10 titulaires effectifs)
+        run: |
+          python3 - <<'EOF'
+          import json, re, sys, urllib.parse, urllib.request
+          from datetime import datetime, timezone
+
+          html = open('index.html', encoding='utf-8').read()
+          SB_URL = re.search(r"var SB_URL\s*=\s*'([^']+)'", html).group(1)
+          SB_KEY = re.search(r"var SB_KEY\s*=\s*'([^']+)'", html).group(1)
+          HDR = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+
+          def req(path, method='GET', payload=None, extra=None):
+              h = dict(HDR); h.update(extra or {})
+              data = json.dumps(payload).encode() if payload is not None else None
+              r = urllib.request.Request(SB_URL + path, method=method, data=data, headers=h)
+              with urllib.request.urlopen(r, timeout=30) as resp:
+                  return resp.status, resp.read().decode()
+
+          SLOT = 'ins_jun_15'
+          PLAYERS = [
+            {"x":50,"y":8, "name":"Ibrahima","teamA":True},
+            {"x":12,"y":24,"name":"Gugu",    "teamA":True},
+            {"x":88,"y":24,"name":"Samy",    "teamA":True},
+            {"x":35,"y":38,"name":"Quentin", "teamA":True},
+            {"x":65,"y":38,"name":"Landry",  "teamA":True},
+            {"x":50,"y":92,"name":"Michael", "teamA":False},
+            {"x":12,"y":76,"name":"Edouard", "teamA":False},
+            {"x":88,"y":76,"name":"Khalid",  "teamA":False},
+            {"x":35,"y":62,"name":"Hugo",    "teamA":False},
+            {"x":65,"y":62,"name":"Théo",    "teamA":False},
+          ]
+          EXPECTED_KEY = ','.join(sorted(p['name'] for p in PLAYERS))
+
+          st, body = req('/rest/v1/registrations?slot_id=eq.%s&order=registered_at.asc&select=player_name' % SLOT)
+          names = [r['player_name'] for r in json.loads(body)]
+          st, body = req('/rest/v1/presences?session_id=eq.%s&select=name,status' % SLOT)
+          absents = {p['name'] for p in json.loads(body) if p.get('status') == 'absent'}
+          effective = [n for n in names if n not in absents][:10]
+          print('Inscrits :', ', '.join(names))
+          print('Absents  :', ', '.join(sorted(absents)) or '—')
+          print('10 effectifs :', ', '.join(effective))
+
+          live_key = ','.join(sorted(effective))
+          if live_key != EXPECTED_KEY:
+              print('❌ Les 10 titulaires effectifs ont changé — publication annulée, l’algo reprend la main.')
+              print('   Attendu :', EXPECTED_KEY)
+              sys.exit(1)
+
+          payload = {
+              'slot_id': SLOT,
+              'roster_key': live_key,
+              'players': PLAYERS,
+              'note_a': 70.0,
+              'note_b': 70.5,
+              'updated_at': datetime.now(timezone.utc).isoformat(),
+          }
+          st, body = req('/rest/v1/slot_sessions?on_conflict=slot_id', 'POST', payload,
+                         {'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'})
+          print('Upsert HTTP', st)
+          assert st in (200, 201, 204), body
+          print('✅ Blanche : Ibrahima (GK), Gugu, Samy, Quentin, Landry | Bleue : Michael (GK), Edouard, Khalid, Hugo, Théo')
+          EOF
