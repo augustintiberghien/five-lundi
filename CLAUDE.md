@@ -45,11 +45,15 @@ La composition (tableau `players`) est **figée définitivement à 21h30** le so
 
 Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).
 
+### Contrainte exceptionnelle `together` (par créneau)
+
+Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **⚠️ Posée sur `ins_jun_15` uniquement — à retirer après le match du 15 juin.**
+
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
 Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en entrée `SESSIONS`** avec des `players` explicites. C'est ce qui rend la compo **immunisée contre les notes ajustées** (une entrée `SESSIONS` n'est jamais recalculée). Le `_dateKey` de `buildTabs()` fait alors primer la session sur le créneau → 1 seul onglet par date.
 
-**Automatique depuis juin 2026** : le workflow `lock-session.yml` (cron lundi 21h35 Paris, script `.github/scripts/lock_session.py`) lit la compo dans `slot_sessions`, insère l'entrée `SESSIONS` en tête (id `sN` suivant, `current:true`, banc depuis `registrations`), passe le créneau en `open:false` et push sur main (commit préfixé « Auto : »). Après le lock, `syncSharedTeams` **refuse toute écriture** (`_slotLocked`). Penser à mettre à jour la table Sessions ci-dessous après coup.
+**Automatique depuis juin 2026** : le workflow `lock-session.yml` (cron lundi 21h35 Paris, script `.github/scripts/lock_session.py`) calcule les **titulaires effectifs** (inscrits − absents de la feuille de match + banc), prend la compo `slot_sessions` si elle correspond, sinon **régénère avec l'algo du site** (fonctions extraites de index.html, exécutées via node, contrainte `together` comprise), insère l'entrée `SESSIONS` en tête (id `sN` suivant, `current:true`, banc = inscrits hors compo non absents), passe le créneau en `open:false` et push sur main (commit préfixé « Auto : »). Après le lock, `syncSharedTeams` **refuse toute écriture** (`_slotLocked`). Penser à mettre à jour la table Sessions ci-dessous après coup.
 
 Secours manuel (panne du workflow) : console → `exportSessionEntry()` → coller l'entrée en tête de `SESSIONS`. Cas tournoi (4 équipes, ex. 22 juin) non géré par le workflow ni l'outil → promotion manuelle.
 

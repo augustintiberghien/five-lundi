@@ -89,24 +89,88 @@ def sb_get(path):
 
 sid_q = urllib.parse.quote(today_slot['id'])
 regs = sb_get(f'/rest/v1/registrations?slot_id=eq.{sid_q}&order=registered_at.asc&select=player_name')
-if len(regs) < 10:
-    print(f'Seulement {len(regs)} inscrits — match incomplet, pas de lock')
-    sys.exit(0)
+names = [r['player_name'] for r in regs]
 
-rows = sb_get(f'/rest/v1/slot_sessions?slot_id=eq.{sid_q}')
-if not rows or not rows[0].get('players') or len(rows[0]['players']) != 10:
-    print('❌ 10 inscrits mais aucune compo publiée dans slot_sessions — lock impossible')
-    sys.exit(1)
+# Titulaires effectifs : ordre d'inscription, banc trié par priorité, absents (feuille de match) exclus
+try:
+    pres = sb_get(f'/rest/v1/presences?session_id=eq.{sid_q}&select=name,status')
+except Exception:
+    pres = []
+absents = {p['name'] for p in pres if p.get('status') == 'absent'}
 
-row = rows[0]
-players = row['players']
-bench = [r['player_name'] for r in regs[10:]]
-
-# benchPriority éventuel du slot (ordre de remplacement prioritaire)
+starters, bench_raw = names[:10], names[10:]
 bp = re.search(r"benchPriority:\[([^\]]*)\]", today_slot['line'])
 if bp:
     prio = re.findall(r"'([^']+)'", bp.group(1))
-    bench.sort(key=lambda n: (prio.index(n) if n in prio else len(prio)))
+    bench_raw.sort(key=lambda n: (prio.index(n) if n in prio else len(prio)))
+effective = [n for n in starters + bench_raw if n not in absents][:10]
+print('Inscrits :', ', '.join(names))
+print('Absents  :', ', '.join(sorted(absents)) or '—')
+print('Titulaires effectifs :', ', '.join(effective))
+
+if len(effective) < 10:
+    print(f'Seulement {len(effective)} titulaires effectifs — match incomplet, pas de lock')
+    sys.exit(0)
+
+
+def generate_compo(html, roster, together):
+    """Rejoue l'algo d'équilibrage du site (fonctions extraites de index.html) via node."""
+    import subprocess
+    import tempfile
+
+    def sl(a, b):
+        i = html.index(a)
+        return html[i:html.index(b, i)]
+
+    js = '\n'.join([
+        sl('var SESSIONS = [', '\nvar CRITERIA'),
+        sl('var PLAYER_NOTES = {', '\nvar PAIR_STATS'),
+        sl('var PAIR_STATS = [', '\nfunction'),
+        sl('var PLAYER_ROLES = {', '\nfunction'),
+        sl('function getPairWinRate(n1, n2) {', '\nfunction '),
+        sl('/* ── AUTO-TEAM BALANCING ── */', 'function _genTournamentTeams'),
+        sl('function _assignPositions', 'var PLAYER_PHOTOS'),
+    ])
+    js += (
+        '\nvar res=_genBalancedTeams(' + json.dumps(roster, ensure_ascii=False)
+        + ',' + json.dumps(together, ensure_ascii=False) + ');'
+        '\nif(!res){console.log("null");process.exit(0);}'
+        '\nvar raw=_assignPositions(res.teamA,true).concat(_assignPositions(res.teamB,false))'
+        '.map(function(p){return {x:p.x,y:p.y,name:p.name,teamA:p.teamA};});'
+        '\nconsole.log(JSON.stringify({players:raw,note_a:res.noteA,note_b:res.noteB}));'
+    )
+    with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
+        f.write(js)
+        path = f.name
+    out = subprocess.run(['node', path], capture_output=True, text=True)
+    if out.returncode != 0:
+        print('❌ Régénération node échouée :', out.stderr[:500])
+        sys.exit(1)
+    data = json.loads(out.stdout.strip().split('\n')[-1])
+    if not data:
+        print('❌ _genBalancedTeams n\'a pas trouvé de compo')
+        sys.exit(1)
+    return data
+
+
+# Compo : la ligne slot_sessions si elle correspond aux 10 effectifs, sinon régénération
+rows = sb_get(f'/rest/v1/slot_sessions?slot_id=eq.{sid_q}')
+row = rows[0] if rows else {}
+players = row.get('players') or []
+note_a, note_b = row.get('note_a'), row.get('note_b')
+
+if {p['name'] for p in players} != set(effective):
+    print('Compo publiée absente ou périmée — régénération avec l\'algo du site')
+    m_tog = re.search(r"together:\[([^\]]*)\]", today_slot['line'])
+    together = re.findall(r"'([^']+)'", m_tog.group(1)) if m_tog else []
+    if together:
+        print('Contrainte together :', ', '.join(together))
+    gen = generate_compo(content, effective, together)
+    players, note_a, note_b = gen['players'], gen['note_a'], gen['note_b']
+
+# Banc = inscrits hors compo et non absents, dans l'ordre
+compo_names = {p['name'] for p in players}
+bench = [n for n in starters + bench_raw if n not in compo_names and n not in absents]
 
 # ── Construire l'entrée SESSIONS (sans html : le front le reconstruit) ──
 next_n = max(int(n) for n in re.findall(r"\{id:'s(\d+)'", content)) + 1
@@ -118,8 +182,6 @@ players_js = ','.join(
     for p in players
 )
 bench_js = ','.join(json.dumps(b, ensure_ascii=False) for b in bench)
-note_a = row.get('note_a') if row.get('note_a') is not None else ''
-note_b = row.get('note_b') if row.get('note_b') is not None else ''
 entry = (
     "{id:'s%d',date:'%s',score:'',scoreWinner:'',balanceNoteA:%s,balanceNoteB:%s,"
     "current:true,bench:[%s],nameA:'Blanche ⚪',nameB:'Bleue 🔵',players:[%s]},\n"
