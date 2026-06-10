@@ -1530,14 +1530,6 @@ function renderInFormation(s){
     :'<div class="forming-banner"><div class="forming-label" style="opacity:.5;font-size:.8rem;letter-spacing:.1em">Chargement…</div></div>';
   formBanner.style.display='block';
 
-  // Event delegation — data attributes only, zero quoting risk
-  formBanner.onclick=function(e){
-    var c=e.target.closest('[data-confirm-slot]');
-    if(c){insConfirm(c.dataset.confirmSlot,c.dataset.confirmName);return;}
-    var r=e.target.closest('[data-register-slot]');
-    if(r){doRegister(r.dataset.registerSlot);return;}
-  };
-
   setActiveTab(s.id);
 
   // Event delegation — data attributes, pas de quoting inline
@@ -1562,33 +1554,15 @@ function renderInFormation(s){
     var tabBtn=document.querySelector('.tab[data-id="'+s.id+'"]');
     if(tabBtn) tabBtn.textContent=(freshRegs.length>0&&freshRegs.length<10?s.shortDate+' ('+freshRegs.length+'/10)':s.shortDate);
     if(freshRegs.length>=10){
-      if(s.players.length===0){
-        var top10f=freshRegs.slice(0,10).map(function(r){return r.player_name;});
-        var ckf='ins_teams_v2_'+s.id+'_'+top10f.slice().sort().join(',');
-        var cachedF=localStorage.getItem(ckf);
-        if(cachedF){try{s.players=JSON.parse(cachedF);}catch(e){cachedF=null;}}
-        if(!cachedF){
-          var resF=_genBalancedTeams(top10f);
-          if(resF){
-            var pA=_assignPositions(resF.teamA,true);
-            var pB=_assignPositions(resF.teamB,false);
-            s.players=pA.concat(pB).map(function(p){
-              var h=_getPlayerHtml(p.name);
-              h=h.replace(/class="card team-[ab]"/,'class="card '+(p.teamA?'team-a':'team-b')+'"');
-              var gk=(p.y<=10||p.y>=90);
-              var rl=gk?'Gardien':(PLAYER_ROLES[p.name]||'');
-              if(rl&&h.indexOf('cphoto" style=')===-1){
-                if(h.indexOf('class="crole"')!==-1){h=h.replace(/<div class="crole">[^<]*<\/div>/,'<div class="crole">'+rl+'<\/div>');}
-                else{h=h.replace('<div class="cphoto">','<div class="cphoto"><div class="crole">'+rl+'<\/div>');}
-              }
-              return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:h};
-            });
-            localStorage.setItem(ckf,JSON.stringify(s.players));
-          }
-        }
+      if(slot&&slot.tournament){
+        _setTournamentTeams(s, freshRegs, slot);
+        renderSession(s);
+      } else {
+        syncSharedTeams(s, freshRegs).then(function(ok){
+          if(ok&&s.players.length>0){ renderSession(s); }
+          else { formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch); formBanner.onclick=_fbClick; }
+        });
       }
-      if(slot&&slot.tournament) _setTournamentTeams(s, freshRegs, slot);
-      renderSession(s);
     } else {
       formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch);
       formBanner.onclick=_fbClick;
@@ -1609,15 +1583,15 @@ function renderInFormation(s){
         var tb=document.querySelector('.tab[data-id="'+s.id+'"]');
         if(tb) tb.textContent=(fr2.length>0&&fr2.length<10?s.shortDate+' ('+fr2.length+'/10)':s.shortDate);
         if(fr2.length>=10){
-          if(s.players.length===0){
-            var top10r=fr2.slice(0,10).map(function(r){return r.player_name;});
-            var ckr='ins_teams_v2_'+s.id+'_'+top10r.slice().sort().join(',');
-            var caR=localStorage.getItem(ckr);
-            if(caR){try{s.players=JSON.parse(caR);}catch(e){caR=null;}}
-            if(!caR){var rr=_genBalancedTeams(top10r);if(rr){var pAr=_assignPositions(rr.teamA,true);var pBr=_assignPositions(rr.teamB,false);s.players=pAr.concat(pBr).map(function(p){var h=_getPlayerHtml(p.name);h=h.replace(/class="card team-[ab]"/,'class="card '+(p.teamA?'team-a':'team-b')+'"');return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:h};});localStorage.setItem(ckr,JSON.stringify(s.players));}}
+          if(slot&&slot.tournament){
+            _setTournamentTeams(s, fr2, slot);
+            renderSession(s);
+          } else {
+            syncSharedTeams(s, fr2).then(function(ok){
+              if(ok&&s.players.length>0){ renderSession(s); }
+              else if(formBanner){ formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2); formBanner.onclick=_fbClick; }
+            });
           }
-          if(slot&&slot.tournament) _setTournamentTeams(s, fr2, slot);
-          renderSession(s);
         } else {
           if(formBanner) formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2);
           if(formBanner) formBanner.onclick=_fbClick;
@@ -3140,6 +3114,83 @@ var SONDAGE_JUILLET = {
   ]
 };
 
+/* ── COMPO PARTAGÉE (table Supabase slot_sessions) ──
+   Dès 10 inscrits, la compo générée est publiée dans Supabase : tout le monde
+   voit la même. Chaque changement des 10 titulaires (désistement, nouvel
+   inscrit) déclenche un ré-équilibrage COMPLET, republié pour tous (option B).
+   Plus aucune écriture après le lundi 21h30 du créneau (lock). */
+function _parisNow(){ return new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Paris'})); }
+function _slotLockDate(slot){
+  var lbl=slot.label.replace(/\s*\([^)]*\)/g,'').replace(/[ᵉʳˢⁱᵒ]+/g,'').trim();
+  var m=lbl.match(/(\d{1,2})\s+(\S+)\s+(\d{4})/);
+  if(!m) return null;
+  var mi=_MN.indexOf(m[2].toLowerCase());
+  if(mi===-1) return null;
+  return new Date(parseInt(m[3],10), mi, parseInt(m[1],10), 21, 30, 0);
+}
+function _slotLocked(slot){ var d=_slotLockDate(slot); return d ? _parisNow()>=d : false; }
+async function sbGetSharedCompo(slotId) {
+  var r = await fetch(SB_URL + '/rest/v1/slot_sessions?slot_id=eq.' + encodeURIComponent(slotId) + '&select=slot_id,roster_key,players,note_a,note_b', {headers: sbHeaders()});
+  if (!r.ok) throw new Error('sbGetSharedCompo ' + r.status);
+  var rows = await r.json();
+  return rows[0] || null;
+}
+async function sbUpsertSharedCompo(slotId, rosterKey, players, noteA, noteB) {
+  var r = await fetch(SB_URL + '/rest/v1/slot_sessions?on_conflict=slot_id', {
+    method: 'POST',
+    headers: Object.assign({}, sbHeaders(), {'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'}),
+    body: JSON.stringify({slot_id: slotId, roster_key: rosterKey, players: players, note_a: noteA, note_b: noteB, updated_at: new Date().toISOString()})
+  });
+  if (!r.ok) throw new Error('sbUpsertSharedCompo ' + r.status);
+}
+function _buildPlayersHtml(raw){
+  return raw.map(function(p){
+    var h=_getPlayerHtml(p.name);
+    h=h.replace(/class="card team-[ab]"/,'class="card '+(p.teamA?'team-a':'team-b')+'"');
+    var gk=(p.y<=10||p.y>=90);
+    var rl=gk?'Gardien':(PLAYER_ROLES[p.name]||'');
+    if(rl&&h.indexOf('cphoto" style=')===-1){
+      if(h.indexOf('class="crole"')!==-1){h=h.replace(/<div class="crole">[^<]*<\/div>/,'<div class="crole">'+rl+'<\/div>');}
+      else{h=h.replace('<div class="cphoto">','<div class="cphoto"><div class="crole">'+rl+'<\/div>');}
+    }
+    return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:h};
+  });
+}
+async function syncSharedTeams(s, regs){
+  var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
+  if(slot&&slot.tournament) return s.players&&s.players.length>0;
+  if(!regs||regs.length<10){ s.players=[]; return false; }
+  var top10=regs.slice(0,10).map(function(r){return r.player_name;}).filter(function(n){return !!n;});
+  if(top10.length<10) return false;
+  var rosterKey=top10.slice().sort().join(',');
+  var row=null;
+  try{ row=await sbGetSharedCompo(s.id); }catch(e){}
+  var locked=slot?_slotLocked(slot):false;
+  // Compo publiée encore valable (ou verrouillée) : on la prend telle quelle
+  if(row&&row.players&&row.players.length>0&&(locked||row.roster_key===rosterKey)){
+    s.players=_buildPlayersHtml(row.players);
+    if(row.note_a!=null) s.balanceNoteA=row.note_a;
+    if(row.note_b!=null) s.balanceNoteB=row.note_b;
+    return true;
+  }
+  // Après le lock, on ne génère plus jamais (règle : composition figée à 21h30)
+  if(locked) return false;
+  var res=_genBalancedTeams(top10);
+  if(!res) return false;
+  var pA=_assignPositions(res.teamA,true);
+  var pB=_assignPositions(res.teamB,false);
+  var raw=pA.concat(pB).map(function(p){return {x:p.x,y:p.y,name:p.name,teamA:p.teamA};});
+  s.players=_buildPlayersHtml(raw);
+  s.balanceNoteA=res.noteA; s.balanceNoteB=res.noteB;
+  sbUpsertSharedCompo(s.id, rosterKey, raw, res.noteA, res.noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
+  return true;
+}
+function _resyncSharedCompo(slot, regs){
+  if(!slot||slot.tournament) return;
+  var s=_INS_SESSIONS.find(function(x){return x.id===slot.id;})||{id:slot.id,fromInscription:true,players:[]};
+  syncSharedTeams(s, regs).catch(function(){});
+}
+
 async function sbGetRegistrations(slotId) {
   var r = await fetch(SB_URL + '/rest/v1/registrations?slot_id=eq.' + encodeURIComponent(slotId) + '&order=registered_at.asc&select=player_name', {headers: sbHeaders()});
   if (!r.ok) throw new Error('sbGetReg ' + r.status);
@@ -4092,49 +4143,16 @@ function _renderMvpInner(s, votes) {
 
   inner.innerHTML = html;
 
-  // Générer le résumé IA si vote clôturé et commentaires présents
+  // Afficher les commentaires des votants si vote clôturé
   if (isClosed && votes.length > 0) {
     var allComments = votes.filter(function(v){ return v.comment && v.comment.trim(); });
     var summaryEl = document.getElementById('mvp-summary-' + s.id);
     if (allComments.length && summaryEl) {
-      generateMvpSummary(s.id, winner, allComments, summaryEl);
-    }
-  }
-}
-
-async function generateMvpSummary(sid, winner, comments, el) {
-  var commentTexts = comments.map(function(c){ return '- ' + c.voter + ' : "' + c.comment.trim() + '"'; }).join('\n');
-  var prompt = 'Tu es le journaliste du Five Lundi, un match de football entre amis. ' +
-    winner + ' a été élu homme du match. ' +
-    'Voici les commentaires des votants :\n' + commentTexts + '\n\n' +
-    'Rédige UN résumé synthétique de 2-3 phrases maximum, à la troisième personne, sobre et percutant, ' +
-    'qui capture l\'essence de sa performance selon les votants. ' +
-    'Style L\'Équipe. Pas de bullet points. Pas de titre. Juste le texte.';
-
-  try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 200,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    var data = await r.json();
-    var text = data.content && data.content[0] ? data.content[0].text : null;
-    if (text && el) {
-      el.innerHTML = '<div class="mvp-comment-item"><div class="mvp-comment-text" style="font-style:normal;color:rgba(255,255,255,.85);line-height:1.6">' + text.trim() + '</div>' +
-        '<div class="mvp-comment-author" style="margin-top:.4rem">✍️ Résumé Claudio</div></div>';
-    }
-  } catch(e) {
-    // Fallback : afficher les commentaires bruts
-    if (el) {
-      var html = '';
-      comments.forEach(function(c) {
-        html += '<div class="mvp-comment-item"><div class="mvp-comment-text">"' + c.comment.trim() + '"</div><div class="mvp-comment-author">— ' + c.voter + '</div></div>';
+      var ch = '';
+      allComments.forEach(function(c){
+        ch += '<div class="mvp-comment-item"><div class="mvp-comment-text">"' + c.comment.trim() + '"</div><div class="mvp-comment-author">— ' + c.voter + '</div></div>';
       });
-      el.innerHTML = html;
+      summaryEl.innerHTML = ch;
     }
   }
 }
@@ -4583,7 +4601,7 @@ function doRegister(slotId){
   if(btn) btn.disabled=true;
   var slot=INSCRIPTION_SLOTS.find(function(s){ return s.id===slotId; });
   var matchPromise=slot&&slot.matchEvent?sbGetRegistrations(slot.matchEvent.id):Promise.resolve([]);
-  sbRegister(slotId, name).then(function(){ return Promise.all([sbGetRegistrations(slotId),matchPromise]); }).then(function(results){ _updateSlotUI(slot,results[0],name,results[1]); }).catch(function(e){ console.error(e); if(input) input.disabled=false; if(btn) btn.disabled=false; });
+  sbRegister(slotId, name).then(function(){ return Promise.all([sbGetRegistrations(slotId),matchPromise]); }).then(function(results){ _updateSlotUI(slot,results[0],name,results[1]); _resyncSharedCompo(slot,results[0]); }).catch(function(e){ console.error(e); if(input) input.disabled=false; if(btn) btn.disabled=false; });
 }
 
 function doUnregister(slotId, playerName){
@@ -4593,7 +4611,7 @@ function doUnregister(slotId, playerName){
     var fivePromise=sbGetRegistrations(slotId);
     var matchPromise=slot&&slot.matchEvent ? sbGetRegistrations(slot.matchEvent.id) : Promise.resolve([]);
     return Promise.all([fivePromise, matchPromise]);
-  }).then(function(results){ _updateSlotUI(slot,results[0],'',results[1]); }).catch(function(e){ console.error(e); });
+  }).then(function(results){ _updateSlotUI(slot,results[0],'',results[1]); _resyncSharedCompo(slot,results[0]); }).catch(function(e){ console.error(e); });
 }
 
 /* ── HISTORISATION PAR MOIS ── */
@@ -4624,48 +4642,20 @@ async function _loadInscriptionSessions(){
         current:false,
         players:[]
       };
-      // Si >= 10 inscrits, générer les équipes (cache localStorage)
+      // Si >= 10 inscrits, charger/générer la compo partagée (Supabase)
       if(slot.tournament) { _setTournamentTeams(s, regs, slot); }
-      if(!slot.tournament && regs.length>=10){
-        var top10=regs.slice(0,10).map(function(r){return r.player_name;}).filter(function(n){return !!n;});
-        if(top10.length<10){_INS_SESSIONS.push(s);return;}
-        var cacheKey='ins_teams_v2_'+slot.id+'_'+top10.slice().sort().join(',');
-        var cached=localStorage.getItem(cacheKey);
-        if(cached){
-          try{ s.players=JSON.parse(cached); }catch(e){ cached=null; }
+      var compoPr=(!slot.tournament&&regs.length>=10)?syncSharedTeams(s, regs).catch(function(){return false;}):Promise.resolve(false);
+      return compoPr.then(function(){
+        // Fetch match event regs si applicable
+        if(slot.matchEvent){
+          return sbGetRegistrations(slot.matchEvent.id).then(function(matchRegs){
+            s.matchRegs=matchRegs;
+            s.matchEvent=slot.matchEvent;
+            _INS_SESSIONS.push(s);
+          }).catch(function(){ s.matchRegs=[]; s.matchEvent=slot.matchEvent; _INS_SESSIONS.push(s); });
         }
-        if(!cached){
-          var result=_genBalancedTeams(top10);
-          if(result){
-            var posA=_assignPositions(result.teamA,true);
-            var posB=_assignPositions(result.teamB,false);
-            s.players=posA.concat(posB).map(function(p){
-              var html=_getPlayerHtml(p.name);
-              html=html.replace(/class="card team-[ab]"/,'class="card '+(p.teamA?'team-a':'team-b')+'"');
-              var isGK=(p.y<=10||p.y>=90);
-              var role=isGK?'Gardien':(PLAYER_ROLES[p.name]||'');
-              if(role&&html.indexOf('cphoto" style=')===-1){
-                if(html.indexOf('class="crole"')!==-1){
-                  html=html.replace(/<div class="crole">[^<]*<\/div>/,'<div class="crole">'+role+'<\/div>');
-                } else {
-                  html=html.replace('<div class="cphoto">','<div class="cphoto"><div class="crole">'+role+'<\/div>');
-                }
-              }
-              return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:html};
-            });
-            localStorage.setItem(cacheKey,JSON.stringify(s.players));
-          }
-        }
-      }
-      // Fetch match event regs si applicable
-      if(slot.matchEvent){
-        return sbGetRegistrations(slot.matchEvent.id).then(function(matchRegs){
-          s.matchRegs=matchRegs;
-          s.matchEvent=slot.matchEvent;
-          _INS_SESSIONS.push(s);
-        }).catch(function(){ s.matchRegs=[]; s.matchEvent=slot.matchEvent; _INS_SESSIONS.push(s); });
-      }
-      _INS_SESSIONS.push(s);
+        _INS_SESSIONS.push(s);
+      });
     }).catch(function(){
       var shortDateFb='';
       var partsFb=slot.label.split(' ');
@@ -4822,6 +4812,9 @@ function buildTabs(){
   wrap.appendChild(bi);
 }
 
+
+// Purge des anciens caches de compo locaux (remplacés par la compo partagée Supabase)
+try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('ins_teams_')===0) localStorage.removeItem(k); }); }catch(e){}
 
 buildTabs();
 // Afficher la session current:true au chargement
@@ -5133,12 +5126,14 @@ function updateCountdown() {
     };
   }
 
-  // Premier rendu
+  // Premier rendu + démarrage de l'observateur de régénération des cartes
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
       injectCardLayers();
       attachListeners();
     }, 200);
+    var pitch = document.getElementById('pitch');
+    if (pitch) _obs.observe(pitch, {childList: true, subtree: true});
   });
 
   // Re-attacher si les cartes sont régénérées (ex: changement onglet session)
@@ -5157,10 +5152,6 @@ function updateCountdown() {
         attachListeners();
       }, 30);
     }
-  });
-  document.addEventListener('DOMContentLoaded', function() {
-    var pitch = document.getElementById('pitch');
-    if (pitch) _obs.observe(pitch, {childList: true, subtree: true});
   });
 })();
 </script>

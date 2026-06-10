@@ -41,16 +41,17 @@ La composition (tableau `players`) est **figée définitivement à 21h30** le so
 
 **⚠️ INTERDIT** : regénérer `_genBalancedTeams` après 21h30, ou modifier `players` après que le score est connu. Si une composition semble incorrecte, demander confirmation à l'utilisateur avant tout changement.
 
-### Promotion du créneau en session (le geste du lock)
+### Compo partagée (table Supabase `slot_sessions`) — depuis juin 2026
 
-Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en entrée `SESSIONS`** avec des `players` explicites. C'est ce qui rend la compo **immunisée contre les notes ajustées** (une entrée `SESSIONS` n'est jamais recalculée) et **identique pour tout le monde** (sinon chaque navigateur regénère via `_genBalancedTeams` avec les notes du moment + cache `localStorage` local). Le `_dateKey` de `buildTabs()` fait alors primer la session sur le créneau → 1 seul onglet par date, plus de double statut inscrits/titulaires.
+Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).
 
-**Procédure** (le soir du match, dès 21h30, page ouverte sur le créneau verrouillé) :
-1. Console : `exportSessionEntry()` (ou `exportSessionEntry('ins_jun_29')`) → l'entrée `SESSIONS` prête à coller est copiée dans le presse-papier.
-2. La coller en **tête** du tableau `SESSIONS` (plus récente d'abord), passer `current:true` (et `current:false` sur l'ancienne).
-3. commit / push / PR / merge, puis mettre à jour la table Sessions ci-dessous.
+### Promotion du créneau en session (le geste du lock) — automatisée
 
-`exportSessionEntry` **sérialise la compo déjà figée** (`s.players`), il ne la recalcule pas. Cas tournoi (4 équipes, ex. 22 juin) non géré par l'outil → promotion manuelle.
+Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en entrée `SESSIONS`** avec des `players` explicites. C'est ce qui rend la compo **immunisée contre les notes ajustées** (une entrée `SESSIONS` n'est jamais recalculée). Le `_dateKey` de `buildTabs()` fait alors primer la session sur le créneau → 1 seul onglet par date.
+
+**Automatique depuis juin 2026** : le workflow `lock-session.yml` (cron lundi 21h35 Paris, script `.github/scripts/lock_session.py`) lit la compo dans `slot_sessions`, insère l'entrée `SESSIONS` en tête (id `sN` suivant, `current:true`, banc depuis `registrations`), passe le créneau en `open:false` et push sur main (commit préfixé « Auto : »). Après le lock, `syncSharedTeams` **refuse toute écriture** (`_slotLocked`). Penser à mettre à jour la table Sessions ci-dessous après coup.
+
+Secours manuel (panne du workflow) : console → `exportSessionEntry()` → coller l'entrée en tête de `SESSIONS`. Cas tournoi (4 équipes, ex. 22 juin) non géré par le workflow ni l'outil → promotion manuelle.
 
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 
@@ -73,6 +74,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 - Ouverture : 22h30 Paris le soir du match
 - Clôture : 10 votes atteints OU 22h30 le lendemain
 - Timezone : toujours via `toLocaleString('en-US', {timeZone:'Europe/Paris'})`
+- **Résumé MVP** : le code d'appel direct à l'API Anthropic a été supprimé (juin 2026 — il partait sans clé et ne marchait pas). Le résumé/article est rédigé par Claude **au débrief après chaque match** et poussé manuellement dans le HTML (`ARTICLES`). À la clôture du vote, le site affiche les commentaires bruts des votants.
 
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
@@ -82,6 +84,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
+| s12 | 8 juin 2026 | 10 – 11 (B) | |
 | s11 | 1 juin 2026 | 8 – 6 (A) | |
 | s10 | 25 mai 2026 | 8 – 7 (A) | |
 | s9 | 18 mai 2026 | 12 – 7 (A) | |
