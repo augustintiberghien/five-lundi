@@ -30,15 +30,15 @@ jobs:
 
           PLAYERS = [
             {"x":50,"y":8, "name":"Ibrahima","teamA":True},
-            {"x":12,"y":24,"name":"Gugu",    "teamA":True},
-            {"x":88,"y":24,"name":"Théo",    "teamA":True},
-            {"x":35,"y":38,"name":"Quentin", "teamA":True},
-            {"x":65,"y":38,"name":"Samy",    "teamA":True},
+            {"x":12,"y":24,"name":"Hugo",    "teamA":True},
+            {"x":88,"y":24,"name":"Alex",    "teamA":True},
+            {"x":35,"y":38,"name":"Flo",     "teamA":True},
+            {"x":65,"y":38,"name":"Théo",    "teamA":True},
             {"x":50,"y":92,"name":"Rémi",    "teamA":False},
             {"x":12,"y":76,"name":"Michael", "teamA":False},
-            {"x":88,"y":76,"name":"Hugo",    "teamA":False},
-            {"x":35,"y":62,"name":"Dylan",   "teamA":False},
-            {"x":65,"y":62,"name":"Landry",  "teamA":False},
+            {"x":88,"y":76,"name":"Gugu",    "teamA":False},
+            {"x":35,"y":62,"name":"Samy",    "teamA":False},
+            {"x":65,"y":62,"name":"Quentin", "teamA":False},
           ]
           EXPECTED = sorted(p['name'] for p in PLAYERS)
 
@@ -54,13 +54,13 @@ jobs:
               'slot_id': 'ins_jun_15',
               'roster_key': ','.join(sorted(top10)),
               'players': PLAYERS,
-              'note_a': 71.0,
-              'note_b': 71.0,
+              'note_a': 69.0,
+              'note_b': 69.0,
               'updated_at': datetime.now(timezone.utc).isoformat(),
           }
           st, body = req('/rest/v1/slot_sessions?on_conflict=slot_id', 'POST', payload,
                          {'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'})
           print('Upsert HTTP', st)
           assert st in (200, 201, 204), body
-          print('✅ Compo publiée — Blanche : Ibrahima (GK), Gugu, Théo, Quentin, Samy | Bleue : Rémi (GK), Michael, Hugo, Dylan, Landry')
+          print('✅ Compo publiée — Blanche : Ibrahima (GK), Hugo, Alex, Flo, Théo | Bleue : Rémi (GK), Michael, Gugu, Samy, Quentin')
           EOF
