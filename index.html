@@ -3659,8 +3659,13 @@ function renderPresence(s) {
 
     // Reset bench players no longer called up who still have a status in Supabase
     // (preserve 'absent' so standby players can opt out)
+    // ⚠️ Ne jamais effacer le statut d'un remplaçant devenu titulaire : si la compo
+    // affichée (s.players) ou les titulaires d'origine le contiennent, il joue.
+    var _starterSet = {};
+    starterNames.forEach(function(n){ _starterSet[n] = true; });
+    (s.players || []).forEach(function(p){ _starterSet[p.name] = true; });
     bench.forEach(function(name) {
-      if (calledUp.indexOf(name) === -1 && byName[name] && byName[name] !== 'absent') {
+      if (calledUp.indexOf(name) === -1 && !_starterSet[name] && byName[name] && byName[name] !== 'absent') {
         sbDeletePresence(s.id, name);
         delete byName[name];
       }
