@@ -4510,6 +4510,7 @@ function _updateSlotUI(slot, regs, myName, matchRegs){
     listHtml='<div class="ins-empty">Aucune inscription pour l&#39;instant — sois le premier !</div>';
   } else {
     var starters=regs.slice(0,10), bench=regs.slice(10);
+    if(slot.benchPriority){var _bp3=slot.benchPriority;bench.sort(function(a,b){var ai=_bp3.indexOf(a.player_name),bi=_bp3.indexOf(b.player_name);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
     starters.forEach(function(r,i){
       var hasMatch=matchNames.indexOf(r.player_name)!==-1;
       var flagHtml=hasMatch?'<span style="font-size:.85rem;margin-left:.3rem">🇫🇷🇮🇶</span>':'';
@@ -4671,6 +4672,7 @@ async function _loadInscriptionSessions(){
         current:false,
         players:[]
       };
+      if(slot.benchPriority){var _bp4=slot.benchPriority;s.bench.sort(function(a,b){var ai=_bp4.indexOf(a),bi=_bp4.indexOf(b);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
       // Si >= 10 inscrits, charger/générer la compo partagée (Supabase)
       if(slot.tournament) { _setTournamentTeams(s, regs, slot); }
       var compoPr=(!slot.tournament&&regs.length>=10)?syncSharedTeams(s, regs).catch(function(){return false;}):Promise.resolve(false);
