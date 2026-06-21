@@ -2876,6 +2876,17 @@ function _genTournamentTeams(allNames, fixedTeam, pairs) {
 function _setTournamentTeams(s, regs, slot) {
   if (!slot || !slot.tournament) return;
   var allNames = regs.map(function(r){ return r.player_name; });
+  // Compo figee a la main (source de verite unique pour tous les visiteurs).
+  // On ignore le cache local et la generation pour eviter les compos divergentes.
+  if (slot.tournament.teams) {
+    var _fixed = slot.tournament.teams.map(function(t){ return { color:t.color, names:t.names.slice() }; });
+    if (allNames.length) {
+      var _present = {}; allNames.forEach(function(n){ _present[n] = true; });
+      _fixed = _fixed.map(function(t){ return { color:t.color, names:t.names.filter(function(n){ return _present[n]; }) }; });
+    }
+    s.tournamentTeams = _fixed;
+    return;
+  }
   var tKey = 'ins_tournament_v3_' + s.id + '_' + allNames.slice().sort().join(',');
   var tCached = localStorage.getItem(tKey);
   if (tCached) { try { s.tournamentTeams = JSON.parse(tCached); } catch(e) { tCached = null; } }
@@ -3134,7 +3145,7 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jun_01', label:'Lundi 1ᵉʳ juin 2026', open:false },
   { id:'ins_jun_08', label:'Lundi 8 juin 2026',   open:false, benchPriority:['Spy'] },
   { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:false, together:['Samy','Gugu','Quentin'] },
-  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']]},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
+  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}]},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
   { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:true, benchPriority:['Spy'] },
 ];
 var SONDAGE_JUILLET = {
