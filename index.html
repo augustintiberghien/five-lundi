@@ -1666,8 +1666,33 @@ function renderTournament(s) {
   var totalPlayers = 0;
   teams.forEach(function(t){ totalPlayers += t.names.length; });
 
+  // Classement (round-robin, 3pts/victoire, departage = diff de buts generale)
+  var _tResults = s.tournamentResults || [];
+  var _tRank = null;
+  if (_tResults.length) {
+    var _tStand = {};
+    teams.forEach(function(t){ _tStand[t.color] = {color:t.color, pts:0, gf:0, ga:0, w:0, l:0}; });
+    _tResults.forEach(function(m){
+      if(!_tStand[m.a]||!_tStand[m.b]) return;
+      _tStand[m.a].gf+=m.sa; _tStand[m.a].ga+=m.sb;
+      _tStand[m.b].gf+=m.sb; _tStand[m.b].ga+=m.sa;
+      if(m.sa>m.sb){ _tStand[m.a].pts+=3; _tStand[m.a].w++; _tStand[m.b].l++; }
+      else if(m.sb>m.sa){ _tStand[m.b].pts+=3; _tStand[m.b].w++; _tStand[m.a].l++; }
+    });
+    _tRank = Object.keys(_tStand).map(function(k){return _tStand[k];}).sort(function(x,y){
+      if(y.pts!==x.pts) return y.pts-x.pts;
+      var gx=x.gf-x.ga, gy=y.gf-y.ga;
+      if(gy!==gx) return gy-gx;
+      return y.gf-x.gf;
+    });
+  }
+
   var html = '<div style="font-family:Oswald,sans-serif;font-size:.95rem;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.12em;text-align:center;padding:1.1rem 0 .2rem">🏆 Tournoi · 22 juin</div>';
   html += '<div style="font-family:Barlow,sans-serif;font-size:.62rem;color:rgba(255,255,255,.4);text-align:center;padding-bottom:.8rem">4 équipes · round-robin · 3pts/victoire</div>';
+  if (_tRank) {
+    var _champ = tColors[_tRank[0].color] || tColors['bleu'];
+    html += '<div style="text-align:center;padding:0 0 .9rem"><span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,'+_champ.border+','+_champ.acc+');padding:.42rem .95rem;border-radius:999px;font-family:Oswald,sans-serif;font-weight:700;letter-spacing:.05em;color:#fff;font-size:.78rem;box-shadow:0 2px 12px rgba(0,0,0,.35)">👑 '+_champ.emoji+' '+_champ.label+' remporte le tournoi</span></div>';
+  }
 
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;padding-bottom:.75rem">';
   teams.forEach(function(team) {
@@ -1702,6 +1727,39 @@ function renderTournament(s) {
   for (var i = 0; i < teams.length; i++) {
     for (var j = i+1; j < teams.length; j++) { matchups.push([teams[i], teams[j]]); }
   }
+  if (_tRank) {
+    html += '<div style="font-family:Oswald,sans-serif;font-size:.57rem;font-weight:700;color:rgba(100,160,255,.7);text-transform:uppercase;letter-spacing:.1em;padding:.5rem .1rem .3rem">🏆 Classement</div>';
+    html += '<div style="background:rgba(255,255,255,.04);border-radius:.5rem;overflow:hidden;margin-bottom:.7rem">';
+    html += '<div style="display:grid;grid-template-columns:1.5rem 1fr 1.2rem 1.2rem 1.7rem 1.6rem;gap:.2rem;padding:.35rem .55rem;font-family:Oswald,sans-serif;font-size:.5rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.04em"><span></span><span>Équipe</span><span style="text-align:center">G</span><span style="text-align:center">P</span><span style="text-align:center">Diff</span><span style="text-align:center">Pts</span></div>';
+    _tRank.forEach(function(r, i){
+      var rc = tColors[r.color] || tColors['bleu'];
+      var gd = r.gf - r.ga; var gdStr = (gd>0?'+':'')+gd;
+      html += '<div style="display:grid;grid-template-columns:1.5rem 1fr 1.2rem 1.2rem 1.7rem 1.6rem;gap:.2rem;padding:.42rem .55rem;align-items:center;border-top:1px solid rgba(255,255,255,.05)'+(i===0?';background:rgba(255,214,0,.07)':'')+'">';
+      html += '<span style="font-family:Oswald,sans-serif;font-weight:700;font-size:.72rem;color:'+(i===0?'#ffd600':'rgba(255,255,255,.55)')+'">'+(i===0?'👑':(i+1))+'</span>';
+      html += '<span style="font-family:Barlow,sans-serif;font-size:.72rem;font-weight:600;color:#fff;display:flex;align-items:center;gap:.3rem">'+rc.emoji+' '+rc.label+'</span>';
+      html += '<span style="text-align:center;font-family:Barlow,sans-serif;font-size:.7rem;color:rgba(255,255,255,.7)">'+r.w+'</span>';
+      html += '<span style="text-align:center;font-family:Barlow,sans-serif;font-size:.7rem;color:rgba(255,255,255,.7)">'+r.l+'</span>';
+      html += '<span style="text-align:center;font-family:Barlow,sans-serif;font-size:.7rem;color:rgba(255,255,255,.7)">'+gdStr+'</span>';
+      html += '<span style="text-align:center;font-family:Oswald,sans-serif;font-weight:700;font-size:.78rem;color:#fff">'+r.pts+'</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div style="font-family:Oswald,sans-serif;font-size:.57rem;font-weight:700;color:rgba(100,160,255,.7);text-transform:uppercase;letter-spacing:.1em;padding:.2rem .1rem .3rem">📋 Résultats</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;padding-bottom:.6rem">';
+    _tResults.forEach(function(m){
+      var a = tColors[m.a] || tColors['bleu'];
+      var b = tColors[m.b] || tColors['bleu'];
+      var aWin = m.sa>m.sb, bWin = m.sb>m.sa;
+      html += '<div style="background:rgba(255,255,255,.04);border-radius:.4rem;padding:.32rem .45rem;display:flex;align-items:center;justify-content:center;gap:.3rem">';
+      html += '<span style="font-size:.78rem">'+a.emoji+'</span>';
+      html += '<span style="font-family:Oswald,sans-serif;font-weight:700;font-size:.82rem;color:'+(aWin?'#4ade80':'rgba(255,255,255,.85)')+'">'+m.sa+'</span>';
+      html += '<span style="font-family:Barlow,sans-serif;font-size:.55rem;color:rgba(255,255,255,.3)">-</span>';
+      html += '<span style="font-family:Oswald,sans-serif;font-weight:700;font-size:.82rem;color:'+(bWin?'#4ade80':'rgba(255,255,255,.85)')+'">'+m.sb+'</span>';
+      html += '<span style="font-size:.78rem">'+b.emoji+'</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  } else {
   html += '<div style="font-family:Oswald,sans-serif;font-size:.57rem;font-weight:700;color:rgba(100,160,255,.7);text-transform:uppercase;letter-spacing:.1em;padding:.5rem .1rem .3rem">📅 Programme</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.3rem;padding-bottom:.6rem">';
   matchups.forEach(function(m) {
@@ -1710,6 +1768,7 @@ function renderTournament(s) {
     html += '<div style="background:rgba(255,255,255,.04);border-radius:.4rem;padding:.28rem .4rem;display:flex;align-items:center;justify-content:center;gap:.25rem;font-size:.78rem">'+a.emoji+'<span style="font-family:Barlow,sans-serif;font-size:.55rem;color:rgba(255,255,255,.4)">vs</span>'+b.emoji+'</div>';
   });
   html += '</div>';
+  }
 
   if (totalPlayers < 20) {
     var rem = 20 - totalPlayers;
@@ -2885,6 +2944,7 @@ function _setTournamentTeams(s, regs, slot) {
       _fixed = _fixed.map(function(t){ return { color:t.color, names:t.names.filter(function(n){ return _present[n]; }) }; });
     }
     s.tournamentTeams = _fixed;
+    s.tournamentResults = slot.tournament.results || null;
     return;
   }
   var tKey = 'ins_tournament_v3_' + s.id + '_' + allNames.slice().sort().join(',');
@@ -3145,7 +3205,7 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jun_01', label:'Lundi 1ᵉʳ juin 2026', open:false },
   { id:'ins_jun_08', label:'Lundi 8 juin 2026',   open:false, benchPriority:['Spy'] },
   { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:false, together:['Samy','Gugu','Quentin'] },
-  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}]},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
+  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}],results:[{a:'bleu',b:'noir',sa:1,sb:2},{a:'rouge',b:'blanc',sa:5,sb:4},{a:'bleu',b:'rouge',sa:4,sb:3},{a:'noir',b:'blanc',sa:6,sb:4},{a:'rouge',b:'noir',sa:3,sb:1},{a:'bleu',b:'blanc',sa:5,sb:1}]},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
   { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:true, benchPriority:['Spy'] },
 ];
 var SONDAGE_JUILLET = {
