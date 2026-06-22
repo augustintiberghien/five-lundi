@@ -5207,6 +5207,24 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* ── FORM / TROPHÉES ── */
+function getTournamentForm(name) {
+  // Résultats des matchs de tournoi (4 équipes) — non présents dans SESSIONS.
+  var out = [];
+  if (typeof INSCRIPTION_SLOTS === 'undefined') return out;
+  INSCRIPTION_SLOTS.forEach(function(sl) {
+    var t = sl.tournament;
+    if (!t || !t.teams || !t.results) return;
+    var color = null;
+    t.teams.forEach(function(tm){ if ((tm.names || []).indexOf(name) !== -1) color = tm.color; });
+    if (!color) return;
+    t.results.forEach(function(m) {
+      if (m.a === color) out.push(m.sa > m.sb ? 'W' : 'L');
+      else if (m.b === color) out.push(m.sb > m.sa ? 'W' : 'L');
+    });
+  });
+  return out;
+}
+
 function getPlayerForm(name) {
   // Parcourir les sessions (sans la session en cours) pour retrouver les résultats
   var results = [];
@@ -5217,7 +5235,8 @@ function getPlayerForm(name) {
     if(inA) results.push(s.scoreWinner === 'A' ? 'W' : 'L');
     else if(inB) results.push(s.scoreWinner === 'B' ? 'W' : 'L');
   });
-  return results.reverse(); // oldest→newest so slice(-N) = N most recentr
+  results.reverse(); // oldest→newest so slice(-N) = N most recent
+  return results.concat(getTournamentForm(name)); // tournoi(s) = matchs les plus récents
 }
 
 function getTrophy(name) {
