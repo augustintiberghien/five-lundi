@@ -2501,6 +2501,26 @@ var RANK_METHODS = [
     score:function(p){ return p.played>0 ? (p.wins/p.played)*(1-Math.exp(-p.played/5)) : 0; },
     fmt:function(v){ return (v*100).toFixed(1)+'%'; } }
 ];
+function _tournamentHofMedal(sl) {
+  var t = sl.tournament;
+  var winner = t.motm.winner;
+  var sid = sl.id;
+  var photo = _getPhotoSrc(winner);
+  var onclick = "window.scrollTo(0,0);showPitch();var _t=(typeof _INS_SESSIONS!=='undefined')?_INS_SESSIONS.find(function(x){return x.id==='" + sid + "';}):null;if(_t){renderSession(_t);setActiveTab('" + sid + "');}";
+  var h = '<div onclick="' + onclick + '" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:82px">';
+  h += '<div style="position:relative">';
+  if (photo) {
+    h += '<img src="' + photo + '" style="width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600;box-shadow:0 0 0 2px rgba(255,214,0,.35),0 0 12px rgba(255,214,0,.45)">';
+  } else {
+    h += '<div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:rgba(255,255,255,.4);border:2px solid #FFD600;box-shadow:0 0 0 2px rgba(255,214,0,.35),0 0 12px rgba(255,214,0,.45)">' + winner.slice(0,2).toUpperCase() + '</div>';
+  }
+  h += '<div style="position:absolute;bottom:-5px;right:-7px;font-size:1rem">🏆</div>';
+  h += '</div>';
+  h += '<div style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.1">' + winner + '</div>';
+  h += '<div style="font-family:Oswald,sans-serif;font-size:.48rem;font-weight:700;color:#000;background:linear-gradient(135deg,#FFD600,#ffe85c);border-radius:999px;padding:.08rem .45rem;text-transform:uppercase;letter-spacing:.04em">🏆 Homme du tournoi</div>';
+  return h;
+}
+
 function buildStatsView(){
   /* ── CLASSEMENT JOUEURS ── */
   var rm = RANK_METHODS[_rankMethod];
@@ -2687,12 +2707,20 @@ function buildStatsView(){
       });
     }
 
-    if (!hof.length) {
+    // Homme(s) du tournoi (4 équipes, hors SESSIONS) — affiché en tête du HoF
+    var tournHof = '';
+    if (typeof INSCRIPTION_SLOTS !== 'undefined') {
+      INSCRIPTION_SLOTS.forEach(function(sl){
+        if (sl.tournament && sl.tournament.motm && sl.tournament.motm.winner) tournHof += _tournamentHofMedal(sl);
+      });
+    }
+    if (!hof.length && !tournHof) {
       html += '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.75rem;font-style:italic;padding:.8rem 0">Résultats disponibles après clôture du vote.</div>';
     } else {
       // Grille de médaillons cliquables — du plus récent au plus ancien
       var orderedIds = SESSIONS.map(function(s){ return s.id; }).filter(function(id){ return titlesBySession[id]; });
       html += '<div style="display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;padding:.4rem 0">';
+      html += tournHof;
       orderedIds.forEach(function(sid, i) {
         var d = titlesBySession[sid];
         var isTie = d.winners && d.winners.length > 1;
@@ -3217,7 +3245,7 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jun_01', label:'Lundi 1ᵉʳ juin 2026', open:false },
   { id:'ins_jun_08', label:'Lundi 8 juin 2026',   open:false, benchPriority:['Spy'] },
   { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:false, together:['Samy','Gugu','Quentin'] },
-  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}],results:[{a:'bleu',b:'noir',sa:1,sb:2},{a:'rouge',b:'blanc',sa:5,sb:4},{a:'bleu',b:'rouge',sa:4,sb:3},{a:'noir',b:'blanc',sa:6,sb:4},{a:'rouge',b:'noir',sa:3,sb:1},{a:'bleu',b:'blanc',sa:5,sb:1}],motm:{close:'2026-06-24'}},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
+  { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:true,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}],results:[{a:'bleu',b:'noir',sa:1,sb:2},{a:'rouge',b:'blanc',sa:5,sb:4},{a:'bleu',b:'rouge',sa:4,sb:3},{a:'noir',b:'blanc',sa:6,sb:4},{a:'rouge',b:'noir',sa:3,sb:1},{a:'bleu',b:'blanc',sa:5,sb:1}],motm:{close:'2026-06-24',winner:'Khalid'}},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
   { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:true, benchPriority:['Spy'] },
 ];
 var SONDAGE_JUILLET = {
