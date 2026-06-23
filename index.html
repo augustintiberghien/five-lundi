@@ -3251,7 +3251,7 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jul_06', label:'Lundi 6 juillet 2026',  open:true },
   { id:'ins_jul_13', label:'Lundi 13 juillet 2026', open:true },
   { id:'ins_jul_20', label:'Lundi 20 juillet 2026', open:true },
-  { id:'ins_jul_27', label:'Lundi 27 juillet 2026 · Fin de saison 🏁', open:true },
+  { id:'ins_jul_27', label:'Lundi 27 juillet 2026', open:true, seasonEnd:true },
 ];
 var SONDAGE_JUILLET = {
   dates: [
@@ -4817,7 +4817,7 @@ function renderInscriptions(){
   INSCRIPTION_SLOTS.filter(function(slot){ return slot.open; }).forEach(function(slot){
     html+='<div class="ins-card" id="ins-card-'+slot.id+'">';
     html+='<div class="ins-card-header">';
-    html+='<div class="ins-card-date">'+slot.label+'</div>';
+    html+='<div class="ins-card-date">'+slot.label+(slot.seasonEnd?' <span style="font-size:.55rem;background:rgba(255,214,0,.15);color:#FFD600;border:1px solid rgba(255,214,0,.35);border-radius:999px;padding:.05rem .4rem;vertical-align:middle;font-family:Oswald,sans-serif;letter-spacing:.05em;white-space:nowrap">🏁 Fin de saison</span>':'')+'</div>';
     html+='<div class="ins-card-count" id="ins-count-'+slot.id+'">— / 10</div>';
     html+='</div>';
     html+='<div id="ins-list-'+slot.id+'"><div class="ins-empty">Chargement…</div></div>';
