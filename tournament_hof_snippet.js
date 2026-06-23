@@ -15,6 +15,7 @@ function _tournamentHofMedal(sl) {
   h += '</div>';
   h += '<div style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.1">' + winner + '</div>';
   h += '<div style="font-family:Oswald,sans-serif;font-size:.48rem;font-weight:700;color:#000;background:linear-gradient(135deg,#FFD600,#ffe85c);border-radius:999px;padding:.08rem .45rem;text-transform:uppercase;letter-spacing:.04em">🏆 Homme du tournoi</div>';
+  h += '</div>';
   return h;
 }
 
