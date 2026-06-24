@@ -5130,6 +5130,12 @@ function buildTabs(){
   /* Mois actif = celui de la session current */
   var activeKey=null;
   SESSIONS.forEach(function(s){if(s.current)activeKey=_monthKey(s.date);});
+  /* Sinon : se caler sur le créneau ouvert affiché par défaut (firstOpen), pas le mois le plus récent */
+  if(!activeKey){
+    var _slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){_slotById[sl.id]=sl;});
+    var _firstOpen=_INS_SESSIONS.find(function(s){var sl=_slotById[s.id];return sl&&sl.open;});
+    if(_firstOpen) activeKey=_monthKey(_firstOpen.date);
+  }
   if(!activeKey&&gOrder.length)activeKey=gOrder[0];
   var _ak=activeKey;
 
