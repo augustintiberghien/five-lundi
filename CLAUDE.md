@@ -88,6 +88,7 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
+| s14 | 29 juin 2026 | 8 – 9 (B) | ✅ |
 | s13 | 15 juin 2026 | 7 – 10 (B) | |
 | s12 | 8 juin 2026 | 10 – 11 (B) | |
 | s11 | 1 juin 2026 | 8 – 6 (A) | |
@@ -129,7 +130,8 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s11 — 1 juin 2026)
-Blanche ⚪ : Michael (GK), Henri, Gugu, Spy, Quentin
-Bleue 🔵 : Rémi (GK), Ibrahima, Landry, Alex, Flo
-Banc : —
+## Joueurs actifs (s14 — 29 juin 2026)
+Blanche ⚪ : Rémi (GK), Michael, Ibrahima, Edouard, Dylan
+Bleue 🔵 : Landry (GK), Hugo, Alex, Théo, Gugu
+Banc : Khalid, Cyril, Jack
+(NB : couleurs inversées en cours de match — la compo reflète les maillots réellement portés. Bleue l'emporte 9-8, but en or de Gugu.)
