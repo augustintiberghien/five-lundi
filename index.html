@@ -5285,17 +5285,44 @@ function getTournamentForm(name) {
 }
 
 function getPlayerForm(name) {
-  // Parcourir les sessions (sans la session en cours) pour retrouver les résultats
-  var results = [];
-  var pastSessions = SESSIONS.filter(function(s){ return s.score && s.score !== '— vs —'; });
-  pastSessions.forEach(function(s){
+  // Résultats sessions + tournois, triés par DATE réelle (oldest→newest) pour que
+  // slice(-N) = les N matchs les plus récents, quel que soit le type d'événement.
+  // (Avant : les tournois étaient collés à la fin → une session postérieure au tournoi
+  //  apparaissait à tort avant lui dans la forme.)
+  var _MN = {janvier:0,'février':1,mars:2,avril:3,mai:4,juin:5,juillet:6,'août':7,septembre:8,octobre:9,novembre:10,'décembre':11};
+  function _dk(str){
+    var m = /(\d{1,2})\s+(\S+)\s+(\d{4})/.exec(str || '');
+    if(!m || _MN[m[2].toLowerCase()] === undefined) return 0;
+    return parseInt(m[3],10)*10000 + (_MN[m[2].toLowerCase()]+1)*100 + parseInt(m[1],10);
+  }
+  var events = [];
+  // Sessions régulières (avec un score renseigné)
+  SESSIONS.forEach(function(s){
+    if(!s.score || s.score === '— vs —') return;
     var inA = s.players.some(function(p){ return p.name === name && p.teamA; });
     var inB = s.players.some(function(p){ return p.name === name && !p.teamA; });
-    if(inA) results.push(s.scoreWinner === 'A' ? 'W' : 'L');
-    else if(inB) results.push(s.scoreWinner === 'B' ? 'W' : 'L');
+    var r = inA ? (s.scoreWinner === 'A' ? 'W' : 'L')
+          : inB ? (s.scoreWinner === 'B' ? 'W' : 'L') : null;
+    if(r) events.push({k:_dk(s.date), seq:0, r:r});
   });
-  results.reverse(); // oldest→newest so slice(-N) = N most recent
-  return results.concat(getTournamentForm(name)); // tournoi(s) = matchs les plus récents
+  // Tournois (4 équipes) — non présents dans SESSIONS ; plusieurs matchs le même jour
+  if (typeof INSCRIPTION_SLOTS !== 'undefined') {
+    INSCRIPTION_SLOTS.forEach(function(sl){
+      var t = sl.tournament;
+      if(!t || !t.teams || !t.results) return;
+      var color = null;
+      t.teams.forEach(function(tm){ if((tm.names||[]).indexOf(name) !== -1) color = tm.color; });
+      if(!color) return;
+      var k = _dk(sl.label);
+      t.results.forEach(function(m, idx){
+        var r = (m.a === color) ? (m.sa > m.sb ? 'W' : 'L')
+              : (m.b === color) ? (m.sb > m.sa ? 'W' : 'L') : null;
+        if(r) events.push({k:k, seq:idx+1, r:r});
+      });
+    });
+  }
+  events.sort(function(a,b){ return (a.k - b.k) || (a.seq - b.seq); });
+  return events.map(function(e){ return e.r; }); // oldest→newest
 }
 
 function getTrophy(name) {
