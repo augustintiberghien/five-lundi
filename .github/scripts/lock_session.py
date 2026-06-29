@@ -168,6 +168,27 @@ if {p['name'] for p in players} != set(effective):
     gen = generate_compo(content, effective, together)
     players, note_a, note_b = gen['players'], gen['note_a'], gen['note_b']
 
+# ── Ancrage des couleurs sur la compo annoncée (slot_sessions) ──
+# La couleur annoncée avant 21h30 fait foi. teamA=true → Blanche ⚪, teamA=false → Bleue 🔵.
+# La régénération attribue teamA/teamB arbitrairement (ordre d'énumération C(10,5)) et peut
+# donc retourner l'orientation des couleurs. Si la moitié « bleue » finale recoupe surtout la
+# moitié « blanche » annoncée, on échange les deux équipes (couleur + côté du terrain) pour
+# que chaque joueur conserve la couleur sous laquelle il a été annoncé.
+announced = row.get('players') or []
+if announced:
+    announced_blue = {p['name'] for p in announced if not p['teamA']}
+    announced_white = {p['name'] for p in announced if p['teamA']}
+    final_blue = {p['name'] for p in players if not p['teamA']}
+    keep = len(final_blue & announced_blue)
+    flip = len(final_blue & announced_white)
+    if flip > keep:
+        print('↔️  Couleurs inversées par la régénération — réalignement sur l\'annonce '
+              '(bleu annoncé : %s)' % ', '.join(sorted(announced_blue)))
+        for p in players:
+            p['teamA'] = not p['teamA']
+            p['y'] = 100 - p['y']
+        note_a, note_b = note_b, note_a
+
 # Banc = inscrits hors compo et non absents, dans l'ordre
 compo_names = {p['name'] for p in players}
 bench = [n for n in starters + bench_raw if n not in compo_names and n not in absents]
