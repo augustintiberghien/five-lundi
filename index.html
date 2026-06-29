@@ -1095,7 +1095,8 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 </div>
 
 <script>
-var SESSIONS = [{id:'s13',date:'15 juin 2026',score:'7 – 10 (B)',scoreWinner:'B',balanceNoteA:70.5,balanceNoteB:70,current:false,bench:["Jack"],nameA:'Blanche ⚪',nameB:'Bleue 🔵',players:[{x:50,y:8,name:"Michael",teamA:true},{x:12,y:24,name:"Edouard",teamA:true},{x:88,y:24,name:"Khalid",teamA:true},{x:35,y:38,name:"Hugo",teamA:true},{x:65,y:38,name:"Théo",teamA:true},{x:50,y:92,name:"Ibrahima",teamA:false},{x:12,y:76,name:"Gugu",teamA:false},{x:88,y:76,name:"Samy",teamA:false},{x:35,y:62,name:"Quentin",teamA:false},{x:65,y:62,name:"Landry",teamA:false}]},
+var SESSIONS = [{id:'s14',date:'29 juin 2026',score:'',scoreWinner:'',balanceNoteA:67,balanceNoteB:67,current:true,bench:["Khalid","Cyril","Jack"],nameA:'Blanche ⚪',nameB:'Bleue 🔵',players:[{x:50,y:8,name:"Gugu",teamA:true},{x:12,y:24,name:"Hugo",teamA:true},{x:88,y:24,name:"Alex",teamA:true},{x:35,y:38,name:"Théo",teamA:true},{x:65,y:38,name:"Landry",teamA:true},{x:50,y:92,name:"Rémi",teamA:false},{x:12,y:76,name:"Michael",teamA:false},{x:88,y:76,name:"Ibrahima",teamA:false},{x:35,y:62,name:"Edouard",teamA:false},{x:65,y:62,name:"Dylan",teamA:false}]},
+{id:'s13',date:'15 juin 2026',score:'7 – 10 (B)',scoreWinner:'B',balanceNoteA:70.5,balanceNoteB:70,current:false,bench:["Jack"],nameA:'Blanche ⚪',nameB:'Bleue 🔵',players:[{x:50,y:8,name:"Michael",teamA:true},{x:12,y:24,name:"Edouard",teamA:true},{x:88,y:24,name:"Khalid",teamA:true},{x:35,y:38,name:"Hugo",teamA:true},{x:65,y:38,name:"Théo",teamA:true},{x:50,y:92,name:"Ibrahima",teamA:false},{x:12,y:76,name:"Gugu",teamA:false},{x:88,y:76,name:"Samy",teamA:false},{x:35,y:62,name:"Quentin",teamA:false},{x:65,y:62,name:"Landry",teamA:false}]},
 {id:'s12',date:'8 juin 2026',score:'10 – 11',scoreWinner:'B',balanceNoteA:68.5,balanceNoteB:68.5,nameA:'Blanche ⚪',nameB:'Bleue 🔵',current:false,
   players:[
     {x:50,y:8,name:"Michael",teamA:true},
@@ -3247,7 +3248,7 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jun_08', label:'Lundi 8 juin 2026',   open:false, benchPriority:['Spy'] },
   { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:false, together:['Samy','Gugu','Quentin'] },
   { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:false,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}],results:[{a:'bleu',b:'noir',sa:1,sb:2},{a:'rouge',b:'blanc',sa:5,sb:4},{a:'bleu',b:'rouge',sa:4,sb:3},{a:'noir',b:'blanc',sa:6,sb:4},{a:'rouge',b:'noir',sa:3,sb:1},{a:'bleu',b:'blanc',sa:5,sb:1}],motm:{close:'2026-06-24',winner:'Khalid'}},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
-  { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:true, benchPriority:['Spy'] },
+  { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:false, benchPriority:['Spy'] },
   { id:'ins_jul_06', label:'Lundi 6 juillet 2026',  open:true },
   { id:'ins_jul_13', label:'Lundi 13 juillet 2026', open:true },
   { id:'ins_jul_20', label:'Lundi 20 juillet 2026', open:true },
@@ -5216,7 +5217,7 @@ function buildTabs(){
 try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('ins_teams_')===0) localStorage.removeItem(k); }); }catch(e){}
 
 buildTabs();
-// Afficher la session current:true au chargement
+// Afficher la session current:false au chargement
 var defaultSession = SESSIONS.find(function(s){ return s.current; });
 if(defaultSession) renderSession(defaultSession);
 // Sans session active : masquer le terrain vide immédiatement
