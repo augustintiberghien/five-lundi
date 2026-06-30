@@ -2710,50 +2710,61 @@ function buildStatsView(){
       });
     }
 
-    // Homme(s) du tournoi (4 équipes, hors SESSIONS) — affiché en tête du HoF
-    var tournHof = '';
+    // Médaillons HoF : MVP de session + homme(s) du tournoi, triés par DATE (récent → ancien).
+    var _HMN = {janvier:0,'février':1,mars:2,avril:3,mai:4,juin:5,juillet:6,'août':7,septembre:8,octobre:9,novembre:10,'décembre':11};
+    function _hofKey(str){
+      var m = /(\d{1,2})\s+(\S+)\s+(\d{4})/.exec(str || '');
+      if(!m || _HMN[m[2].toLowerCase()] === undefined) return 0;
+      return parseInt(m[3],10)*10000 + (_HMN[m[2].toLowerCase()]+1)*100 + parseInt(m[1],10);
+    }
+    var hofItems = [];
+    SESSIONS.forEach(function(s) {
+      var d = titlesBySession[s.id];
+      if (!d) return;
+      var sid = s.id;
+      var isTie = d.winners && d.winners.length > 1;
+      var mh = '<div onclick="window.scrollTo(0,0);showPitch();renderSession(SESSIONS.find(function(s){return s.id===\'' + sid + '\'}));setActiveTab(\'' + sid + '\')" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:' + (isTie ? '82' : '72') + 'px">';
+      if (isTie) {
+        mh += '<div style="position:relative;display:flex;align-items:center;justify-content:center;height:56px">';
+        d.winners.forEach(function(w, wi) {
+          var ph = _getPhotoSrc(w);
+          var ml = wi === 1 ? '-6px' : '0';
+          var zi = wi === 0 ? '2' : '1';
+          if (ph) mh += '<img src="'+ph+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600;margin-left:'+ml+';position:relative;z-index:'+zi+'">';
+          else mh += '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(255,255,255,.4);margin-left:'+ml+';position:relative;z-index:'+zi+'">'+w.slice(0,2).toUpperCase()+'</div>';
+        });
+        mh += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.8rem">🤝</div>';
+        mh += '</div>';
+        mh += '<div style="font-family:Oswald,sans-serif;font-size:.58rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.2">'+d.winners.join(' &\n')+'</div>';
+      } else {
+        var photo = _getPhotoSrc(d.winner);
+        var totalTitles = titleCount[d.winner];
+        var medal = totalTitles >= 3 ? '🥇' : totalTitles === 2 ? '🥈' : '🏅';
+        mh += '<div style="position:relative">';
+        if (photo) mh += '<img src="'+photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600">';
+        else mh += '<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(255,255,255,.4)">'+d.winner.slice(0,2).toUpperCase()+'</div>';
+        mh += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.85rem">'+medal+'</div>';
+        mh += '</div>';
+        mh += '<div style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.1">'+d.winner+'</div>';
+      }
+      mh += '<div style="font-size:.55rem;color:rgba(255,255,255,.3);text-align:center">'+d.date.split(' ').slice(0,2).join(' ')+'</div>';
+      mh += '</div>';
+      hofItems.push({k:_hofKey(d.date), html:mh});
+    });
+    // Homme(s) du tournoi (4 équipes, hors SESSIONS) — désormais placé par date, comme les autres
     if (typeof INSCRIPTION_SLOTS !== 'undefined') {
       INSCRIPTION_SLOTS.forEach(function(sl){
-        if (sl.tournament && sl.tournament.motm && sl.tournament.motm.winner) tournHof += _tournamentHofMedal(sl);
+        if (sl.tournament && sl.tournament.motm && sl.tournament.motm.winner)
+          hofItems.push({k:_hofKey(sl.label), html:_tournamentHofMedal(sl)});
       });
     }
-    if (!hof.length && !tournHof) {
+    if (!hofItems.length) {
       html += '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.75rem;font-style:italic;padding:.8rem 0">Résultats disponibles après clôture du vote.</div>';
     } else {
       // Grille de médaillons cliquables — du plus récent au plus ancien
-      var orderedIds = SESSIONS.map(function(s){ return s.id; }).filter(function(id){ return titlesBySession[id]; });
+      hofItems.sort(function(a,b){ return b.k - a.k; });
       html += '<div style="display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;padding:.4rem 0">';
-      html += tournHof;
-      orderedIds.forEach(function(sid, i) {
-        var d = titlesBySession[sid];
-        var isTie = d.winners && d.winners.length > 1;
-        html += '<div onclick="window.scrollTo(0,0);showPitch();renderSession(SESSIONS.find(function(s){return s.id===\''+sid+'\'}));setActiveTab(\''+sid+'\')" style="display:flex;flex-direction:column;align-items:center;gap:.35rem;cursor:pointer;width:'+(isTie?'82':'72')+'px">';
-        if (isTie) {
-          html += '<div style="position:relative;display:flex;align-items:center;justify-content:center;height:56px">';
-          d.winners.forEach(function(w, wi) {
-            var ph = _getPhotoSrc(w);
-            var ml = wi === 1 ? '-6px' : '0';
-            var zi = wi === 0 ? '2' : '1';
-            if (ph) html += '<img src="'+ph+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600;margin-left:'+ml+';position:relative;z-index:'+zi+'">';
-            else html += '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(255,255,255,.4);margin-left:'+ml+';position:relative;z-index:'+zi+'">'+w.slice(0,2).toUpperCase()+'</div>';
-          });
-          html += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.8rem">🤝</div>';
-          html += '</div>';
-          html += '<div style="font-family:Oswald,sans-serif;font-size:.58rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.2">'+d.winners.join(' &\n')+'</div>';
-        } else {
-          var photo = _getPhotoSrc(d.winner);
-          var totalTitles = titleCount[d.winner];
-          var medal = totalTitles >= 3 ? '🥇' : totalTitles === 2 ? '🥈' : '🏅';
-          html += '<div style="position:relative">';
-          if (photo) html += '<img src="'+photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFD600">';
-          else html += '<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:rgba(255,255,255,.4)">'+d.winner.slice(0,2).toUpperCase()+'</div>';
-          html += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.85rem">'+medal+'</div>';
-          html += '</div>';
-          html += '<div style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;color:#FFD600;text-transform:uppercase;text-align:center;line-height:1.1">'+d.winner+'</div>';
-        }
-        html += '<div style="font-size:.55rem;color:rgba(255,255,255,.3);text-align:center">'+d.date.split(' ').slice(0,2).join(' ')+'</div>';
-        html += '</div>';
-      });
+      hofItems.forEach(function(it){ html += it.html; });
       html += '</div>';
     }
     inner.innerHTML = html;
