@@ -47,7 +47,7 @@ Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedT
 
 ### Contrainte exceptionnelle `together` (par créneau)
 
-Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **⚠️ Posée sur `ins_jun_15` uniquement — à retirer après le match du 15 juin.**
+Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **⚠️ Posée sur `ins_jul_06` (match du 6 juillet) — à retirer après. Reste aussi sur l'ancien `ins_jun_15` fermé (sans effet).**
 
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
