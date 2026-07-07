@@ -1,0 +1,32 @@
+name: Cancel slot
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot_id:
+        description: 'ID du créneau à annuler (ex: ins_jul_13)'
+        required: true
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Supprimer les inscriptions et le créneau
+        env:
+          SLOT_ID: ${{ inputs.slot_id }}
+        run: python3 .github/scripts/cancel_slot.py
+
+      - name: Commit & push si changement
+        run: |
+          git config user.name "five-lundi-bot"
+          git config user.email "bot@five-lundi.fr"
+          git add index.html
+          git diff --cached --quiet && echo "Rien à committer" && exit 0
+          git commit -m "Auto : annulation du créneau ${{ inputs.slot_id }}"
+          git push origin HEAD:main
