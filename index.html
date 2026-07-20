@@ -3087,7 +3087,7 @@ function _getPlayerHtml(name) {
   if (PLAYER_PHOTOS && PLAYER_PHOTOS[name]) return PLAYER_PHOTOS[name];
   for (var i = 0; i < SESSIONS.length; i++) {
     for (var j = 0; j < SESSIONS[i].players.length; j++) {
-      if (SESSIONS[i].players[j].name === name) return SESSIONS[i].players[j].html;
+      if (SESSIONS[i].players[j].name === name && SESSIONS[i].players[j].html) return SESSIONS[i].players[j].html;
     }
   }
   var initials = name.slice(0,2).toUpperCase();
