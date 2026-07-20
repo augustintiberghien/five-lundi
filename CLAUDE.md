@@ -92,7 +92,8 @@ Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s15 | 6 juillet 2026 | 11 – 8 (A) | current |
+| s16 | 20 juillet 2026 | 14 – 8 (A) | current |
+| s15 | 6 juillet 2026 | 11 – 8 (A) | |
 | s14 | 29 juin 2026 | 8 – 9 (B) | |
 | s13 | 15 juin 2026 | 7 – 10 (B) | |
 | s12 | 8 juin 2026 | 10 – 11 (B) | |
@@ -135,7 +136,9 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s15 — 6 juillet 2026)
-Blanche ⚪ : Michael (GK), Gugu, Samy, Quentin, Alex
-Bleue 🔵 : Rémi (GK), Cyril, Jack, Henri, Invité
-(NB : lock automatique 21h30 en retard ce soir-là — session figée manuellement à partir de la compo confirmée juste avant que le run tardif ne se déclenche à son tour. Blanche l'emporte 11-8. Voir audit du 7 juillet ci-dessous : le trigger `schedule` GitHub Actions a ~1h30-1h40 de retard chaque lundi, cron du lock étendu en conséquence.)
+## Joueurs actifs (s16 — 20 juillet 2026)
+Blanche ⚪ : Khalid (GK), Jack, Spy, Gugu, Dylan
+Bleue 🔵 : Ibrahima (GK), Samy, Johann, Théo, Thomas D
+Blanche l'emporte 14-8.
+
+**⚠️ Audit du 20 juillet 2026** : le lock auto a tourné à l'heure (20h49 UTC / 22h49 Paris, dans la fenêtre étendue) mais a figé une mauvaise répartition des couleurs (Gugu/Théo et Dylan/Thomas D inversés par rapport à la compo décidée avant match). Cause : des absences de dernière minute (Alex, Cyril, Henri, Hugo, Landry, Raphaël, Tim) déclarées sur la feuille de match ont changé les 10 titulaires effectifs, mais **marquer un joueur absent ne redéclenche pas `syncSharedTeams`** (seuls `doUnregister`/nouvel inscrit le font) — la compo publiée dans `slot_sessions` est donc restée périmée. Au lock, `lock_session.py` a détecté le désaccord ("compo publiée absente ou périmée") et est tombé dans le repli : régénération complète par `_genBalancedTeams`, qui reshuffle tout le monde (option B, pas d'échange minimal) au lieu de ne remplacer que les absents. Corrigé manuellement dans `SESSIONS` (s16) + `PLAYER_STATS`/`PAIR_STATS` recalculés sur la bonne compo. **Piste d'amélioration non implémentée** : faire aussi déclencher `syncSharedTeams` sur un changement de statut absent/présent (pas seulement inscription/désistement), pour que la compo publiée reste toujours à jour avant le lock.
