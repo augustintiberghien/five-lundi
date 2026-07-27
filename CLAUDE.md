@@ -99,6 +99,17 @@ curl -s -X POST "$SB_URL/functions/v1/submit-score" -H "Authorization: Bearer $S
 - `Bad credentials` (401) → **PAT expiré ou absent** → le régénérer et le redéposer
 - `Resource not accessible by personal access token` (403) → PAT valide mais **permission Actions manquante**
 
+⚠️ **`curl` ne teste pas le chemin du navigateur.** Il n'effectue pas de préflight CORS : une chaîne validée en `curl` peut échouer depuis le site. C'est arrivé le 27 juillet 2026 — le formulaire affichait « Erreur réseau » (le `catch` de `_submitScore`, donc un `fetch` qui échoue, à ne pas confondre avec « Erreur : … » qui vient d'une réponse de la fonction) parce que la réponse au préflight n'autorisait que `Content-Type` alors que le POST envoie aussi `Authorization`. Vérifier le préflight explicitement :
+```bash
+curl -s -i -X OPTIONS "$SB_URL/functions/v1/submit-score" \
+  -H "Origin: https://augustintiberghien.github.io" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: authorization,content-type"
+```
+`access-control-allow-headers` doit mentionner `authorization`.
+
+⚠️ **`deploy-functions.yml` déploie toutes les fonctions d'un bloc** : si une seule échoue au bundling, aucune n'est déployée. Le 27 juillet, `send-push` n'a pas pu résoudre `https://esm.sh/@supabase/supabase-js@2` (522, panne CDN) et a bloqué le déploiement de `submit-score`, qui n'a pourtant aucune dépendance externe. Symptôme : `failed to create the graph`. Remède : relancer le workflow une fois le CDN rétabli.
+
 **Test à blanc sans rien casser** : renvoyer le score **déjà enregistré** d'une session passée (ex. `{"session_id":"s16","score_a":14,"score_b":8}`). `set_score.py` refuse de modifier une session qui a déjà un `scoreWinner` et sort en succès, donc toute la chaîne est exercée sans écrire de score. Repli si Supabase est en cause : déclencher `set-score.yml` directement en `workflow_dispatch`.
 
 **`update_stats.py` recalcule tout depuis zéro** — `SESSIONS` **et** les tournois de `INSCRIPTION_SLOTS`. Ne jamais retirer la prise en compte des tournois : sans elle, le recalcul efface les 60 apparitions du 22 juin. Les joueurs vus uniquement en tournoi, ainsi que le nom générique `Invité`, sont volontairement écartés des stats, mais leurs matchs restent comptés pour leurs coéquipiers.
@@ -117,6 +128,7 @@ curl -s -X POST "$SB_URL/functions/v1/submit-score" -H "Authorization: Bearer $S
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
+| s17 | 27 juillet 2026 | 15 – 10 (A) | ✅ |
 | s16 | 20 juillet 2026 | 14 – 8 (A) | |
 | s15 | 6 juillet 2026 | 11 – 8 (A) | |
 | s14 | 29 juin 2026 | 8 – 9 (B) | |
@@ -161,10 +173,10 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s16 — 20 juillet 2026)
-Blanche ⚪ : Khalid (GK), Jack, Spy, Gugu, Dylan
-Bleue 🔵 : Ibrahima (GK), Samy, Johann, Théo, Thomas D
-Blanche l'emporte 14-8.
+## Joueurs actifs (s17 — 27 juillet 2026)
+Blanche ⚪ : Gugu, Cyril, Johann, Dylan, Hugo
+Bleue 🔵 : Ibrahima, Alex, Jack, Théo, Spy
+Blanche l'emporte 15-10. Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
 
 **⚠️ Audit du 20 juillet 2026** : le lock auto a tourné à l'heure (20h49 UTC / 22h49 Paris, dans la fenêtre étendue) mais a figé une mauvaise répartition des couleurs (Gugu/Théo et Dylan/Thomas D inversés par rapport à la compo décidée avant match). Cause : des absences de dernière minute (Alex, Cyril, Henri, Hugo, Landry, Raphaël, Tim) déclarées sur la feuille de match ont changé les 10 titulaires effectifs, mais **marquer un joueur absent ne redéclenche pas `syncSharedTeams`** (seuls `doUnregister`/nouvel inscrit le font) — la compo publiée dans `slot_sessions` est donc restée périmée. Au lock, `lock_session.py` a détecté le désaccord ("compo publiée absente ou périmée") et est tombé dans le repli : régénération complète par `_genBalancedTeams`, qui reshuffle tout le monde (option B, pas d'échange minimal) au lieu de ne remplacer que les absents. Corrigé manuellement dans `SESSIONS` (s16) + `PLAYER_STATS`/`PAIR_STATS` recalculés sur la bonne compo.
 
