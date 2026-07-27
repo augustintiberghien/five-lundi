@@ -3335,10 +3335,9 @@ function _buildPlayersHtml(raw){
     return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:h};
   });
 }
-/* Titulaires effectifs : mêmes règles que .github/scripts/lock_session.py — inscrits
-   dans l'ordre, banc trié par benchPriority, absents de la feuille de match retirés,
-   puis les 10 premiers. La compo publiée reste ainsi alignée sur ce que le lock calcule. */
-function _effectiveRoster(slot, regs, byStatus){
+/* Ordre d'appel des joueurs : inscrits dans l'ordre d'inscription, puis le banc
+   trié par benchPriority — mêmes règles que .github/scripts/lock_session.py. */
+function _rosterOrder(slot, regs){
   var names=regs.map(function(r){return r.player_name;}).filter(function(n){return !!n;});
   var starters=names.slice(0,10), bench=names.slice(10);
   var prio=(slot&&slot.benchPriority)||[];
@@ -3346,13 +3345,27 @@ function _effectiveRoster(slot, regs, byStatus){
     var ai=prio.indexOf(a), bi=prio.indexOf(b);
     return (ai===-1?prio.length:ai)-(bi===-1?prio.length:bi);
   });
-  return starters.concat(bench).filter(function(n){ return byStatus[n]!=='absent'; }).slice(0,10);
+  return starters.concat(bench);
 }
-function _applySharedCompo(s, row){
+/* Titulaires effectifs : l'ordre d'appel, absents de la feuille de match retirés,
+   puis les 10 premiers. La compo publiée reste alignée sur ce que le lock calcule. */
+function _effectiveRoster(slot, regs, byStatus){
+  return _rosterOrder(slot, regs).filter(function(n){ return byStatus[n]!=='absent'; }).slice(0,10);
+}
+/* Banc = tous les inscrits hors compo. Indispensable depuis que s.players porte les
+   titulaires effectifs : sans ça un remplaçant promu resterait aussi listé au banc
+   (doublon) et un titulaire absent, sorti de la compo, ne serait plus affiché nulle part. */
+function _setBenchFromCompo(s, slot, regs){
+  var inCompo={};
+  (s.players||[]).forEach(function(p){ inCompo[p.name]=true; });
+  s.bench=_rosterOrder(slot, regs).filter(function(n){ return !inCompo[n]; });
+}
+function _applySharedCompo(s, row, slot, regs){
   s.players=_buildPlayersHtml(row.players);
   s._originalPlayers=null;
   if(row.note_a!=null) s.balanceNoteA=row.note_a;
   if(row.note_b!=null) s.balanceNoteB=row.note_b;
+  _setBenchFromCompo(s, slot, regs);
 }
 async function syncSharedTeams(s, regs, byStatus){
   var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
@@ -3364,7 +3377,7 @@ async function syncSharedTeams(s, regs, byStatus){
   // Après le lock : la compo publiée fait foi telle quelle, plus aucune régénération
   // (règle : composition figée à 21h30)
   if(locked){
-    if(row&&row.players&&row.players.length>0){ _applySharedCompo(s, row); return true; }
+    if(row&&row.players&&row.players.length>0){ _applySharedCompo(s, row, slot, regs); return true; }
     return false;
   }
   if(!byStatus){
@@ -3375,7 +3388,7 @@ async function syncSharedTeams(s, regs, byStatus){
   if(top10.length<10) return false;
   var rosterKey=top10.slice().sort().join(',');
   // Compo publiée encore valable : on la prend telle quelle
-  if(row&&row.players&&row.players.length>0&&row.roster_key===rosterKey){ _applySharedCompo(s, row); return true; }
+  if(row&&row.players&&row.players.length>0&&row.roster_key===rosterKey){ _applySharedCompo(s, row, slot, regs); return true; }
   var res=_genBalancedTeams(top10, slot&&slot.together);
   if(!res) return false;
   var pA=_assignPositions(res.teamA,true);
@@ -3384,6 +3397,7 @@ async function syncSharedTeams(s, regs, byStatus){
   s.players=_buildPlayersHtml(raw);
   s._originalPlayers=null;
   s.balanceNoteA=res.noteA; s.balanceNoteB=res.noteB;
+  _setBenchFromCompo(s, slot, regs);
   sbUpsertSharedCompo(s.id, rosterKey, raw, res.noteA, res.noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
   return true;
 }
