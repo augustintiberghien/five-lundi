@@ -82,6 +82,27 @@ Quand l'utilisateur donne le score d'un match (ex : "s9 : 12-5 Blanche"), effect
 
 Mettre à jour la table Sessions dans CLAUDE.md après chaque score.
 
+### Saisie du score depuis le site (sans code) — opérationnelle depuis juillet 2026
+
+Le formulaire s'affiche sous le terrain à partir de 22h30 Paris le soir du match, uniquement sur une entrée `SESSIONS` sans score (donc après le lock). Chaîne complète :
+
+`formulaire` → Edge Function `submit-score` → **`GITHUB_PAT`** → `workflow_dispatch` sur `set-score.yml` → `set_score.py` + `update_stats.py` → commit « Auto : score … » poussé sur `main`.
+
+⚠️ **`GITHUB_PAT` est un token GitHub stocké dans les secrets Supabase** (Project Settings → Edge Functions → Secrets), pas dans les secrets GitHub. Il doit être *fine-grained*, limité au dépôt `five-lundi`, avec la permission **Actions : Read and write**. Il expire — et son expiration est passée inaperçue de mai à juillet 2026, période pendant laquelle la saisie sur le site n'a jamais fonctionné et où tous les scores ont été rentrés à la main.
+
+Diagnostic en une commande (payload volontairement invalide, rejeté avant tout appel à GitHub) :
+```bash
+curl -s -X POST "$SB_URL/functions/v1/submit-score" -H "Authorization: Bearer $SB_KEY" \
+  -H 'Content-Type: application/json' -d '{}'
+```
+- `Champs manquants` → la fonction répond, le PAT n'est pas en cause
+- `Bad credentials` (401) → **PAT expiré ou absent** → le régénérer et le redéposer
+- `Resource not accessible by personal access token` (403) → PAT valide mais **permission Actions manquante**
+
+**Test à blanc sans rien casser** : renvoyer le score **déjà enregistré** d'une session passée (ex. `{"session_id":"s16","score_a":14,"score_b":8}`). `set_score.py` refuse de modifier une session qui a déjà un `scoreWinner` et sort en succès, donc toute la chaîne est exercée sans écrire de score. Repli si Supabase est en cause : déclencher `set-score.yml` directement en `workflow_dispatch`.
+
+**`update_stats.py` recalcule tout depuis zéro** — `SESSIONS` **et** les tournois de `INSCRIPTION_SLOTS`. Ne jamais retirer la prise en compte des tournois : sans elle, le recalcul efface les 60 apparitions du 22 juin. Les joueurs vus uniquement en tournoi, ainsi que le nom générique `Invité`, sont volontairement écartés des stats, mais leurs matchs restent comptés pour leurs coéquipiers.
+
 ## Vote MVP
 - Ouverture : 22h30 Paris le soir du match
 - Clôture : 10 votes atteints OU 22h30 le lendemain
