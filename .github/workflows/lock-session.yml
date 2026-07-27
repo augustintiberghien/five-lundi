@@ -3,12 +3,34 @@ name: Lock session du lundi 21h30
 on:
   workflow_dispatch:
   schedule:
-    # GitHub retarde parfois fortement les triggers "schedule" (observé : ~1h30-1h40
-    # de retard les 29 juin et 6 juillet, execution réelle vers 23h10-23h12 au lieu de
-    # 21h35 visé). On multiplie les tentatives de 21h30 à 22h30 Paris (5-10 min d'écart)
-    # pour rattraper le retard au plus tôt ; chaque entrée est doublée pour couvrir été
-    # (UTC+2) et hiver (UTC+1). Le script vérifie l'heure de Paris et ne fait rien avant
-    # 21h30, et s'arrête sans rien commiter si la session du jour existe déjà (idempotent).
+    # GitHub retarde fortement les triggers "schedule", et en abandonne une partie.
+    # Mesuré sur les runs réels :
+    #   lundi 13 juillet : 8 exécutions sur 22 déclenchées, retard moyen 180 min
+    #                      (première à 22h13 UTC, soit 00h13 Paris)
+    #   lundi 20 juillet : 22 sur 22, retard moyen 63 min (première à 22h49 Paris)
+    #
+    # Le retard frappe tous les crons de façon uniforme : avec un retard D, c'est le
+    # cron placé à (21h30 Paris − D) qui atterrit à l'heure voulue. On couvre donc D
+    # de 0 à ~3h30 en démarrant la fenêtre dès 16h00 UTC. Les exécutions trop précoces
+    # sont gratuites : le script vérifie l'heure de Paris et sort sans rien faire avant
+    # 21h30. Il s'arrête aussi si la session du jour existe déjà (idempotent), donc les
+    # tentatives suivantes ne font jamais de doublon.
+    #
+    # La fenêtre en UTC couvre été (UTC+2) et hiver (UTC+1) sans changement.
+    - cron: '0 16 * * 1'
+    - cron: '15 16 * * 1'
+    - cron: '30 16 * * 1'
+    - cron: '45 16 * * 1'
+    - cron: '0 17 * * 1'
+    - cron: '15 17 * * 1'
+    - cron: '30 17 * * 1'
+    - cron: '45 17 * * 1'
+    - cron: '0 18 * * 1'
+    - cron: '15 18 * * 1'
+    - cron: '30 18 * * 1'
+    - cron: '45 18 * * 1'
+    - cron: '0 19 * * 1'
+    - cron: '15 19 * * 1'
     - cron: '30 19 * * 1'
     - cron: '35 19 * * 1'
     - cron: '40 19 * * 1'
