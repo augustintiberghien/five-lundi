@@ -3335,39 +3335,62 @@ function _buildPlayersHtml(raw){
     return {x:p.x,y:p.y,name:p.name,teamA:p.teamA,html:h};
   });
 }
-async function syncSharedTeams(s, regs){
+/* Titulaires effectifs : mêmes règles que .github/scripts/lock_session.py — inscrits
+   dans l'ordre, banc trié par benchPriority, absents de la feuille de match retirés,
+   puis les 10 premiers. La compo publiée reste ainsi alignée sur ce que le lock calcule. */
+function _effectiveRoster(slot, regs, byStatus){
+  var names=regs.map(function(r){return r.player_name;}).filter(function(n){return !!n;});
+  var starters=names.slice(0,10), bench=names.slice(10);
+  var prio=(slot&&slot.benchPriority)||[];
+  bench.sort(function(a,b){
+    var ai=prio.indexOf(a), bi=prio.indexOf(b);
+    return (ai===-1?prio.length:ai)-(bi===-1?prio.length:bi);
+  });
+  return starters.concat(bench).filter(function(n){ return byStatus[n]!=='absent'; }).slice(0,10);
+}
+function _applySharedCompo(s, row){
+  s.players=_buildPlayersHtml(row.players);
+  s._originalPlayers=null;
+  if(row.note_a!=null) s.balanceNoteA=row.note_a;
+  if(row.note_b!=null) s.balanceNoteB=row.note_b;
+}
+async function syncSharedTeams(s, regs, byStatus){
   var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
   if(slot&&slot.tournament) return s.players&&s.players.length>0;
   if(!regs||regs.length<10){ s.players=[]; return false; }
-  var top10=regs.slice(0,10).map(function(r){return r.player_name;}).filter(function(n){return !!n;});
-  if(top10.length<10) return false;
-  var rosterKey=top10.slice().sort().join(',');
+  var locked=slot?_slotLocked(slot):false;
   var row=null;
   try{ row=await sbGetSharedCompo(s.id); }catch(e){}
-  var locked=slot?_slotLocked(slot):false;
-  // Compo publiée encore valable (ou verrouillée) : on la prend telle quelle
-  if(row&&row.players&&row.players.length>0&&(locked||row.roster_key===rosterKey)){
-    s.players=_buildPlayersHtml(row.players);
-    if(row.note_a!=null) s.balanceNoteA=row.note_a;
-    if(row.note_b!=null) s.balanceNoteB=row.note_b;
-    return true;
+  // Après le lock : la compo publiée fait foi telle quelle, plus aucune régénération
+  // (règle : composition figée à 21h30)
+  if(locked){
+    if(row&&row.players&&row.players.length>0){ _applySharedCompo(s, row); return true; }
+    return false;
   }
-  // Après le lock, on ne génère plus jamais (règle : composition figée à 21h30)
-  if(locked) return false;
+  if(!byStatus){
+    byStatus={};
+    try{ (await sbGetPresences(s.id)).forEach(function(p){ byStatus[p.name]=p.status; }); }catch(e){}
+  }
+  var top10=_effectiveRoster(slot, regs, byStatus);
+  if(top10.length<10) return false;
+  var rosterKey=top10.slice().sort().join(',');
+  // Compo publiée encore valable : on la prend telle quelle
+  if(row&&row.players&&row.players.length>0&&row.roster_key===rosterKey){ _applySharedCompo(s, row); return true; }
   var res=_genBalancedTeams(top10, slot&&slot.together);
   if(!res) return false;
   var pA=_assignPositions(res.teamA,true);
   var pB=_assignPositions(res.teamB,false);
   var raw=pA.concat(pB).map(function(p){return {x:p.x,y:p.y,name:p.name,teamA:p.teamA};});
   s.players=_buildPlayersHtml(raw);
+  s._originalPlayers=null;
   s.balanceNoteA=res.noteA; s.balanceNoteB=res.noteB;
   sbUpsertSharedCompo(s.id, rosterKey, raw, res.noteA, res.noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
   return true;
 }
-function _resyncSharedCompo(slot, regs){
-  if(!slot||slot.tournament) return;
+function _resyncSharedCompo(slot, regs, byStatus){
+  if(!slot||slot.tournament) return Promise.resolve(false);
   var s=_INS_SESSIONS.find(function(x){return x.id===slot.id;})||{id:slot.id,fromInscription:true,players:[]};
-  syncSharedTeams(s, regs).catch(function(){});
+  return syncSharedTeams(s, regs, byStatus).catch(function(){ return false; });
 }
 
 async function sbGetRegistrations(slotId) {
@@ -4086,6 +4109,17 @@ function setPresence(sessionId, name, clickedStatus) {
     // Notification push si un titulaire passe absent
     if (newStatus === 'absent' && window._cur) {
       notifySubstituteIfNeeded(window._cur, name);
+    }
+    // Un passage absent/présent change les 10 titulaires effectifs : republier la compo
+    // partagée pour que le lock de 21h30 la reprenne telle quelle au lieu de tout reshuffler
+    var slot = INSCRIPTION_SLOTS.find(function(sl){ return sl.id === sessionId; });
+    if (slot && !slot.tournament && !_slotLocked(slot) && (newStatus === 'absent' || currentStatus === 'absent')) {
+      return sbGetRegistrations(sessionId).then(function(regs) {
+        return _resyncSharedCompo(slot, regs);
+      }).then(function() {
+        if (window._cur && window._cur.id === sessionId) renderSession(window._cur);
+        else if (window._cur) renderPresence(window._cur);
+      });
     }
     // Re-render complet : recalcule les remplaçants, absents, en attente
     if (window._cur) renderPresence(window._cur);
