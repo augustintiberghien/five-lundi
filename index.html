@@ -1245,7 +1245,12 @@ function buildStats(s){
 function _matchDateParis(dateStr) {
   var months={janvier:0,février:1,mars:2,avril:3,mai:4,juin:5,juillet:6,août:7,septembre:8,octobre:9,novembre:10,décembre:11};
   var p=dateStr.split(' ');
-  return new Date(Date.UTC(+p[2], months[p[1]], +p[0], 22-2, 30)); // 22h30 Paris CEST = 20h30 UTC
+  // 22h30 heure de Paris. L'écart avec UTC ne peut pas être codé en dur : il vaut 2h
+  // en été (CEST) mais 1h en hiver (CET), sinon le formulaire de score s'ouvre une
+  // heure trop tôt de fin octobre à fin mars. Même méthode que mvpDeadline.
+  var approx=new Date(+p[2], months[p[1]], +p[0], 22, 30, 0);
+  var offsetMs=new Date(approx.toLocaleString('en-US'))-new Date(approx.toLocaleString('en-US', {timeZone:'Europe/Paris'}));
+  return new Date(approx.getTime()+offsetMs);
 }
 
 function renderScoreForm(s) {
