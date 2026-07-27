@@ -5,8 +5,13 @@ Deno.serve(async (req) => {
     return new Response(null, {
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        // Le front envoie Authorization (clé anon Supabase) en plus de Content-Type.
+        // Sans ces deux noms ici, le préflight échoue et le navigateur bloque l'appel
+        // avant de l'émettre : le formulaire affiche « Erreur réseau » sans qu'aucune
+        // requête n'atteigne la fonction. Invisible en curl, qui ne fait pas de préflight.
+        'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
+        'Access-Control-Max-Age': '86400',
       },
     })
   }
@@ -55,5 +60,9 @@ Deno.serve(async (req) => {
 })
 
 function corsHeaders() {
-  return { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/plain' }
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
+    'Content-Type': 'text/plain',
+  }
 }
