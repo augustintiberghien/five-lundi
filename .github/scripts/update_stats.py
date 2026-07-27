@@ -103,6 +103,27 @@ for s in sessions:
                 if team_wins:
                     pair_stats[key]['wins'] += 1
 
+# ── 3 bis. Écarter les joueurs vus uniquement en tournoi ─────────────────────
+# Un tournoi accueille des joueurs de passage (invités, remplaçants d'un soir)
+# qui n'ont jamais disputé un lundi. On ne leur ouvre pas de ligne de stats :
+# ils fausseraient les classements avec 1 à 3 matchs. Leurs rencontres restent
+# en revanche comptées pour leurs coéquipiers, qui les ont bien jouées.
+
+# 'Invité' n'est pas une personne mais un nom générique de remplaçant d'un soir :
+# il est écarté même s'il apparaît dans une vraie session.
+PLACEHOLDER_NAMES = {'Invité'}
+
+regulars = ({p['name'] for s in sessions if not s['id'].startswith('ins_')
+             for p in s['players']} - PLACEHOLDER_NAMES)
+guests = sorted(set(player_stats) - regulars)
+if guests:
+    for name in guests:
+        del player_stats[name]
+    for key in [k for k in pair_stats if k[0] in guests or k[1] in guests]:
+        del pair_stats[key]
+    print(f"{len(guests)} joueur(s) vus seulement en tournoi, écartés des stats : "
+          + ', '.join(guests))
+
 print(f"{len(player_stats)} joueurs, {len(pair_stats)} paires")
 
 # ── 4. Générer le JS de remplacement ─────────────────────────────────────────
