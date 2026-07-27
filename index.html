@@ -3423,10 +3423,23 @@ async function syncSharedTeams(s, regs, byStatus){
     if(row&&row.players&&row.players.length>0){ _applySharedCompo(s, row, slot, regs); return true; }
     return false;
   }
+  /* La feuille de match doit être lue pour connaître les absents. sbGetPresences
+     renvoie [] aussi bien quand personne n'a répondu que quand la requête échoue :
+     un échec réseau passait donc pour « aucun absent », et la compo republiée
+     ré-incluait les absents (constaté le 27 juillet, Tim absent republié titulaire).
+     On distingue ici les deux cas pour ne jamais publier sur une lecture ratée. */
+  var presOk=true;
   if(!byStatus){
     byStatus={};
-    try{ (await sbGetPresences(s.id)).forEach(function(p){ byStatus[p.name]=p.status; }); }catch(e){}
+    try{
+      var _pr=await fetch(SB_URL+'/rest/v1/presences?session_id=eq.'+encodeURIComponent(s.id)+'&select=name,status', {headers: sbHeaders()});
+      if(!_pr.ok) throw new Error('presences '+_pr.status);
+      (await _pr.json()).forEach(function(p){ byStatus[p.name]=p.status; });
+    }catch(e){ presOk=false; console.warn('[compo partagée] feuille de match illisible — publication suspendue', e); }
   }
+  // Lecture ratée et compo déjà publiée : on garde celle-ci plutôt que d'en calculer
+  // une nouvelle à partir d'absences inconnues
+  if(!presOk&&row&&row.players&&row.players.length>0){ _applySharedCompo(s, row, slot, regs); return true; }
   var top10=_effectiveRoster(slot, regs, byStatus);
   if(top10.length<10) return false;
   var rosterKey=top10.slice().sort().join(',');
@@ -3448,7 +3461,7 @@ async function syncSharedTeams(s, regs, byStatus){
   s._originalPlayers=null;
   s.balanceNoteA=noteA; s.balanceNoteB=noteB;
   _setBenchFromCompo(s, slot, regs);
-  sbUpsertSharedCompo(s.id, rosterKey, raw, noteA, noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
+  if(presOk) sbUpsertSharedCompo(s.id, rosterKey, raw, noteA, noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
   return true;
 }
 function _resyncSharedCompo(slot, regs, byStatus){
