@@ -59,6 +59,8 @@ Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en 
 
 Secours manuel en dernier recours (le workflow_dispatch lui-même échoue) : console → `exportSessionEntry()` → coller l'entrée en tête de `SESSIONS`. Cas tournoi (4 équipes, ex. 22 juin) non géré par le workflow ni l'outil → promotion manuelle.
 
+**Règle position : la place annoncée fait foi aussi.** Aucun joueur actif n'a le rôle `Gardien` (seul Rémi l'a dans `PLAYER_ROLES`) : `_assignPositions` retombe donc sur « premier Défenseur/Récupérateur, sinon premier de la liste », et **le gardien dépend de l'ordre du roster**. Une régénération pouvait ainsi sortir un joueur des buts sans que la compo change par ailleurs. Depuis juillet 2026, `_anchorPositions` (front, `index.html`) et son équivalent dans `lock_session.py` restituent à chaque joueur la place qu'il occupait dans la compo annoncée ; seuls les nouveaux venus prennent les emplacements restés libres.
+
 **Règle couleur : la couleur annoncée avant 21h30 fait foi.** `teamA=true` → Blanche ⚪, `teamA=false` → Bleue 🔵. La régénération du lock attribue `teamA`/`teamB` arbitrairement (ordre d'énumération `C(10,5)`) et pouvait donc **inverser la couleur** d'une équipe par rapport à ce qui était affiché avant le lock. Depuis juin 2026, `lock_session.py` **réancre les couleurs** sur la compo `slot_sessions` annoncée (échange des moitiés si l'orientation est inversée). Le lock ne doit jamais inverser une couleur déjà annoncée.
 
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.

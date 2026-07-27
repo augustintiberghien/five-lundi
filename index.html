@@ -3104,21 +3104,14 @@ function applyAutoTeams(s, playing10) {
   s.balanceNoteA = result.noteA; s.balanceNoteB = result.noteB;
   var posA = _assignPositions(result.teamA, true);
   var posB = _assignPositions(result.teamB, false);
-  s.players = posA.concat(posB).map(function(p){
-    var html = _getPlayerHtml(p.name);
-    html = html.replace(/class="card team-[ab]"/, 'class="card ' + (p.teamA ? 'team-a' : 'team-b') + '"');
-    // Patch GK role based on position
-    var isGK = (p.y <= 10 || p.y >= 90);
-    var role = isGK ? 'Gardien' : (PLAYER_ROLES[p.name] || '');
-    if (role && html.indexOf('cphoto" style=') === -1) {
-      if (html.indexOf('class="crole"') !== -1) {
-        html = html.replace(/<div class="crole">[^<]*<\/div>/, '<div class="crole">' + role + '<\/div>');
-      } else {
-        html = html.replace('<div class="cphoto">', '<div class="cphoto"><div class="crole">' + role + '<\/div>');
-      }
-    }
-    return {x:p.x, y:p.y, name:p.name, teamA:p.teamA, html:html};
-  });
+  var raw = posA.concat(posB).map(function(p){ return {x:p.x, y:p.y, name:p.name, teamA:p.teamA}; });
+  // Réancrage sur la compo déjà affichée : un recalcul ne doit pas changer la couleur
+  // sous laquelle les joueurs ont été annoncés
+  if (_anchorColors(raw, s.players)) {
+    var _tn = s.balanceNoteA; s.balanceNoteA = s.balanceNoteB; s.balanceNoteB = _tn;
+  }
+  _anchorPositions(raw, s.players);
+  s.players = _buildPlayersHtml(raw);
   var layer = document.getElementById('players');
   if (!layer) return;
   layer.innerHTML = '';
@@ -3360,6 +3353,56 @@ function _setBenchFromCompo(s, slot, regs){
   (s.players||[]).forEach(function(p){ inCompo[p.name]=true; });
   s.bench=_rosterOrder(slot, regs).filter(function(n){ return !inCompo[n]; });
 }
+/* La couleur annoncée fait foi (cf. CLAUDE.md). _genBalancedTeams attribue teamA/teamB
+   selon l'ordre d'énumération C(10,5) : le même split peut donc ressortir avec les
+   couleurs retournées si l'ordre du roster change. On réaligne sur la compo de
+   référence — même réancrage que celui de lock_session.py au moment du lock.
+   Renvoie true si les deux équipes ont été échangées (les notes suivent). */
+function _anchorColors(raw, ref){
+  if(!ref||!ref.length) return false;
+  var refWhite={}, refBlue={};
+  ref.forEach(function(p){ if(p.teamA) refWhite[p.name]=true; else refBlue[p.name]=true; });
+  var keep=0, flip=0;
+  raw.forEach(function(p){
+    if(p.teamA) return;
+    if(refBlue[p.name]) keep++;
+    else if(refWhite[p.name]) flip++;
+  });
+  if(flip<=keep) return false;
+  raw.forEach(function(p){ p.teamA=!p.teamA; p.y=100-p.y; });
+  return true;
+}
+var _SLOTS_A=[{x:50,y:8},{x:12,y:24},{x:88,y:24},{x:35,y:38},{x:65,y:38}];
+var _SLOTS_B=[{x:50,y:92},{x:12,y:76},{x:88,y:76},{x:35,y:62},{x:65,y:62}];
+/* Aucun joueur actif n'a le rôle 'Gardien' : _assignPositions retombe alors sur
+   « premier Défenseur/Récupérateur, sinon premier de la liste », donc le gardien
+   dépend de l'ordre du roster. Un rééquilibrage pourrait ainsi déplacer un joueur
+   déjà annoncé (y compris le sortir des buts). On restitue à chaque joueur la place
+   qu'il occupait dans la compo de référence ; seuls les nouveaux venus prennent les
+   emplacements restés libres. */
+function _anchorPositions(raw, ref){
+  if(!ref||!ref.length) return;
+  var refPos={};
+  ref.forEach(function(p){ if(p.x!=null&&p.y!=null) refPos[p.name]={x:p.x,y:p.y}; });
+  [true,false].forEach(function(side){
+    var slots=side?_SLOTS_A:_SLOTS_B;
+    var team=raw.filter(function(p){ return p.teamA===side; });
+    var taken={}, pending=[];
+    team.forEach(function(p){
+      var rp=refPos[p.name];
+      var k=rp?(rp.x+','+rp.y):null;
+      var belongs=k&&slots.some(function(sl){ return sl.x+','+sl.y===k; });
+      if(belongs&&!taken[k]){ p.x=rp.x; p.y=rp.y; taken[k]=true; }
+      else pending.push(p);
+    });
+    pending.forEach(function(p){
+      for(var i=0;i<slots.length;i++){
+        var k=slots[i].x+','+slots[i].y;
+        if(!taken[k]){ p.x=slots[i].x; p.y=slots[i].y; taken[k]=true; break; }
+      }
+    });
+  });
+}
 function _applySharedCompo(s, row, slot, regs){
   s.players=_buildPlayersHtml(row.players);
   s._originalPlayers=null;
@@ -3394,11 +3437,18 @@ async function syncSharedTeams(s, regs, byStatus){
   var pA=_assignPositions(res.teamA,true);
   var pB=_assignPositions(res.teamB,false);
   var raw=pA.concat(pB).map(function(p){return {x:p.x,y:p.y,name:p.name,teamA:p.teamA};});
+  var noteA=res.noteA, noteB=res.noteB;
+  // Réancrage sur la compo déjà publiée : un rééquilibrage ne doit jamais retourner
+  // la couleur sous laquelle un joueur a déjà été annoncé
+  if(row&&row.players&&row.players.length>0){
+    if(_anchorColors(raw, row.players)){ var _tn=noteA; noteA=noteB; noteB=_tn; }
+    _anchorPositions(raw, row.players);
+  }
   s.players=_buildPlayersHtml(raw);
   s._originalPlayers=null;
-  s.balanceNoteA=res.noteA; s.balanceNoteB=res.noteB;
+  s.balanceNoteA=noteA; s.balanceNoteB=noteB;
   _setBenchFromCompo(s, slot, regs);
-  sbUpsertSharedCompo(s.id, rosterKey, raw, res.noteA, res.noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
+  sbUpsertSharedCompo(s.id, rosterKey, raw, noteA, noteB).catch(function(e){ console.warn('[compo partagée] publication échouée', e); });
   return true;
 }
 function _resyncSharedCompo(slot, regs, byStatus){
