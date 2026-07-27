@@ -189,6 +189,34 @@ if announced:
             p['y'] = 100 - p['y']
         note_a, note_b = note_b, note_a
 
+# ── Ancrage des positions sur la compo annoncée ──
+# Aucun joueur actif n'a le rôle 'Gardien' : _assignPositions retombe alors sur
+# « premier Défenseur/Récupérateur, sinon premier de la liste », donc le gardien dépend
+# de l'ordre du roster. Une régénération peut ainsi déplacer un joueur déjà annoncé, y
+# compris le sortir des buts. On restitue à chacun la place qu'il occupait dans la compo
+# annoncée ; seuls les nouveaux venus prennent les emplacements restés libres.
+SLOTS_A = [(50, 8), (12, 24), (88, 24), (35, 38), (65, 38)]
+SLOTS_B = [(50, 92), (12, 76), (88, 76), (35, 62), (65, 62)]
+if announced:
+    ref_pos = {p['name']: (p['x'], p['y']) for p in announced if p.get('x') is not None}
+    moved = []
+    for side, slots in ((True, SLOTS_A), (False, SLOTS_B)):
+        team = [p for p in players if bool(p['teamA']) == side]
+        taken, pending = set(), []
+        for p in team:
+            rp = ref_pos.get(p['name'])
+            if rp and rp in slots and rp not in taken:
+                if (p['x'], p['y']) != rp:
+                    moved.append(p['name'])
+                p['x'], p['y'] = rp
+                taken.add(rp)
+            else:
+                pending.append(p)
+        for p, sl in zip(pending, [s for s in slots if s not in taken]):
+            p['x'], p['y'] = sl
+    if moved:
+        print('📍 Positions réancrées sur la compo annoncée : ' + ', '.join(sorted(moved)))
+
 # Banc = inscrits hors compo et non absents, dans l'ordre
 compo_names = {p['name'] for p in players}
 bench = [n for n in starters + bench_raw if n not in compo_names and n not in absents]
