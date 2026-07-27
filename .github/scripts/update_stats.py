@@ -43,6 +43,39 @@ for i, (session_id, pos) in enumerate(session_starts):
 
 print(f"\n{len(sessions)} sessions avec score trouvées")
 
+# ── 1 bis. Tournois (4 équipes) ───────────────────────────────────────────────
+# Un tournoi ne vit pas dans SESSIONS mais dans INSCRIPTION_SLOTS, sous forme
+# d'une clé tournament:{teams:[...], results:[...]}. Sans ce bloc, toutes les
+# rencontres du tournoi étaient ignorées : le recalcul effaçait 60 apparitions
+# (journée du 22 juin) et faisait chuter les compteurs de tous les participants.
+# Chaque rencontre compte comme un match : l'équipe 'a' joue le rôle de teamA.
+
+slots_block = re.search(r'var INSCRIPTION_SLOTS = \[(.*?)\n\];', content, re.DOTALL)
+tournaments = 0
+for line in (slots_block.group(1).split('\n') if slots_block else []):
+    if 'tournament:' not in line:
+        continue
+    teams = {c: re.findall(r"'([^']+)'", names)
+             for c, names in re.findall(r"color:'(\w+)',names:\[([^\]]*)\]", line)}
+    results = re.findall(r"\{a:'(\w+)',b:'(\w+)',sa:(\d+),sb:(\d+)\}", line)
+    if not teams or not results:
+        continue
+    sid = re.search(r"id:'([a-z0-9_]+)'", line)
+    sid = sid.group(1) if sid else '?'
+    for ca, cb, sa, sb in results:
+        if ca not in teams or cb not in teams:
+            continue
+        sa, sb = int(sa), int(sb)
+        winner = 'A' if sa > sb else ('B' if sb > sa else None)  # nul : joué, pas gagné
+        players = ([{'name': n, 'teamA': True} for n in teams[ca]]
+                   + [{'name': n, 'teamA': False} for n in teams[cb]])
+        sessions.append({'id': f'{sid}:{ca}-{cb}', 'winner': winner, 'players': players})
+    tournaments += 1
+    print(f"  tournoi {sid} : {len(teams)} équipes, {len(results)} rencontres comptabilisées")
+
+if tournaments:
+    print(f"{tournaments} tournoi(s) ajouté(s) — {len(sessions)} rencontres au total")
+
 # ── 2. Calculer PLAYER_STATS ──────────────────────────────────────────────────
 
 player_stats = defaultdict(lambda: {'played': 0, 'wins': 0})
