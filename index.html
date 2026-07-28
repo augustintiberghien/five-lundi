@@ -740,6 +740,52 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .sname{font-family:'Oswald',sans-serif;font-size:.72rem;font-weight:700;
   color:#fff;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
 
+/* VUE RÉCAP SAISON */
+#view-recap{display:none;width:min(calc(100vw - 2rem),480px);padding:.5rem;margin:0 auto}
+.rc-hero{text-align:center;margin-bottom:1.6rem}
+.rc-title{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:#FFD600;letter-spacing:.08em;text-transform:uppercase;line-height:1.05}
+.rc-sub{font-family:'Barlow',sans-serif;font-size:.65rem;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-top:.35rem}
+.rc-lede{font-family:'Barlow',sans-serif;font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.6;margin-top:.9rem}
+.rc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1.8rem}
+.rc-tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.7rem .3rem;text-align:center}
+.rc-tile-n{font-family:'Oswald',sans-serif;font-size:1.35rem;font-weight:700;color:#fff;line-height:1}
+.rc-tile-l{font-family:'Barlow',sans-serif;font-size:.55rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem;line-height:1.25}
+.rc-h2{font-family:'Oswald',sans-serif;font-size:1.05rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em;margin:2rem 0 .3rem;display:flex;align-items:center;gap:.45rem}
+.rc-h2-sub{font-family:'Barlow',sans-serif;font-size:.62rem;color:rgba(255,255,255,.3);font-style:italic;margin-bottom:.9rem}
+.rc-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.85rem .95rem;margin-bottom:.6rem}
+.rc-card.gold{border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05)}
+.rc-card.blood{border-left:3px solid rgba(239,68,68,.6)}
+.rc-card-h{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.rc-card.gold .rc-card-h{color:#FFD600}
+.rc-card-b{font-family:'Barlow',sans-serif;font-size:.76rem;color:rgba(255,255,255,.62);line-height:1.6}
+.rc-card-b strong{color:rgba(255,255,255,.92);font-weight:600}
+.rc-card-b em{color:rgba(255,255,255,.45);font-style:italic}
+.rc-line{display:flex;align-items:baseline;gap:.5rem;padding:.4rem .1rem;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Barlow',sans-serif;font-size:.76rem}
+.rc-line:last-child{border-bottom:none}
+.rc-line-d{font-family:'Oswald',sans-serif;font-size:.66rem;font-weight:700;color:#FFD600;letter-spacing:.05em;flex-shrink:0;width:4.6rem}
+.rc-line-t{color:rgba(255,255,255,.6);line-height:1.55}
+.rc-line-t strong{color:rgba(255,255,255,.9);font-weight:600}
+.rc-quote{background:rgba(255,255,255,.03);border-left:2px solid rgba(255,214,0,.4);border-radius:0 8px 8px 0;padding:.55rem .75rem;margin-bottom:.5rem}
+.rc-quote-t{font-family:'Barlow',sans-serif;font-size:.76rem;color:rgba(255,255,255,.72);line-height:1.55;font-style:italic}
+.rc-quote-a{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:700;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem}
+.rc-rank{display:grid;grid-template-columns:1.4rem 1fr auto;align-items:center;gap:.5rem;padding:.35rem .3rem;border-radius:6px;font-family:'Barlow',sans-serif;font-size:.76rem}
+.rc-rank:nth-child(odd){background:rgba(255,255,255,.03)}
+.rc-rank-n{font-family:'Oswald',sans-serif;font-size:.68rem;font-weight:700;color:rgba(255,255,255,.35);text-align:center}
+.rc-rank-p{font-family:'Oswald',sans-serif;font-size:.76rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.04em}
+.rc-rank-v{font-family:'Oswald',sans-serif;font-size:.74rem;font-weight:700;color:#FFD600}
+.rc-plan-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.8rem .95rem;margin-bottom:.6rem}
+.rc-plan-h{font-family:'Oswald',sans-serif;font-size:.74rem;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.15rem}
+.rc-plan-d{font-family:'Barlow',sans-serif;font-size:.58rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.rc-plan-i{font-family:'Barlow',sans-serif;font-size:.76rem;color:rgba(255,255,255,.62);line-height:1.6;padding-left:.85rem;position:relative;margin-bottom:.3rem}
+.rc-plan-i:before{content:'•';position:absolute;left:0;color:rgba(255,214,0,.6)}
+.rc-plan-i strong{color:rgba(255,255,255,.92);font-weight:600}
+.rc-cta{background:linear-gradient(135deg,rgba(255,214,0,.14),rgba(255,214,0,.04));border:1.5px solid rgba(255,214,0,.35);border-radius:14px;padding:1.2rem 1rem;text-align:center;margin-top:2rem}
+.rc-cta-l{font-family:'Barlow',sans-serif;font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.16em}
+.rc-cta-d{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;color:#FFD600;text-transform:uppercase;letter-spacing:.04em;margin:.3rem 0}
+.rc-cta-t{font-family:'Barlow',sans-serif;font-size:.76rem;color:rgba(255,255,255,.55);line-height:1.6;margin-top:.5rem}
+.rc-outro{font-family:'Barlow',sans-serif;font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.7;text-align:center;margin-top:1.6rem;padding:0 .3rem}
+.rc-outro strong{color:#FFD600;font-weight:600}
+
 /* MODAL RADAR */
 .modal{display:none;position:fixed;inset:0;z-index:999;
   background:rgba(0,0,0,.8);align-items:center;justify-content:center}
@@ -979,6 +1025,8 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .sondage-names{font-family:'Barlow',sans-serif;font-size:.65rem;color:rgba(255,255,255,.35);line-height:1.5;min-height:.8rem}
 .tab-ins{background:rgba(255,214,0,.1);color:#FFD600}
 .tab-ins.active{background:#FFD600;color:#000}
+.tab-recap{background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.35)}
+.tab-recap.active{background:#4ade80;color:#000;border-color:#4ade80}
 .tab-month{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:.65rem;letter-spacing:.04em}
 .tab-month.expanded{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.07)}
 .tab-ins-session{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75);font-weight:500}
@@ -1076,6 +1124,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div id="view-stats"></div>
 <div id="view-inscriptions"></div>
+<div id="view-recap"></div>
 <div style="height:1.8rem"></div>
 <div id="balance-explain" style="display:none"></div>
 <div class="bench-section" id="bench-section" style="display:none"></div>
@@ -2328,6 +2377,8 @@ function setActiveTab(id){
   });
 }
 function showPitch(){
+  var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+
   document.getElementById('view-pitch').style.display='block';
   document.getElementById('view-stats').style.display='none';
   document.getElementById('view-inscriptions').style.display='none';
@@ -2335,6 +2386,8 @@ function showPitch(){
   // mvp et article gérés par renderMvpSection / renderArticle selon la session
 }
 function showStats(){
+  var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-inscriptions').style.display='none';
   document.getElementById('view-stats').style.display='block';
@@ -5016,6 +5069,8 @@ function renderArticle(s) {
 
 
 function showInscriptions(){
+  var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-stats').style.display='none';
   document.getElementById('view-inscriptions').style.display='block';
@@ -5320,6 +5375,202 @@ function _monthKey(dateStr){
 function _monthLabel(key){var p=key.split('-');return p[0].charAt(0).toUpperCase()+p[0].slice(1)+' '+p[1];}
 function _monthOrder(key){var p=key.split('-');return parseInt(p[1])*100+_MN.indexOf(p[0]);}
 
+/* ══ RÉCAP DE SAISON 2025-2026 ══
+   Bilan figé de la saison 23 mars → 27 juillet 2026.
+   Les winrates affichés portent sur les 17 journées de championnat
+   (hors tournoi du 22 juin) — d’où l’écart possible avec l’onglet Stats,
+   qui compte lui les 3 matchs de tournoi de chaque joueur. */
+
+var RECAP_TILES = [
+  {n:"18",    l:"lundis joués"},
+  {n:"368",   l:"buts inscrits"},
+  {n:"27",    l:"joueurs"},
+  {n:"130",   l:"votes MVP"},
+  {n:"19,4",  l:"buts par match"},
+  {n:"10–7",  l:"Blanche – Bleue"}
+];
+
+var RECAP_PALMARES = [
+  {t:"🥇 Ballon d’Or — Jack",
+   b:"3 titres d’homme du match, et surtout <strong>17 voix en 4 matchs</strong> depuis l’ouverture des votes. 4,25 voix par soirée : personne d’autre ne dépasse 2,75. Le 6 juillet, il signe 93 % des buts de son équipe… et perd quand même."},
+  {t:"🧤 Gant d’Or — Rémi",
+   b:"2 titres, gagnés tous les deux dans ses cages. Le 11 mai, sa double parade sur Gugu à 2-1 fait basculer le match le plus serré de la saison. Théo : <em>« Neuer connaît son plus grand concurrent 🧤 »</em>."},
+  {t:"👑 Le record absolu — Johann",
+   b:"27 juillet : <strong>9 voix sur 10</strong>. Premier plébiscite unanime de l’histoire du Five Lundi — le précédent plafond était à 7. Les cinq Bleus qu’il venait d’écœurer ont tous voté pour lui."},
+  {t:"🏅 Homme du tournoi — Khalid",
+   b:"8 voix sur 20 le 22 juin. Deux votants ont spontanément précisé qu’il avait marqué <strong>« sans faire de main »</strong>. La réputation est faite."},
+  {t:"🏆 Vainqueur du tournoi — l’équipe Bleue",
+   b:"Michael, Rémi, Alex, Flo, Dylan. Titre à la différence de buts, devant Rouge et Noir."},
+  {t:"🖋️ Prix de la Plume — Michael",
+   b:"183 mots de commentaires de vote, <strong>30 mots de moyenne</strong> : le double de tout le monde. Accessoirement 16 lundis sur 18 et <strong>2ᵉ dans trois des quatre classements</strong> du site."},
+  {t:"🤝 Prix de la Fidélité — Ibrahima",
+   b:"14 lundis sur 18, 3ᵉ présence de la saison, et <strong>10 votes exprimés</strong>. En plus il vote juste : 7 fois sur 10, il a désigné le futur lauréat."},
+  {t:"📈 Prix de la Progression — Cyril",
+   b:"Rangs d’inscription en juin : 12ᵉ, 15ᵉ, 17ᵉ, 14ᵉ. En juillet : <strong>2ᵉ, 2ᵉ, 2ᵉ</strong>. La plus belle progression de la saison, et elle n’est même pas sur le terrain."}
+];
+
+var RECAP_WINRATE = [
+  {p:"Jack",     v:"62 %", d:"5 v. / 8"},
+  {p:"Dylan",    v:"62 %", d:"5 v. / 8"},
+  {p:"Gugu",     v:"60 %", d:"9 v. / 15"},
+  {p:"Hugo",     v:"58 %", d:"7 v. / 12"},
+  {p:"Michael",  v:"53 %", d:"8 v. / 15"},
+  {p:"Théo",     v:"50 %", d:"5 v. / 10"},
+  {p:"Rémi",     v:"50 %", d:"5 v. / 10"},
+  {p:"Ibrahima", v:"46 %", d:"6 v. / 13"},
+  {p:"Khalid",   v:"45 %", d:"5 v. / 11"},
+  {p:"Spy",      v:"42 %", d:"5 v. / 12"}
+];
+
+var RECAP_CAROTIDE = [
+  {t:"L’algorithme d’équilibrage — 3 sur 17",
+   b:"Le système qui calcule les compos, pondère les notes et vous annonce fièrement « 75,5 contre 75,5 » : l’équipe qu’il désigne comme favorite a gagné <strong>3 fois sur 17</strong>. Dix-huit pour cent. Une pièce de monnaie fait mieux, et gratuitement."},
+  {t:"La compo parfaite du 23 mars",
+   b:"39 points sur 39. L’équilibre théorique absolu, un score jamais réatteint depuis. Résultat : <strong>8-16</strong>. La plus belle claque de la saison, prise par un tableur."},
+  {t:"Gugu — premier inscrit sur 8 créneaux sur 8",
+   b:"Rang moyen : <strong>1,0</strong>. Le 26 mai à 14h54 il s’inscrit d’un coup sur les cinq lundis suivants ; Michael réagit 4 minutes plus tard, Rémi 5. Ils n’ont jamais rattrapé. Plus gros votant de la ligue (11 votes) et l’un des moins lucides : 4 fois seulement il a voté pour le futur lauréat."},
+  {t:"Hugo — a sous-traité son vote MVP à une IA",
+   b:"29 juin, son commentaire, mot pour mot : <em>« J’ai demandé à Claude de trancher entre GuGu et Alex… et c’est Gugu le vainqueur choisi par Claude. Je me demande pourquoi. »</em><br>Hugo, on te le confirme : c’était truqué."},
+  {t:"Marc — meilleur joueur de la saison",
+   b:"Selon le classement Winrate du site, le n°1 absolu s’appelle Marc. <strong>Il a joué un match.</strong> Il l’a gagné. 100 %. Il n’est jamais revenu. Légende."},
+  {t:"Spy — l’inscription en état d’urgence",
+   b:"Rang moyen d’inscription : <strong>13,1</strong>. Dernier de la ligue, très loin derrière l’avant-dernier — d’où 3 désignations d’office pour le banc. Le 27 juillet il s’inscrit <strong>le jour même à 12h42</strong>, dernier de la liste… et finit par jouer le dernier match de la saison, appelé sur un forfait de dernière minute."},
+  {t:"Alex & Quentin — œuvres complètes",
+   b:"Alex : 7 votes exprimés, deux commentaires, <strong>deux mots au total</strong>. 25 mai : « Gardien ». 1ᵉʳ juin : « Goal ».<br>Quentin fait mieux : 5 votes, <strong>zéro commentaire</strong>. Et il est élu homme du match le 1ᵉʳ juin. Le mutisme paie."},
+  {t:"Henri — roi du forfait",
+   b:"<strong>4 désistements déclarés</strong>, record de la saison. Et deux articles qui documentent le reste : <em>« la chaleur a eu la peau de certains, et Henri en a été la première victime »</em>, puis <em>« Henri n’avait plus une goutte de cardio dans les vingt dernières minutes »</em>."},
+  {t:"Les notes ne veulent rien dire",
+   b:"<strong>Johann</strong>, 3ᵉ meilleure note de la ligue (17/20) : 14ᵉ au winrate. <strong>Rémi</strong>, note la plus basse des réguliers (11/20) : 7ᵉ au winrate, et deux titres de MVP. <strong>Gugu</strong>, 12/20 : 3ᵉ. Le seul que le système a vu juste, c’est Jack. Une note sur quinze."},
+  {t:"Le duo maudit — Alex + Spy",
+   b:"3 matchs dans la même équipe. <strong>3 défaites.</strong> 0 %. Le staff recommande une séparation à l’amiable."},
+  {t:"L’équipe Blanche du tournoi",
+   b:"Landry, Spy, Hugo, Cyril, Tim. 3 matchs, <strong>3 défaites</strong>, 9 buts marqués, <strong>16 encaissés</strong>, dernière place sur quatre. Le seul groupe de la saison à avoir signé un sans-faute à l’envers."}
+];
+
+var RECAP_MOMENTS = [
+  {d:"23 mars",   t:"La compo « parfaite » 39/39 prend <strong>8-16</strong>. La leçon d’humilité fondatrice."},
+  {d:"4 mai",     t:"<strong>Vingt minutes sans le moindre but.</strong> Première absolue. Plus personne n’osait marquer."},
+  {d:"11 mai",    t:"<strong>3-4</strong>, plus petit score de l’histoire. Deux barres, un poteau, et Rémi qui vole le match."},
+  {d:"29 juin",   t:"Gugu rate tout, sauf le premier but et le <strong>but en or</strong> dans le temps additionnel. 9-8."},
+  {d:"6 juillet", t:"<strong>17 pauses fraîcheur</strong>, record en vigueur. Menée 4-7, la Blanche gagne 11-8."},
+  {d:"20 juillet",t:"Le <strong>penalty à deux vitesses</strong> : faute de Spy dans les cages = penalty. Situation identique en fin de match, rôles inversés = rien. Le camp bleu l’a fait remarquer."},
+  {d:"27 juillet",t:"3-0 Blanche. Puis 3-4 Bleue. Puis <strong>15-10</strong> Blanche. Johann élu à l’unanimité."}
+];
+
+var RECAP_QUOTES = [
+  {t:"Un mix de Neuer, Chilavert et Bastos.",                                         a:"Marc, sur Rémi · 11 mai"},
+  {t:"Rémi, parce qu’il symbolise bien la chaaaatte des Bleus ce soir.",          a:"Spy · 8 juin"},
+  {t:"Sans abducteur je le trouve encore plus fort — quand il dit qu’il n’aime pas perdre, il rigole pas.", a:"Gugu, sur Samy · 15 juin"},
+  {t:"Toujours au top, auteur de plusieurs buts. Et le tout sans faire de main, du grand Khalid.", a:"Michael · 22 juin"},
+  {t:"On me dit dans l’oreillette que CR7 a pris sa retraite internationale depuis qu’il l’a affronté.", a:"Samy, sur Gugu · 6 juillet"},
+  {t:"M’a écœuré avec ses arrêts.",                                              a:"Landry, sur Henri · 1ᵉʳ juin"},
+  {t:"Striker qui strike, goalkeeper qui goalkeepe.",                                  a:"Dylan, sur Johann · 27 juillet"},
+  {t:"Je ne peux pas voter pour le premier (moi), donc je vote pour le deuxième. #MVPunanime", a:"Johann · 27 juillet"}
+];
+
+var RECAP_PLAN = [
+  {h:"Semaines 1-2 — on redémarre", d:"28 juillet → 10 août", i:[
+    "2 × 25-30 min de footing en <strong>aisance respiratoire</strong> — tu dois pouvoir tenir une conversation en courant. Si tu ne peux pas, tu vas trop vite.",
+    "10 min de mobilité chevilles + hanches après chaque sortie."]},
+  {h:"Semaines 3-4 — le bloc qui fait gagner les lundis", d:"11 → 24 août", i:[
+    "2 × la séance <strong>30/30</strong> : 30 s vite / 30 s lent, 12 à 15 fois, 2 séries, 3 min de récup entre les séries. C’est très exactement le rythme d’un five.",
+    "1 × renfo, 20 min : gainage 3 × 45 s · fentes 3 × 12 · <strong>Copenhagen</strong> (adducteurs) 3 × 8 · <strong>nordic hamstring</strong> (ischios) 3 × 6."]},
+  {h:"Semaine 5 — on rallume", d:"25 → 30 août", i:[
+    "Appuis et changements de direction : 10 allers-retours sur 10 m, 30 s de récup.",
+    "Un peu de ballon. Juste pour se rappeler de quel pied on tire."]},
+  {h:"⚕️ Les 2 minutes non négociables", d:"tous les jours, même à la plage", i:[
+    "Chevilles, adducteurs, ischios, mollets, quadriceps — 30 secondes chacun.",
+    "L’infirmerie de la saison : genou (Cyril), pubalgie (Landry), adducteur (Samy), cheville (Ibrahima), mollet (Yaya). Cinq zones, cinq exercices, deux minutes par jour."]}
+];
+
+function renderRecap(){
+  var w = document.getElementById("view-recap");
+  if(!w) return;
+  var h = "";
+
+  h += "<div class=\"rc-hero\">";
+  h += "<div class=\"rc-title\">Récap<br>25-26</div>";
+  h += "<div class=\"rc-sub\">23 mars → 27 juillet 2026</div>";
+  h += "<div class=\"rc-lede\">Dix-huit lundis, dix-sept journées de championnat et un tournoi. Voici tout ce que les chiffres ont retenu — y compris ce que certains auraient préféré qu’ils oublient.</div>";
+  h += "</div>";
+
+  h += "<div class=\"rc-grid\">";
+  RECAP_TILES.forEach(function(t){
+    h += "<div class=\"rc-tile\"><div class=\"rc-tile-n\">"+t.n+"</div><div class=\"rc-tile-l\">"+t.l+"</div></div>";
+  });
+  h += "</div>";
+
+  h += "<div class=\"rc-h2\">🏆 Le palmarès</div>";
+  h += "<div class=\"rc-h2-sub\">Les titres, les records et les prix d’honneur de la saison.</div>";
+  RECAP_PALMARES.forEach(function(c){
+    h += "<div class=\"rc-card gold\"><div class=\"rc-card-h\">"+c.t+"</div><div class=\"rc-card-b\">"+c.b+"</div></div>";
+  });
+
+  h += "<div class=\"rc-h2\">📊 Le top 10 des winrates</div>";
+  h += "<div class=\"rc-h2-sub\">17 journées de championnat, hors tournoi. Minimum 5 matchs.</div>";
+  h += "<div class=\"rc-card\">";
+  RECAP_WINRATE.forEach(function(r,i){
+    h += "<div class=\"rc-rank\"><div class=\"rc-rank-n\">"+(i+1)+"</div>"+
+         "<div><span class=\"rc-rank-p\">"+r.p+"</span> <span style=\"color:rgba(255,255,255,.3);font-size:.68rem\">"+r.d+"</span></div>"+
+         "<div class=\"rc-rank-v\">"+r.v+"</div></div>";
+  });
+  h += "</div>";
+
+  h += "<div class=\"rc-h2\">🔪 La section carotide</div>";
+  h += "<div class=\"rc-h2-sub\">Les chiffres ne mentent pas. On ne fait que les lire.</div>";
+  RECAP_CAROTIDE.forEach(function(c){
+    h += "<div class=\"rc-card blood\"><div class=\"rc-card-h\">"+c.t+"</div><div class=\"rc-card-b\">"+c.b+"</div></div>";
+  });
+
+  h += "<div class=\"rc-h2\">📖 Les sept soirées</div>";
+  h += "<div class=\"rc-h2-sub\">Celles dont on reparlera à la reprise.</div>";
+  h += "<div class=\"rc-card\">";
+  RECAP_MOMENTS.forEach(function(m){
+    h += "<div class=\"rc-line\"><div class=\"rc-line-d\">"+m.d+"</div><div class=\"rc-line-t\">"+m.t+"</div></div>";
+  });
+  h += "</div>";
+
+  h += "<div class=\"rc-h2\">💬 Le best-of des votes</div>";
+  h += "<div class=\"rc-h2-sub\">1 057 mots écrits à 23h30 un lundi soir. Voici les meilleurs.</div>";
+  RECAP_QUOTES.forEach(function(q){
+    h += "<div class=\"rc-quote\"><div class=\"rc-quote-t\">« "+q.t+" »</div><div class=\"rc-quote-a\">"+q.a+"</div></div>";
+  });
+
+  h += "<div class=\"rc-h2\">🏋️ Le plan d’été</div>";
+  h += "<div class=\"rc-h2-sub\">Cinq semaines pour ne pas revenir en ruine.</div>";
+  RECAP_PLAN.forEach(function(b){
+    h += "<div class=\"rc-plan-b\"><div class=\"rc-plan-h\">"+b.h+"</div><div class=\"rc-plan-d\">"+b.d+"</div>";
+    b.i.forEach(function(x){ h += "<div class=\"rc-plan-i\">"+x+"</div>"; });
+    h += "</div>";
+  });
+
+  h += "<div class=\"rc-cta\">";
+  h += "<div class=\"rc-cta-l\">Reprise</div>";
+  h += "<div class=\"rc-cta-d\">Lundi 31 août<br>21h30</div>";
+  h += "<div class=\"rc-cta-t\">Notez-le, bloquez-le, mettez un rappel. On repart pour une saison complète — et cette fois on l’aura suivie du premier au dernier lundi.</div>";
+  h += "</div>";
+
+  h += "<div class=\"rc-outro\">Merci à vous 27 pour ces 18 lundis. Merci d’être venus, d’avoir couru, d’avoir voté, d’avoir écrit des commentaires à 23h30 un lundi soir. C’est ça qui fait qu’on n’a pas juste un five : on a un championnat.<br><br>Reposez-vous. Mangez. Buvez. Bronzez.<br>Mais revenez avec du cardio. 😎<br><br><strong>Très bel été à tous ☀️⚽</strong></div>";
+
+  w.innerHTML = h;
+}
+
+function showRecap(){
+  document.getElementById("view-pitch").style.display="none";
+  document.getElementById("view-stats").style.display="none";
+  document.getElementById("view-inscriptions").style.display="none";
+  document.getElementById("view-recap").style.display="block";
+  document.getElementById("session-header").style.display="none";
+  document.getElementById("mvp-section").style.display="none";
+  document.getElementById("article-section").style.display="none";
+  document.getElementById("bench-section").style.display="none";
+  document.getElementById("presence-section").style.display="none";
+  document.getElementById("balance-explain").style.display="none";
+  renderRecap();
+  setActiveTab("recap");
+  window.scrollTo(0,0);
+}
+
 function buildTabs(){
   var wrap=document.getElementById('tabs');
   wrap.innerHTML='';
@@ -5433,6 +5684,10 @@ function buildTabs(){
   var bi=document.createElement('button');
   bi.className='tab tab-ins';bi.dataset.id='ins';bi.textContent='📅 Inscriptions';bi.onclick=showInscriptions;
   wrap.appendChild(bi);
+  /* Récap de saison */
+  var br=document.createElement('button');
+  br.className='tab tab-recap';br.dataset.id='recap';br.textContent='🏁 Récap 25-26';br.onclick=showRecap;
+  wrap.appendChild(br);
 }
 
 
