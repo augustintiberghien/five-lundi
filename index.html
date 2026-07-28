@@ -5062,7 +5062,7 @@ function renderInscriptions(){
   html+='<div style="text-align:center;background:linear-gradient(135deg,rgba(255,214,0,.09),rgba(255,140,0,.06));border:1px solid rgba(255,214,0,.22);border-radius:14px;padding:1.1rem 1.1rem;margin-top:1.1rem">'
     +'<div style="font-size:1.7rem;line-height:1">☀️🏖️</div>'
     +'<div style="font-family:Oswald,sans-serif;font-size:1rem;font-weight:700;color:#FFD600;text-transform:uppercase;letter-spacing:.1em;margin-top:.45rem">Summer break</div>'
-    +'<div style="font-family:Barlow,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">Dernier five de la saison le <strong style="color:rgba(255,255,255,.8)">lundi 27 juillet</strong>. Pause estivale en août — on remet les crampons à la rentrée. Bon été à tous ! ⚽</div>'
+    +'<div style="font-family:Barlow,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">Dernier five de la saison le <strong style="color:rgba(255,255,255,.8)">lundi 27 juillet</strong>. Pause estivale en août. Reprise le <strong style="color:rgba(255,255,255,.8)">lundi 31 août</strong> — on remet les crampons à la rentrée. Bon été à tous ! ⚽</div>'
     +'</div>';
   wrap.innerHTML=html;
 
@@ -5604,6 +5604,12 @@ function injectTrophies() {
 }
 
 /* ── COMPTE À REBOURS ── */
+/* Reprise apres la treve estivale : lundi 31 aout 2026, 21h30.
+   Tant que cette date est devant nous, elle prime sur le calcul « lundi prochain »,
+   qui pointerait sinon sur des lundis d'aout ou personne ne joue. Repasser a null
+   une fois la saison relancee pour revenir au comportement normal. */
+var SEASON_RESUME = new Date(2026, 7, 31, 21, 30, 0);
+
 function getNextMatchDate() {
   // Next Monday 21:30 Paris time
   // Use the current session date if it's in the future
@@ -5625,6 +5631,8 @@ function getNextMatchDate() {
       }
     }
   }
+  // Treve estivale : viser la reprise plutot qu'un lundi sans match
+  if (SEASON_RESUME && SEASON_RESUME > now) return SEASON_RESUME;
   // Fallback: next Monday
   var d = new Date();
   var daysUntilMonday = (1 - d.getDay() + 7) % 7 || 7;
@@ -5638,6 +5646,10 @@ function updateCountdown() {
   if(!el) return;
   var now = new Date();
   var target = getNextMatchDate();
+  // Pendant la treve, le compteur annonce la reprise et non un « prochain match »
+  var isResume = !!(SEASON_RESUME && target.getTime() === SEASON_RESUME.getTime());
+  var lbl = document.querySelector('#countdown-wrap .countdown-label');
+  if (lbl) lbl.textContent = isResume ? 'Reprise' : 'Prochain match';
   var diff = target - now;
   if(diff <= 0) {
     el.innerHTML = '<span class="cd-now">&#x26BD; Ce soir !</span>';
