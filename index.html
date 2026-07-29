@@ -5377,9 +5377,9 @@ function _monthOrder(key){var p=key.split('-');return parseInt(p[1])*100+_MN.ind
 
 /* ══ RÉCAP DE SAISON 2025-2026 ══
    Bilan figé de la saison 23 mars → 27 juillet 2026.
-   Les winrates affichés portent sur les 17 journées de championnat
-   (hors tournoi du 22 juin) — d’où l’écart possible avec l’onglet Stats,
-   qui compte lui les 3 matchs de tournoi de chaque joueur. */
+   Les winrates affichés reprennent PLAYER_STATS, donc les 17 journées de
+   championnat ET les 3 matchs de tournoi de chaque joueur : mêmes chiffres
+   que l’onglet Stats, pour qu’aucun classement ne se contredise. */
 
 var RECAP_TILES = [
   {n:"18",    l:"lundis joués"},
@@ -5402,7 +5402,7 @@ var RECAP_PALMARES = [
   {t:"🏆 Vainqueur du tournoi — l’équipe Bleue",
    b:"Michael, Rémi, Alex, Flo, Dylan. Titre à la différence de buts, devant Rouge et Noir."},
   {t:"🖋️ Prix de la Plume — Michael",
-   b:"183 mots de commentaires de vote, <strong>30 mots de moyenne</strong> : le double de tout le monde. Accessoirement 16 lundis sur 18 et <strong>2ᵉ dans trois des quatre classements</strong> du site."},
+   b:"183 mots de commentaires de vote, <strong>30 mots de moyenne</strong> : le double de tout le monde. Accessoirement 16 lundis sur 18, <strong>2ᵉ des classements Régularité et Équilibre</strong> et 3ᵉ de Stabilité."},
   {t:"🤝 Prix de la Fidélité — Ibrahima",
    b:"14 lundis sur 18, 3ᵉ présence de la saison, et <strong>10 votes exprimés</strong>. En plus il vote juste : 7 fois sur 10, il a désigné le futur lauréat."},
   {t:"📈 Prix de la Progression — Cyril",
@@ -5410,16 +5410,16 @@ var RECAP_PALMARES = [
 ];
 
 var RECAP_WINRATE = [
+  {p:"Henri",    v:"71 %", d:"5 v. / 7"},
+  {p:"Quentin",  v:"71 %", d:"5 v. / 7"},
+  {p:"Samy",     v:"67 %", d:"4 v. / 6"},
+  {p:"Dylan",    v:"64 %", d:"7 v. / 11"},
   {p:"Jack",     v:"62 %", d:"5 v. / 8"},
-  {p:"Dylan",    v:"62 %", d:"5 v. / 8"},
-  {p:"Gugu",     v:"60 %", d:"9 v. / 15"},
-  {p:"Hugo",     v:"58 %", d:"7 v. / 12"},
-  {p:"Michael",  v:"53 %", d:"8 v. / 15"},
-  {p:"Théo",     v:"50 %", d:"5 v. / 10"},
-  {p:"Rémi",     v:"50 %", d:"5 v. / 10"},
-  {p:"Ibrahima", v:"46 %", d:"6 v. / 13"},
-  {p:"Khalid",   v:"45 %", d:"5 v. / 11"},
-  {p:"Spy",      v:"42 %", d:"5 v. / 12"}
+  {p:"Gugu",     v:"61 %", d:"11 v. / 18"},
+  {p:"Michael",  v:"56 %", d:"10 v. / 18"},
+  {p:"Théo",     v:"54 %", d:"7 v. / 13"},
+  {p:"Rémi",     v:"54 %", d:"7 v. / 13"},
+  {p:"Ibrahima", v:"50 %", d:"8 v. / 16"}
 ];
 
 var RECAP_CAROTIDE = [
@@ -5436,11 +5436,13 @@ var RECAP_CAROTIDE = [
   {t:"Spy — l’inscription en état d’urgence",
    b:"Rang moyen d’inscription : <strong>13,1</strong>. Dernier de la ligue, très loin derrière l’avant-dernier — d’où 3 désignations d’office pour le banc. Le 27 juillet il s’inscrit <strong>le jour même à 12h42</strong>, dernier de la liste… et finit par jouer le dernier match de la saison, appelé sur un forfait de dernière minute."},
   {t:"Alex & Quentin — œuvres complètes",
-   b:"Alex : 7 votes exprimés, deux commentaires, <strong>deux mots au total</strong>. 25 mai : « Gardien ». 1ᵉʳ juin : « Goal ».<br>Quentin fait mieux : 5 votes, <strong>zéro commentaire</strong>. Et il est élu homme du match le 1ᵉʳ juin. Le mutisme paie."},
+   b:"Alex : 7 votes exprimés, deux commentaires, <strong>deux mots au total</strong>. 25 mai : « Gardien ». 1ᵉʳ juin : « Goal ».<br>Quentin fait mieux : 5 votes, <strong>zéro commentaire</strong>. Il est élu homme du match le 1ᵉʳ juin et affiche le <strong>meilleur winrate de la saison à égalité avec Henri</strong> (71 %). Le mutisme paie très bien."},
   {t:"Henri — roi du forfait",
    b:"<strong>4 désistements déclarés</strong>, record de la saison. Et deux articles qui documentent le reste : <em>« la chaleur a eu la peau de certains, et Henri en a été la première victime »</em>, puis <em>« Henri n’avait plus une goutte de cardio dans les vingt dernières minutes »</em>."},
+  {t:"Henri — meilleur winrate, et roi du forfait",
+   b:"Accrochez-vous : Henri affiche le <strong>meilleur pourcentage de victoires de la saison</strong> (5 sur 7, 71 %). Il détient aussi le record de <strong>4 désistements déclarés</strong>. L’homme gagne quand il vient — tout le problème est de le faire venir."},
   {t:"Les notes ne veulent rien dire",
-   b:"<strong>Johann</strong>, 3ᵉ meilleure note de la ligue (17/20) : 14ᵉ au winrate. <strong>Rémi</strong>, note la plus basse des réguliers (11/20) : 7ᵉ au winrate, et deux titres de MVP. <strong>Gugu</strong>, 12/20 : 3ᵉ. Le seul que le système a vu juste, c’est Jack. Une note sur quinze."},
+   b:"Sur 20 joueurs classés, comparez le rang à la note et le rang au winrate. <strong>Henri</strong>, 18ᵉ note de la ligue (12/20) → <strong>2ᵉ au winrate</strong> : seize places gagnées. <strong>Gugu</strong>, 19ᵉ note → 6ᵉ. <strong>Rémi</strong>, dernière note de la ligue (11/20) → 9ᵉ, et deux titres de MVP. Dans l’autre sens : <strong>Johann</strong>, 4ᵉ meilleure note (17/20) → 16ᵉ. <strong>Spy</strong>, 7ᵉ note → 17ᵉ. Le système a vu juste sur Samy et Dylan. Pour le reste, autant tirer les noms d’un chapeau."},
   {t:"Le duo maudit — Alex + Spy",
    b:"3 matchs dans la même équipe. <strong>3 défaites.</strong> 0 %. Le staff recommande une séparation à l’amiable."},
   {t:"L’équipe Blanche du tournoi",
@@ -5507,7 +5509,7 @@ function renderRecap(){
   });
 
   h += "<div class=\"rc-h2\">📊 Le top 10 des winrates</div>";
-  h += "<div class=\"rc-h2-sub\">17 journées de championnat, hors tournoi. Minimum 5 matchs.</div>";
+  h += "<div class=\"rc-h2-sub\">Mêmes chiffres que l’onglet Stats : championnat + tournoi. Minimum 5 matchs.</div>";
   h += "<div class=\"rc-card\">";
   RECAP_WINRATE.forEach(function(r,i){
     h += "<div class=\"rc-rank\"><div class=\"rc-rank-n\">"+(i+1)+"</div>"+
