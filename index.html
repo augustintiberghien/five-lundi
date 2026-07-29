@@ -5426,6 +5426,19 @@ var RECAP_WINRATE = [
   {p:"Ibrahima", v:"50 %", d:"8 v. / 16"}
 ];
 
+var RECAP_WINRATE_CHAMP = [
+  {p:"Jack",     v:"62 %", d:"5 v. / 8"},
+  {p:"Dylan",    v:"62 %", d:"5 v. / 8"},
+  {p:"Gugu",     v:"60 %", d:"9 v. / 15"},
+  {p:"Hugo",     v:"58 %", d:"7 v. / 12"},
+  {p:"Michael",  v:"53 %", d:"8 v. / 15"},
+  {p:"Théo",     v:"50 %", d:"5 v. / 10"},
+  {p:"Rémi",     v:"50 %", d:"5 v. / 10"},
+  {p:"Ibrahima", v:"46 %", d:"6 v. / 13"},
+  {p:"Khalid",   v:"45 %", d:"5 v. / 11"},
+  {p:"Spy",      v:"42 %", d:"5 v. / 12"}
+];
+
 var RECAP_CAROTIDE = [
   {t:"L’algorithme d’équilibrage — 3 sur 17",
    b:"Le système qui calcule les compos, pondère les notes et vous annonce fièrement « 75,5 contre 75,5 » : l’équipe qu’il désigne comme favorite a gagné <strong>3 fois sur 17</strong>. Dix-huit pour cent. Une pièce de monnaie fait mieux, et gratuitement."},
@@ -5520,6 +5533,17 @@ function renderRecap(){
          "<div class=\"rc-rank-v\">"+r.v+"</div></div>";
   });
   h += "</div>";
+
+  h += "<div class=\"rc-h2\">📉 Le même, sans le tournoi</div>";
+  h += "<div class=\"rc-h2-sub\">Les 17 journées de championnat seules. Toujours 5 matchs minimum.</div>";
+  h += "<div class=\"rc-card\">";
+  RECAP_WINRATE_CHAMP.forEach(function(r,i){
+    h += "<div class=\"rc-rank\"><div class=\"rc-rank-n\">"+(i+1)+"</div>"+
+         "<div><span class=\"rc-rank-p\">"+r.p+"</span> <span style=\"color:rgba(255,255,255,.3);font-size:.68rem\">"+r.d+"</span></div>"+
+         "<div class=\"rc-rank-v\">"+r.v+"</div></div>";
+  });
+  h += "</div>";
+  h += "<div class=\"rc-grid-note\" style=\"margin-top:.2rem\">Trois enseignements. <strong>Jack</strong> prend la tête : il n’était pas là le 22 juin, son pourcentage ne bouge pas d’un pouce. <strong>Hugo</strong> gagne près de 12 points et bondit de la 13ᵉ à la 4ᵉ place — son équipe du tournoi avait perdu ses trois matchs. Et <strong>Henri, Quentin et Samy</strong>, podium du classement précédent, disparaissent : ils ne comptent que 4, 4 et 3 journées de championnat, sous la barre des 5.</div>";
 
   h += "<div class=\"rc-h2\">🔪 La section carotide</div>";
   h += "<div class=\"rc-h2-sub\">Les chiffres ne mentent pas. On ne fait que les lire.</div>";
