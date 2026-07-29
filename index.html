@@ -5430,17 +5430,16 @@ var RECAP_WINRATE = [
 ];
 
 var RECAP_WINRATE_CHAMP = [
-  {p:"Henri",    v:"75 %", d:"3 v. / 4"},
-  {p:"Quentin",  v:"75 %", d:"3 v. / 4"},
-  {p:"Landry",   v:"67 %", d:"2 v. / 3"},
-  {p:"Samy",     v:"67 %", d:"2 v. / 3"},
-  {p:"Dylan",    v:"62 %", d:"5 v. / 8"},
   {p:"Jack",     v:"62 %", d:"5 v. / 8"},
+  {p:"Dylan",    v:"62 %", d:"5 v. / 8"},
   {p:"Gugu",     v:"60 %", d:"9 v. / 15"},
   {p:"Hugo",     v:"58 %", d:"7 v. / 12"},
   {p:"Michael",  v:"53 %", d:"8 v. / 15"},
+  {p:"Théo",     v:"50 %", d:"5 v. / 10"},
   {p:"Rémi",     v:"50 %", d:"5 v. / 10"},
-  {p:"Théo",     v:"50 %", d:"5 v. / 10"}
+  {p:"Ibrahima", v:"46 %", d:"6 v. / 13"},
+  {p:"Khalid",   v:"45 %", d:"5 v. / 11"},
+  {p:"Spy",      v:"42 %", d:"5 v. / 12"}
 ];
 
 var RECAP_CAROTIDE = [
@@ -5539,7 +5538,7 @@ function renderRecap(){
   h += "</div>";
 
   h += "<div class=\"rc-h2\">📉 Le même, sans le tournoi</div>";
-  h += "<div class=\"rc-h2-sub\">Les 17 journées de championnat seules, seuil abaissé à 3 matchs pour cette vue.</div>";
+  h += "<div class=\"rc-h2-sub\">Les 17 journées de championnat seules. Toujours 5 matchs minimum.</div>";
   h += "<div class=\"rc-card\">";
   RECAP_WINRATE_CHAMP.forEach(function(r,i){
     h += "<div class=\"rc-rank\"><div class=\"rc-rank-n\">"+(i+1)+"</div>"+
@@ -5547,7 +5546,7 @@ function renderRecap(){
          "<div class=\"rc-rank-v\">"+r.v+"</div></div>";
   });
   h += "</div>";
-  h += "<div class=\"rc-grid-note\" style=\"margin-top:.2rem\">Deux surprises. <strong>Henri et Quentin restent en tête</strong> : leur saison ne doit rien au tournoi, qui n’a quasiment pas bougé leur pourcentage — il leur a seulement permis d’atteindre les 5 matchs du classement précédent. Et <strong>Landry</strong> surgit à la 3ᵉ place : ses trois défaites du 22 juin avaient divisé son bilan par deux. Même effet pour Hugo (+12 points) et Spy (+8), ses coéquipiers de ce soir-là.</div>";
+  h += "<div class=\"rc-grid-note\" style=\"margin-top:.2rem\">Trois enseignements. <strong>Jack</strong> prend la tête : il n’était pas là le 22 juin, son pourcentage ne bouge pas d’un pouce. <strong>Hugo</strong> gagne près de 12 points et bondit de la 13ᵉ à la 4ᵉ place — son équipe du tournoi avait perdu ses trois matchs, même effet pour Spy (+8). Et <strong>Henri, Quentin et Samy</strong>, podium du classement précédent, sortent du tableau : ils ne comptent que 4, 4 et 3 journées de championnat. Non que le tournoi les ait flattés — il n’a quasiment rien changé à leur pourcentage — mais c’est lui qui leur permettait d’atteindre les 5 matchs.</div>";
 
   h += "<div class=\"rc-h2\">🔪 La section carotide</div>";
   h += "<div class=\"rc-h2-sub\">Les chiffres ne mentent pas. On ne fait que les lire.</div>";
