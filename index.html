@@ -5351,7 +5351,10 @@ async function _loadInscriptionSessions(){
   buildTabs();
   // Restaurer la surbrillance de l'onglet actif (buildTabs recrée le DOM)
   var _curS = SESSIONS.find(function(s){ return s.current; });
-  if(_curS) setActiveTab(_curS.id);
+  // Pendant la trêve, le Récap est la vue affichée : lui laisser la surbrillance
+  var _vr = document.getElementById('view-recap');
+  if(_vr && _vr.style.display === 'block') setActiveTab('recap');
+  else if(_curS) setActiveTab(_curS.id);
   // Si aucune session régulière active, afficher la 1ère session d'inscription ouverte
   if(!SESSIONS.find(function(s){return s.current;}) && _INS_SESSIONS.length>0){
     var slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){slotById[sl.id]=sl;});
@@ -5894,6 +5897,18 @@ function injectTrophies() {
    qui pointerait sinon sur des lundis d'aout ou personne ne joue. Repasser a null
    une fois la saison relancee pour revenir au comportement normal. */
 var SEASON_RESUME = new Date(2026, 7, 31, 21, 30, 0);
+
+/* ── PAGE D'ACCUEIL PENDANT LA TRÊVE ──
+   Tant que la reprise est devant nous, le Récap de saison s'ouvre par défaut
+   plutôt que la dernière session jouée : c'est le contenu de l'été.
+   Se désactive tout seul le 31 août à 21h30, sans rien à modifier.
+   Une ancre #s17 (ou n'importe quel autre onglet) dans l'URL reste prioritaire. */
+(function(){
+  if(!SEASON_RESUME || _parisNow() >= SEASON_RESUME) return;
+  if(location.hash && location.hash.length > 1) return;
+  if(typeof showRecap !== 'function') return;
+  showRecap();
+})();
 
 function getNextMatchDate() {
   // Next Monday 21:30 Paris time
