@@ -26,6 +26,7 @@ git push -u origin claude/setup-html-project-wSe4F
 - `PAIR_STATS` — stats par duo (p1, p2, together, wins)
 - `ARTICLES` — articles L'Équipe par session id
 - `RANK_METHODS` + `_rankMethod` — 4 méthodes de classement (Winrate / Régularité / Équilibre / Stabilité)
+- `RECAP_*` + `renderRecap()` / `showRecap()` — section « Récap 25-26 » (bilan de saison, cf. plus bas)
 
 ## Conventions sessions
 - `current: true` → session affichée par défaut au chargement (une seule à la fois)
@@ -119,6 +120,18 @@ curl -s -i -X OPTIONS "$SB_URL/functions/v1/submit-score" \
 - Clôture : 10 votes atteints OU 22h30 le lendemain
 - Timezone : toujours via `toLocaleString('en-US', {timeZone:'Europe/Paris'})`
 - **Résumé MVP** : le code d'appel direct à l'API Anthropic a été supprimé (juin 2026 — il partait sans clé et ne marchait pas). Le résumé/article est rédigé par Claude **au débrief après chaque match** et poussé manuellement dans le HTML (`ARTICLES`). À la clôture du vote, le site affiche les commentaires bruts des votants.
+
+## Section « Récap 25-26 » (bilan de saison) — depuis juillet 2026
+
+Onglet `🏁 Récap 25-26` (vert, à droite d'Inscriptions) ajouté pour le message de fin de saison envoyé au groupe WhatsApp. Contenu **figé, écrit à la main** : chiffres clés, palmarès, top 10 des winrates, section chambrage, sept soirées marquantes, best-of des commentaires de vote, plan d'entraînement estival, annonce de la reprise.
+
+Tout tient dans des tableaux `RECAP_TILES` / `RECAP_PALMARES` / `RECAP_WINRATE` / `RECAP_CAROTIDE` / `RECAP_MOMENTS` / `RECAP_QUOTES` / `RECAP_PLAN`, rendus par `renderRecap()`. Aucune donnée n'est recalculée au chargement, rien n'est lu depuis Supabase : pour modifier un chiffre, il faut éditer le tableau concerné.
+
+**⚠️ Piège des winrates.** Le tableau `RECAP_WINRATE` doit reprendre `PLAYER_STATS`, qui compte **championnat + tournoi du 22 juin**. Une première version filtrait sur le seul nombre de sessions de championnat (`≥ 5 sessions`), ce qui écartait Henri, Quentin et Samy (4, 4 et 3 sessions) alors que `PLAYER_STATS` les compte à 7, 7 et 6 matchs — et qu'ils occupent en réalité les trois premières places. Un onglet Récap qui contredit l'onglet Stats se repère immédiatement : **toujours partir de `PLAYER_STATS`**.
+
+Les stats non stockées dans le HTML (rangs et horodatages d'inscription, nombre de votes donnés/reçus, longueur des commentaires, désistements) proviennent des tables Supabase `registrations`, `presences` et `votes`, interrogeables en lecture avec `SB_URL` + `SB_KEY` (clé anon, en clair dans `index.html`).
+
+Pour une nouvelle saison : dupliquer la section plutôt que l'écraser — le récap 25-26 est une archive.
 
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
