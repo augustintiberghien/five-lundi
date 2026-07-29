@@ -750,6 +750,8 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .rc-tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.7rem .3rem;text-align:center}
 .rc-tile-n{font-family:'Oswald',sans-serif;font-size:1.35rem;font-weight:700;color:#fff;line-height:1}
 .rc-tile-l{font-family:'Barlow',sans-serif;font-size:.55rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem;line-height:1.25}
+.rc-grid-note{font-family:'Barlow',sans-serif;font-size:.68rem;color:rgba(255,255,255,.38);line-height:1.55;text-align:center;margin:-1.2rem 0 1.8rem;padding:0 .2rem}
+.rc-grid-note strong{color:rgba(255,255,255,.7);font-weight:600}
 .rc-h2{font-family:'Oswald',sans-serif;font-size:1.05rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em;margin:2rem 0 .3rem;display:flex;align-items:center;gap:.45rem}
 .rc-h2-sub{font-family:'Barlow',sans-serif;font-size:.62rem;color:rgba(255,255,255,.3);font-style:italic;margin-bottom:.9rem}
 .rc-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.85rem .95rem;margin-bottom:.6rem}
@@ -5387,7 +5389,7 @@ var RECAP_TILES = [
   {n:"27",    l:"joueurs"},
   {n:"130",   l:"votes MVP"},
   {n:"19,4",  l:"buts par match"},
-  {n:"10–7",  l:"Blanche – Bleue"}
+  {n:"10–7",  l:"victoires Blanche – Bleue"}
 ];
 
 var RECAP_PALMARES = [
@@ -5503,6 +5505,7 @@ function renderRecap(){
     h += "<div class=\"rc-tile\"><div class=\"rc-tile-n\">"+t.n+"</div><div class=\"rc-tile-l\">"+t.l+"</div></div>";
   });
   h += "</div>";
+  h += "<div class=\"rc-grid-note\">Score moyen d’un lundi : <strong>10,2 – 9,2</strong>. Le 10–7 ci-dessus compte les victoires, pas les buts : sur 17 journées, la Blanche l’emporte dix fois, la Bleue sept.</div>";
 
   h += "<div class=\"rc-h2\">🏆 Le palmarès</div>";
   h += "<div class=\"rc-h2-sub\">Les titres, les records et les prix d’honneur de la saison.</div>";
