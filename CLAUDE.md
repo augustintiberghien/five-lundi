@@ -168,6 +168,23 @@ continuent d'être maintenues par `update_stats.py`.
 - Les **courbes de duos sur le terrain** restent en all-time (`getPairWinRate`,
   inchangé) : elles décrivent l'historique d'une paire, pas une saison.
 
+### Forme (notes ajustées) : remise à plat à chaque saison — depuis août 2026
+
+`_getPlayerForm` ne regarde plus que les sessions **de la saison en cours**
+(`_currentSeason()`, même bascule d'août que `_seasonOfDate`). À la reprise, tout le
+monde repart sur sa note de base : la dynamique de juillet ne traverse pas la trêve.
+En début de saison, avec moins de 3 matchs joués, seul le dernier résultat compte
+(±0,5) ; le ±1 (trois V ou trois D d'affilée) ne peut apparaître qu'à partir de la
+3ᵉ journée.
+
+⚠️ **Ne pas confondre avec `getPlayerForm`** (sans underscore), qui alimente les badges
+🛡 Invincible / 🔥 En feu / 💀 Maudit : celle-là reste **all-time**, sessions + tournois
+confondus, et n'est pas concernée par ce reset. Deux fonctions, deux périmètres.
+
+`lock_session.py` rejoue ces fonctions dans node : sa liste d'extraction inclut
+désormais `_MN` et `_seasonOfDate`, sans quoi `_getPlayerForm` planterait au lock.
+Toute nouvelle dépendance de l'algo d'équilibrage doit être ajoutée à cette liste.
+
 Pour la saison suivante, il n'y a **rien à faire** : la première session de `27-28`
 créera la saison toute seule.
 

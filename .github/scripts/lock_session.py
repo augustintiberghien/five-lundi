@@ -124,6 +124,9 @@ def generate_compo(html, roster, together):
 
     js = '\n'.join([
         sl('var SESSIONS = [', '\nvar CRITERIA'),
+        # _MN + _seasonOfDate : _getPlayerForm borne la forme à la saison en cours
+        sl("var _MN = ['janvier'", '\n'),
+        sl('function _seasonOfDate(dateStr){', '\n/* Toutes les rencontres'),
         sl('var PLAYER_NOTES = {', '\nvar PAIR_STATS'),
         sl('var PAIR_STATS = [', '\nfunction'),
         sl('var PLAYER_ROLES = {', '\nfunction'),
