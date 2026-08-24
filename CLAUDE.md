@@ -42,6 +42,20 @@ La composition (tableau `players`) est **figée définitivement à 21h30** le so
 
 **⚠️ INTERDIT** : regénérer `_genBalancedTeams` après 21h30, ou modifier `players` après que le score est connu. Si une composition semble incorrecte, demander confirmation à l'utilisateur avant tout changement.
 
+### ⚠️ Libellés de créneau : jamais de date lue au découpage par espaces
+
+`INSCRIPTION_SLOTS[].label` peut porter un préfixe et un suffixe
+(`'Lundi 31 août 2026 · Reprise 🔥'`, `'Lundi 22 juin 2026 (21h30)'`,
+`'Lundi 1ᵉʳ juin 2026'`). Toute lecture de date doit passer par
+`_matchDayFromLabel()` (regex `jour + mois + année`, exposants et décorations
+tolérés), jamais par un `split(' ')` attendant exactement 3 mots.
+
+Constaté le 24 août 2026 : `isPresenceVisible` / `isPresenceLocked` découpaient
+par espaces, donc `ins_aug_31` passait pour illisible → **feuille de match
+masquée et créneau considéré comme verrouillé** alors que la compo était publiée.
+Personne ne pouvait confirmer sa présence sur la reprise. `isBenchVisible` et
+`exportSessionEntry` avaient le même défaut.
+
 ### Compo partagée (table Supabase `slot_sessions`) — depuis juin 2026
 
 Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).

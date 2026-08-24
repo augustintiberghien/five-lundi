@@ -3411,7 +3411,10 @@ window.exportSessionEntry = function(slotId){
   });
   var entry = {
     id: s.id,
-    date: (s.shortDate && s.shortDate.split(' ').length === 3) ? s.shortDate : s.date,
+    date: (function(){
+      var d = _matchDayFromLabel(s.shortDate || s.date);
+      return d ? (d.getDate() + ' ' + _MOIS_FR[d.getMonth()] + ' ' + d.getFullYear()) : s.date;
+    })(),
     score: '', scoreWinner: '',
     balanceNoteA: Math.round(nA * 10) / 10, balanceNoteB: Math.round(nB * 10) / 10,
     current: true,
@@ -3900,14 +3903,26 @@ function doSondageSubmit() {
 }
 /* ── helpers date ── */
 
+/* Jour du match, lu aussi bien sur une entree SESSIONS ('31 aout 2026') que sur
+   un label de creneau ('Lundi 31 aout 2026 · Reprise 🔥'). Le decoupage naif par
+   espaces exigeait exactement 3 mots : le moindre prefixe ou suffixe rendait la
+   date illisible, et le creneau passait alors pour verrouille, donc sans feuille
+   de match (constate le 24 aout 2026 sur ins_aug_31). */
+var _MOIS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function _matchDayFromLabel(str) {
+  var m = /(\d{1,2})[ᵉʳˢⁱᵒ]*\s+(\S+)\s+(\d{4})/.exec(str || '');
+  if (!m) return null;
+  var mi = _MOIS_FR.indexOf(m[2].toLowerCase());
+  if (mi === -1) return null;
+  return new Date(parseInt(m[3], 10), mi, parseInt(m[1], 10));
+}
+
 function isBenchVisible(s) {
   if (!s.bench || !s.bench.length) return false;
   if (s.scoreWinner) return false;
-  var months = {janvier:0,février:1,mars:2,avril:3,mai:4,juin:5,juillet:6,août:7,septembre:8,octobre:9,novembre:10,décembre:11};
-  var parts = s.date.split(' ');
-  if (parts.length !== 3) return false;
+  var matchDate = _matchDayFromLabel(s.shortDate || s.date);
+  if (!matchDate) return false;
   var parisNow = new Date(new Date().toLocaleString('en-US', {timeZone: 'Europe/Paris'}));
-  var matchDate = new Date(parseInt(parts[2]), months[parts[1].toLowerCase()], parseInt(parts[0]));
   var today = new Date(parisNow.getFullYear(), parisNow.getMonth(), parisNow.getDate());
   if (today > matchDate) return false;
   if (today < matchDate) return true;
@@ -3916,12 +3931,9 @@ function isBenchVisible(s) {
 
 function isPresenceVisible(s) {
   if (s.scoreWinner) return false;
-  var months = {janvier:0,février:1,mars:2,avril:3,mai:4,juin:5,juillet:6,août:7,septembre:8,octobre:9,novembre:10,décembre:11};
-  var _ds=(s.shortDate&&s.shortDate.split(' ').length===3)?s.shortDate:s.date;
-  var parts = _ds.split(' ');
-  if (parts.length !== 3) return false;
+  var matchDate = _matchDayFromLabel(s.shortDate || s.date);
+  if (!matchDate) return false;
   var parisNow = new Date(new Date().toLocaleString('en-US', {timeZone: 'Europe/Paris'}));
-  var matchDate = new Date(parseInt(parts[2]), months[parts[1].toLowerCase()], parseInt(parts[0]));
   var today = new Date(parisNow.getFullYear(), parisNow.getMonth(), parisNow.getDate());
   if (today > matchDate) return false;
   if (today < matchDate) return true;
@@ -3930,12 +3942,9 @@ function isPresenceVisible(s) {
 
 function isPresenceLocked(s) {
   if (s.scoreWinner) return true;
-  var months = {janvier:0,février:1,mars:2,avril:3,mai:4,juin:5,juillet:6,août:7,septembre:8,octobre:9,novembre:10,décembre:11};
-  var _ds=(s.shortDate&&s.shortDate.split(' ').length===3)?s.shortDate:s.date;
-  var parts = _ds.split(' ');
-  if (parts.length !== 3) return true;
+  var matchDate = _matchDayFromLabel(s.shortDate || s.date);
+  if (!matchDate) return true;   /* date illisible : on verrouille par prudence */
   var parisNow = new Date(new Date().toLocaleString('en-US', {timeZone: 'Europe/Paris'}));
-  var matchDate = new Date(parseInt(parts[2]), months[parts[1].toLowerCase()], parseInt(parts[0]));
   var today = new Date(parisNow.getFullYear(), parisNow.getMonth(), parisNow.getDate());
   if (today > matchDate) return true;
   if (today < matchDate) return false;
