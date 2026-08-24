@@ -2810,7 +2810,7 @@ function buildStatsView(){
     var barColor = barPct >= 67 ? '#4ade80' : barPct >= 43 ? '#FFE49B' : '#ef4444';
     var medal = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : (i+1);
     var nameColor = i===0 ? '#FFE49B' : i===1 ? '#aaa' : i===2 ? '#cd7f32' : '#fff';
-    var form = getPlayerForm(p.name).slice(-5);
+    var form = getPlayerForm(p.name, _scope).slice(-5);
     var formHtml = form.map(function(r){
       var col = r==='W' ? '#4ade80' : '#ef4444';
       var lbl = r==='W' ? 'V' : 'D';
@@ -2832,7 +2832,7 @@ function buildStatsView(){
   if (rookies.length > 0) {
     h += '<div style="margin-top:.8rem;padding:.3rem .4rem;font-family:Saira,sans-serif;font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em">— Moins de 3 sessions —</div>';
     rookies.forEach(function(p){
-      var form = getPlayerForm(p.name).slice(-5);
+      var form = getPlayerForm(p.name, _scope).slice(-5);
       var formHtml = form.map(function(r){
         var col = r==='W' ? 'rgba(74,222,128,.5)' : 'rgba(239,68,68,.5)';
         var lbl = r==='W' ? 'V' : 'D';
@@ -3069,18 +3069,22 @@ async function sbInsertVote(sessionId, voter, motm, comment) {
 }
 
 /* ── AUTO-TEAM BALANCING ── */
-/* La forme est bornee a la saison en cours : la treve remet tout le monde a
-   plat, on ne reprend pas en aout avec la dynamique de juillet. Volontairement
-   autonome (pas d'appel a _parisNow) pour rester extractible par
-   lock_session.py, qui rejoue ces fonctions dans node. */
-function _currentSeason(){
+/* Saison reelle a la date du jour (Paris). A NE PAS CONFONDRE avec
+   _currentSeason(), qui renvoie la saison la plus recente PRESENTE DANS LES
+   DONNEES (sessions + creneaux ouverts) et pilote les onglets et les stats :
+   pendant une treve sans creneau ouvert, celle-la renvoie encore la saison
+   ecoulee, alors que la forme doit deja etre remise a plat.
+   Volontairement autonome (pas d'appel a _parisNow) pour rester extractible
+   par lock_session.py, qui rejoue ces fonctions dans node. */
+function _seasonNow(){
   var d=new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Paris'}));
   var start=(d.getMonth()>=7)?d.getFullYear():d.getFullYear()-1;   /* aout = bascule */
   return String(start%100)+'-'+String((start+1)%100);
 }
 
+/* Forme = notes ajustees de l'equilibrage, bornee a la saison en cours. */
 function _getPlayerForm(name) {
-  var _season = _currentSeason();
+  var _season = _seasonNow();
   var completed = SESSIONS.filter(function(s){
     return !!s.scoreWinner && _seasonOfDate(s.date) === _season;
   });
@@ -6008,7 +6012,13 @@ function getTournamentForm(name) {
   return out;
 }
 
-function getPlayerForm(name) {
+/* season : une saison ('26-27'), ou null pour depuis toujours. Non renseigne =
+   saison en cours — c'est ce que veulent les badges du terrain, qui ne doivent
+   pas trainer la dynamique de la saison precedente. La vue Stats, elle, passe
+   le perimetre choisi par l'utilisateur pour que la colonne « 5 derniers »
+   colle aux M/V affiches sur la meme ligne. */
+function getPlayerForm(name, season) {
+  var _sc = (season === undefined) ? _seasonNow() : season;
   // Résultats sessions + tournois, triés par DATE réelle (oldest→newest) pour que
   // slice(-N) = les N matchs les plus récents, quel que soit le type d'événement.
   // (Avant : les tournois étaient collés à la fin → une session postérieure au tournoi
@@ -6023,6 +6033,7 @@ function getPlayerForm(name) {
   // Sessions régulières (avec un score renseigné)
   SESSIONS.forEach(function(s){
     if(!s.score || s.score === '— vs —') return;
+    if(_sc && _seasonOfDate(s.date) !== _sc) return;
     var inA = s.players.some(function(p){ return p.name === name && p.teamA; });
     var inB = s.players.some(function(p){ return p.name === name && !p.teamA; });
     var r = inA ? (s.scoreWinner === 'A' ? 'W' : 'L')
@@ -6034,6 +6045,7 @@ function getPlayerForm(name) {
     INSCRIPTION_SLOTS.forEach(function(sl){
       var t = sl.tournament;
       if(!t || !t.teams || !t.results) return;
+      if(_sc && _seasonOfDate(sl.label) !== _sc) return;
       var color = null;
       t.teams.forEach(function(tm){ if((tm.names||[]).indexOf(name) !== -1) color = tm.color; });
       if(!color) return;

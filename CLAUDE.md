@@ -177,9 +177,24 @@ En début de saison, avec moins de 3 matchs joués, seul le dernier résultat co
 (±0,5) ; le ±1 (trois V ou trois D d'affilée) ne peut apparaître qu'à partir de la
 3ᵉ journée.
 
-⚠️ **Ne pas confondre avec `getPlayerForm`** (sans underscore), qui alimente les badges
-🛡 Invincible / 🔥 En feu / 💀 Maudit : celle-là reste **all-time**, sessions + tournois
-confondus, et n'est pas concernée par ce reset. Deux fonctions, deux périmètres.
+Les badges 🛡 Invincible / 🔥 En feu / 💀 Maudit suivent la même règle : `getPlayerForm`
+(sans underscore, sessions **+ tournois**) prend un 2ᵉ argument `season` — non renseigné
+= saison en cours, ce que veulent les badges du terrain ; `null` = depuis toujours. La
+vue Stats lui passe le périmètre choisi (`_statsScope()`), pour que la colonne
+« 5 derniers » colle aux M/V affichés sur la même ligne. Personne ne porte donc de badge
+tant que la nouvelle saison n'a pas 3 matchs (5 pour Invincible).
+
+⚠️ **Trois notions de saison, à ne pas confondre** :
+- `_seasonOfDate(str)` — la saison d'une date donnée.
+- `_currentSeason()` — la saison la plus récente **présente dans les données** (sessions
+  + créneaux ouverts). Pilote les onglets (`buildTabs`) et le périmètre par défaut des
+  stats (`_statsScope`).
+- `_seasonNow()` — la saison **réelle à la date du jour** (Paris, bascule d'août). Pilote
+  la forme et les badges. Pendant une trêve sans créneau ouvert, `_currentSeason()`
+  renvoie encore la saison écoulée alors que `_seasonNow()` a déjà basculé : c'est
+  voulu, la forme doit être à plat même si aucun créneau n'est encore ouvert.
+  Ne pas redéfinir l'une en croyant écrire l'autre — la seconde déclaration écrase
+  silencieusement la première.
 
 `lock_session.py` rejoue ces fonctions dans node : sa liste d'extraction inclut
 désormais `_MN` et `_seasonOfDate`, sans quoi `_getPlayerForm` planterait au lock.
