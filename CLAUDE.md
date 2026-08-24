@@ -132,6 +132,44 @@ Tout tient dans des tableaux `RECAP_TILES` / `RECAP_PALMARES` / `RECAP_WINRATE` 
 Les stats non stockées dans le HTML (rangs et horodatages d'inscription, nombre de votes donnés/reçus, longueur des commentaires, désistements) proviennent des tables Supabase `registrations`, `presences` et `votes`, interrogeables en lecture avec `SB_URL` + `SB_KEY` (clé anon, en clair dans `index.html`).
 
 Pour une nouvelle saison : dupliquer la section plutôt que l'écraser — le récap 25-26 est une archive.
+Depuis le modèle de saison, son onglet n'est affiché qu'en `25-26` (ou tant que la saison
+courante n'a joué aucun match).
+
+## Modèle de saison (depuis août 2026)
+
+Une saison court **d'août à juillet** : les 17 journées de mars→juillet 2026 sont la
+saison `25-26`, la reprise du 31 août 2026 ouvre `26-27`. La bascule se fait sur le
+mois (`_MN[7] = août`) dans `_seasonOfDate(dateStr)`, qui accepte aussi bien
+`'27 juillet 2026'` (une entrée `SESSIONS`) que `'Lundi 31 août 2026 · Reprise 🔥'`
+(un label d'`INSCRIPTION_SLOTS`, exposants et emoji compris).
+
+**Rien n'est stocké par saison.** `_computeStats(season)` recalcule tout depuis
+`SESSIONS` + les tournois d'`INSCRIPTION_SLOTS`, avec exactement les mêmes règles que
+`update_stats.py` — y compris l'exclusion des joueurs vus uniquement en tournoi et du
+nom générique `Invité`. `season` à `null` = depuis toujours.
+
+⚠️ **Le garde-fou à ne pas perdre** : `_computeStats(null)` doit reproduire
+`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (24 joueurs, 157 paires au 24 août
+2026). C'est ce qui garantit qu'un onglet ne contredit pas l'autre. Toute modification
+du calcul doit être revérifiée contre les tables figées, qui restent la référence et
+continuent d'être maintenues par `update_stats.py`.
+
+### Ce que ça change dans l'interface
+- **Barre d'onglets** : une ligne de saisons (`.season-row`) au-dessus des onglets de
+  dates, pilotée par `_tabSeason`. Elle n'apparaît qu'à partir de la deuxième saison.
+  Par défaut on ouvre sur la **plus récente** — c'est là que se joue l'actualité.
+- **Vue Stats** : sélecteur `Saison 25-26 / Saison 26-27 / Depuis toujours`, piloté par
+  `_statsSeason` (`undefined` = non choisi, `null` = depuis toujours). Par défaut on
+  ouvre sur la saison en cours **si elle a des matchs**, sinon sur « Depuis toujours » —
+  sinon le classement serait vide entre la fin d'une saison et la reprise.
+  Le classement **et** la matrice des duos suivent le périmètre choisi.
+- **Onglet Récap 25-26** : visible en `25-26`, et aussi tant que la saison choisie n'a
+  joué aucun match (sinon il disparaîtrait pendant toute la trêve).
+- Les **courbes de duos sur le terrain** restent en all-time (`getPairWinRate`,
+  inchangé) : elles décrivent l'historique d'une paire, pas une saison.
+
+Pour la saison suivante, il n'y a **rien à faire** : la première session de `27-28`
+créera la saison toute seule.
 
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)

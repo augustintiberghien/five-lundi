@@ -29,6 +29,15 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .tab:hover{background:rgba(255,255,255,.1);color:#fff}
 .tab.active{background:#FFD600;color:#000;border-color:#FFD600;font-weight:700}
 
+/* SELECTEUR DE SAISON — au-dessus des onglets de dates */
+.season-row{flex-basis:100%;display:flex;gap:.35rem;justify-content:center;margin-bottom:.5rem}
+.season-btn{font-family:'Oswald',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;padding:.24rem .8rem;border-radius:99px;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.45);
+  transition:all .15s}
+.season-btn:hover{color:#fff;border-color:rgba(255,255,255,.35)}
+.season-btn.on{background:#FFD600;color:#000;border-color:#FFD600}
+
 /* ONGLETS VUE (terrain / stats) */
 .view-tabs{display:flex;gap:.3rem;justify-content:center;margin-bottom:.8rem}
 .vtab{font-size:.68rem;font-weight:600;padding:.25rem .8rem;border-radius:99px;cursor:pointer;
@@ -2610,11 +2619,134 @@ function _tournamentHofMedal(sl) {
   return h;
 }
 
+/* == SAISONS ==
+   Une saison court d'aout a juillet : les 17 journees de mars-juillet 2026
+   appartiennent a 25-26, la reprise du 31 aout 2026 ouvre 26-27.
+
+   Rien n'est stocke par saison. Tout se recalcule depuis SESSIONS et les
+   tournois d'INSCRIPTION_SLOTS, avec exactement les memes regles que
+   update_stats.py - y compris l'exclusion des joueurs vus uniquement en
+   tournoi. C'est ce qui garantit que « Depuis toujours » reproduit
+   PLAYER_STATS au lieu de le contredire. */
+
+function _seasonOfDate(dateStr){
+  var parts=(dateStr||'').trim().split(/\s+/);
+  var mi=-1, yr=null;
+  for(var i=0;i<parts.length;i++){
+    var w=parts[i].toLowerCase().replace(/[ᵉʳˢⁱᵒ]+/g,'');
+    var k=_MN.indexOf(w);
+    if(k!==-1) mi=k;
+    if(/^\d{4}$/.test(parts[i])) yr=parseInt(parts[i],10);
+  }
+  if(mi===-1||yr===null) return null;
+  var start=(mi>=7)?yr:yr-1;               /* _MN[7] = aout : bascule de saison */
+  return String(start%100)+'-'+String((start+1)%100);
+}
+
+/* Toutes les rencontres jouees : une entree SESSIONS = 1 match, un tournoi a
+   4 equipes = autant de matchs que de rencontres. */
+function _matchLog(){
+  var out=[];
+  SESSIONS.forEach(function(s){
+    if(s.scoreWinner!=='A'&&s.scoreWinner!=='B') return;
+    if(!s.players||!s.players.length) return;
+    out.push({season:_seasonOfDate(s.date), winner:s.scoreWinner, tournament:false,
+      players:s.players.map(function(p){return {name:p.name,teamA:!!p.teamA};})});
+  });
+  if(typeof INSCRIPTION_SLOTS!=='undefined') INSCRIPTION_SLOTS.forEach(function(sl){
+    var t=sl.tournament; if(!t||!t.teams||!t.results) return;
+    var byColor={}; t.teams.forEach(function(tm){ byColor[tm.color]=tm.names||[]; });
+    var season=_seasonOfDate(sl.label);
+    t.results.forEach(function(m){
+      var A=byColor[m.a], B=byColor[m.b]; if(!A||!B) return;
+      out.push({season:season, tournament:true,
+        winner: m.sa>m.sb ? 'A' : (m.sb>m.sa ? 'B' : null),   /* nul : joue, pas gagne */
+        players: A.map(function(n){return {name:n,teamA:true};})
+          .concat(B.map(function(n){return {name:n,teamA:false};}))});
+    });
+  });
+  return out;
+}
+
+/* « Invite » n'est pas une personne mais un remplacant generique d'un soir. */
+var _STATS_PLACEHOLDERS={'Invité':1};
+
+/* Stats d'une saison, ou de toutes si season vaut null. */
+function _computeStats(season){
+  var log=_matchLog().filter(function(m){ return !season || m.season===season; });
+  var players={}, pairs={}, regulars={};
+
+  log.forEach(function(m){
+    var A=[], B=[];
+    m.players.forEach(function(p){
+      if(!players[p.name]) players[p.name]={played:0,wins:0};
+      players[p.name].played++;
+      if((p.teamA&&m.winner==='A')||(!p.teamA&&m.winner==='B')) players[p.name].wins++;
+      (p.teamA?A:B).push(p.name);
+      /* Regulier = vu ailleurs qu'en tournoi */
+      if(!m.tournament&&!_STATS_PLACEHOLDERS[p.name]) regulars[p.name]=1;
+    });
+    [[A,m.winner==='A'],[B,m.winner==='B']].forEach(function(side){
+      var team=side[0], won=side[1];
+      for(var i=0;i<team.length;i++){
+        for(var j=i+1;j<team.length;j++){
+          var k=(team[i]<team[j]?team[i]+'|'+team[j]:team[j]+'|'+team[i]);
+          if(!pairs[k]) pairs[k]={together:0,wins:0};
+          pairs[k].together++;
+          if(won) pairs[k].wins++;
+        }
+      }
+    });
+  });
+
+  /* Les joueurs de passage n'ouvrent pas de ligne, mais leurs matchs restent
+     comptes pour leurs coequipiers, qui les ont bien joues. */
+  Object.keys(players).forEach(function(n){ if(!regulars[n]) delete players[n]; });
+
+  var pairList=[];
+  Object.keys(pairs).forEach(function(k){
+    var ab=k.split('|');
+    if(!regulars[ab[0]]||!regulars[ab[1]]) return;
+    pairList.push({p1:ab[0],p2:ab[1],together:pairs[k].together,wins:pairs[k].wins});
+  });
+  pairList.sort(function(a,b){ return a.p1===b.p1 ? a.p2.localeCompare(b.p2) : a.p1.localeCompare(b.p1); });
+
+  return {players:players, pairs:pairList};
+}
+
+/* Saisons connues, plus recente d'abord. Une saison sans match joue mais avec
+   un creneau ouvert compte : c'est le cas de 26-27 avant la reprise. */
+function _allSeasons(){
+  var set={};
+  _matchLog().forEach(function(m){ if(m.season) set[m.season]=1; });
+  if(typeof INSCRIPTION_SLOTS!=='undefined') INSCRIPTION_SLOTS.forEach(function(sl){
+    if(!sl.open) return;
+    var s=_seasonOfDate(sl.label); if(s) set[s]=1;
+  });
+  return Object.keys(set).sort(function(a,b){ return parseInt(b,10)-parseInt(a,10); });
+}
+
+function _currentSeason(){
+  var all=_allSeasons();
+  return all.length ? all[0] : null;
+}
+
+var _statsSeason;   /* undefined = non choisi, null = depuis toujours */
+
+function _statsScope(){
+  if(_statsSeason!==undefined) return _statsSeason;
+  var cur=_currentSeason();
+  if(cur && Object.keys(_computeStats(cur).players).length>0) return cur;
+  return null;
+}
+
 function buildStatsView(){
   /* ── CLASSEMENT JOUEURS ── */
   var rm = RANK_METHODS[_rankMethod];
-  var ranking = Object.keys(PLAYER_STATS).map(function(n){
-    var s = PLAYER_STATS[n];
+  var _scope = _statsScope();
+  var _S = _computeStats(_scope);
+  var ranking = Object.keys(_S.players).map(function(n){
+    var s = _S.players[n];
     var score = rm.score(s);
     return { name:n, played:s.played, wins:s.wins, score:score };
   }).sort(function(a,b){
@@ -2631,6 +2763,27 @@ function buildStatsView(){
 
   /* Sélecteur de méthode */
   h += '<div class="stats-header"><span>📊</span><span>Classement Joueurs</span></div>';
+
+  /* Selecteur de perimetre : la saison en cours ou tout l'historique. */
+  var _seasons=_allSeasons();
+  if(_seasons.length>1 || _scope!==null){
+    h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .1rem">';
+    _seasons.forEach(function(sn){
+      var on=(_scope===sn);
+      h += '<button onclick="_statsSeason=\''+sn+'\';buildStatsView()" style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.3rem .7rem;border-radius:20px;border:1.5px solid '+(on?'#FFD600':'rgba(255,255,255,.2)')+';background:'+(on?'rgba(255,214,0,.12)':'transparent')+';color:'+(on?'#FFD600':'rgba(255,255,255,.5)')+';cursor:pointer">Saison '+sn+'</button>';
+    });
+    var onAll=(_scope===null);
+    h += '<button onclick="_statsSeason=null;buildStatsView()" style="font-family:Oswald,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.3rem .7rem;border-radius:20px;border:1.5px solid '+(onAll?'#FFD600':'rgba(255,255,255,.2)')+';background:'+(onAll?'rgba(255,214,0,.12)':'transparent')+';color:'+(onAll?'#FFD600':'rgba(255,255,255,.5)')+';cursor:pointer">Depuis toujours</button>';
+    h += '</div>';
+  }
+
+  /* Une saison qui vient de commencer n'a encore aucun match joue. */
+  if(ranking.length===0){
+    h += '<div style="font-family:Barlow,sans-serif;font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.5;padding:1.2rem .5rem;text-align:center">Aucun match joue pour l\'instant sur cette saison.<br>Le classement se remplira des la premiere journee.</div>';
+    h += '</div>';
+    document.getElementById('view-stats').innerHTML = h;
+    return;
+  }
   h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .3rem">';
   RANK_METHODS.forEach(function(m, i){
     var active = i === _rankMethod;
@@ -2698,14 +2851,17 @@ function buildStatsView(){
 
   // Collecter tous les joueurs présents dans PAIR_STATS
   var duoPlayers = [];
-  PAIR_STATS.forEach(function(p){
+  var _pairIdx = {};
+  _S.pairs.forEach(function(pr){ _pairIdx[pr.p1+'|'+pr.p2] = pr; });
+  function _pairOf(a,b){ return _pairIdx[a<b ? a+'|'+b : b+'|'+a] || null; }
+  _S.pairs.forEach(function(p){
     if(duoPlayers.indexOf(p.p1)<0) duoPlayers.push(p.p1);
     if(duoPlayers.indexOf(p.p2)<0) duoPlayers.push(p.p2);
   });
   // Trier par % victoires individuelles desc
   duoPlayers.sort(function(a,b){
-    var sa=PLAYER_STATS[a]||{played:0,wins:0};
-    var sb=PLAYER_STATS[b]||{played:0,wins:0};
+    var sa=_S.players[a]||{played:0,wins:0};
+    var sb=_S.players[b]||{played:0,wins:0};
     var pa=sa.played>0?sa.wins/sa.played:0;
     var pb=sb.played>0?sb.wins/sb.played:0;
     return pb-pa;
@@ -2723,7 +2879,7 @@ function buildStatsView(){
     h+='<tr><th class="rh" title="'+rowName+'">'+rowShort+'</th>';
     duoPlayers.forEach(function(colName){
       if(rowName===colName){ h+='<td class="dm-self"></td>'; return; }
-      var pair=getPairWinRate(rowName,colName);
+      var pair=_pairOf(rowName,colName);
       if(!pair){ h+='<td class="dm-empty" title="Pas de données">·</td>'; return; }
       var pct=Math.round(pair.wins/pair.together*100);
       var cls=pct>=67?'dm-green':pct>=50?'dm-yellow':'dm-red';
@@ -5300,6 +5456,7 @@ function doUnregister(slotId, playerName){
 
 /* ── HISTORISATION PAR MOIS ── */
 var _INS_SESSIONS = [];
+var _tabSeason = null;   /* saison affichee dans la barre d'onglets */
 
 async function _loadInscriptionSessions(){
   _INS_SESSIONS=[];
@@ -5648,6 +5805,30 @@ function buildTabs(){
   SESSIONS.forEach(function(s){ var dk=_dateKey(s.date); if(!_seen[dk]){_seen[dk]=1;_allSessions.push(s);} });
   _INS_SESSIONS.forEach(function(s){ var dk=_dateKey(s.shortDate||s.date); if(!_seen[dk]){_seen[dk]=1;_allSessions.push(s);} });
 
+  /* Saison affichee. Par defaut la plus recente : c'est la ou se joue
+     l'actualite (creneaux ouverts de la reprise, puis les journees). */
+  var _seasons=_allSeasons();
+  if(!_tabSeason || _seasons.indexOf(_tabSeason)===-1) _tabSeason=_currentSeason();
+
+  if(_seasons.length>1){
+    var srow=document.createElement('div');
+    srow.className='season-row';
+    _seasons.forEach(function(sn){
+      var sb=document.createElement('button');
+      sb.className='season-btn'+(sn===_tabSeason?' on':'');
+      sb.textContent=sn;
+      sb.onclick=function(){ _tabSeason=sn; buildTabs(); };
+      srow.appendChild(sb);
+    });
+    wrap.appendChild(srow);
+  }
+
+  /* Une date sans saison lisible reste affichee : on ne masque jamais par accident. */
+  _allSessions=_allSessions.filter(function(s){
+    var sn=_seasonOfDate(s.date);
+    return !sn || sn===_tabSeason;
+  });
+
   /* Grouper par mois (plus recent d'abord) */
   var groups={}, gOrder=[];
   _allSessions.forEach(function(s){
@@ -5743,10 +5924,13 @@ function buildTabs(){
   var bi=document.createElement('button');
   bi.className='tab tab-ins';bi.dataset.id='ins';bi.textContent='📅 Inscriptions';bi.onclick=showInscriptions;
   wrap.appendChild(bi);
-  /* Récap de saison */
-  var br=document.createElement('button');
-  br.className='tab tab-recap';br.dataset.id='recap';br.textContent='🏁 Récap 25-26';br.onclick=showRecap;
-  wrap.appendChild(br);
+  /* Récap de saison — archive de 25-26 */
+  var _seasonEmpty=!SESSIONS.some(function(s){ return _seasonOfDate(s.date)===_tabSeason; });
+  if(_tabSeason==='25-26' || _seasonEmpty){
+    var br=document.createElement('button');
+    br.className='tab tab-recap';br.dataset.id='recap';br.textContent='🏁 Récap 25-26';br.onclick=showRecap;
+    wrap.appendChild(br);
+  }
 }
 
 
