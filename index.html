@@ -3335,9 +3335,14 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_jun_15', label:'Lundi 15 juin 2026',  open:false, together:['Samy','Gugu','Quentin'] },
   { id:'ins_jun_22', label:'Lundi 22 juin 2026 (21h30)',  open:false,  tournament:{fixedTeam:['Cyriaque','Matteo','Gugu','Samy','Quentin'],pairs:[['Cyril','Spy']],teams:[{color:'noir',names:['Cyriaque','Matteo','Gugu','Samy','Quentin']},{color:'bleu',names:['Michael','Rémi','Alex','Flo','Dylan']},{color:'rouge',names:['Ibrahima','Théo','Edouard','Henri','Khalid']},{color:'blanc',names:['Landry','Spy','Hugo','Cyril','Tim']}],results:[{a:'bleu',b:'noir',sa:1,sb:2},{a:'rouge',b:'blanc',sa:5,sb:4},{a:'bleu',b:'rouge',sa:4,sb:3},{a:'noir',b:'blanc',sa:6,sb:4},{a:'rouge',b:'noir',sa:3,sb:1},{a:'bleu',b:'blanc',sa:5,sb:1}],motm:{close:'2026-06-24',winner:'Khalid'}},  matchEvent:{id:'ins_jun_22_match',label:"France 🇫🇷 vs Irak 🇮🇶 · 23h00 (à l'Urban)"} },
   { id:'ins_jun_29', label:'Lundi 29 juin 2026',  open:false, benchPriority:['Spy'] },
-  { id:'ins_jul_06', label:'Lundi 6 juillet 2026',  open:false, together:['Samy','Gugu','Quentin'] },
+  { id:'ins_jul_06', label:'Lundi 6 juillet 2026',  open:false },
   { id:'ins_jul_20', label:'Lundi 20 juillet 2026', open:false, benchPriority:['Spy'] },
   { id:'ins_jul_27', label:'Lundi 27 juillet 2026', open:false, seasonEnd:true },
+  { id:'ins_aug_31', label:'Lundi 31 août 2026 · Reprise 🔥', open:true },
+  { id:'ins_sep_07', label:'Lundi 7 septembre 2026',  open:true },
+  { id:'ins_sep_14', label:'Lundi 14 septembre 2026', open:true },
+  { id:'ins_sep_21', label:'Lundi 21 septembre 2026', open:true },
+  { id:'ins_sep_28', label:'Lundi 28 septembre 2026', open:true },
 ];
 var SONDAGE_JUILLET = {
   dates: [
@@ -5093,7 +5098,7 @@ function renderInscriptions(){
   var knownPlayers=Object.keys(PLAYER_NOTES).sort();
 
   var html='<div class="ins-title">📅 Inscriptions</div>';
-  html+='<div class="ins-subtitle">Juin–Juillet 2026 · Lundis soir · Urban Five</div>';
+  html+='<div class="ins-subtitle">Rentrée 2026 · Lundis soir · Urban Five</div>';
 
   INSCRIPTION_SLOTS.filter(function(slot){ return slot.open; }).forEach(function(slot){
     html+='<div class="ins-card" id="ins-card-'+slot.id+'">';
@@ -5117,9 +5122,9 @@ function renderInscriptions(){
 
 
   html+='<div style="text-align:center;background:linear-gradient(135deg,rgba(255,214,0,.09),rgba(255,140,0,.06));border:1px solid rgba(255,214,0,.22);border-radius:14px;padding:1.1rem 1.1rem;margin-top:1.1rem">'
-    +'<div style="font-size:1.7rem;line-height:1">☀️🏖️</div>'
-    +'<div style="font-family:Oswald,sans-serif;font-size:1rem;font-weight:700;color:#FFD600;text-transform:uppercase;letter-spacing:.1em;margin-top:.45rem">Summer break</div>'
-    +'<div style="font-family:Barlow,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">Dernier five de la saison le <strong style="color:rgba(255,255,255,.8)">lundi 27 juillet</strong>. Pause estivale en août. Reprise le <strong style="color:rgba(255,255,255,.8)">lundi 31 août</strong> — on remet les crampons à la rentrée. Bon été à tous ! ⚽</div>'
+    +'<div style="font-size:1.7rem;line-height:1">⚽🔥</div>'
+    +'<div style="font-family:Oswald,sans-serif;font-size:1rem;font-weight:700;color:#FFD600;text-transform:uppercase;letter-spacing:.1em;margin-top:.45rem">Saison 26-27</div>'
+    +'<div style="font-family:Barlow,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">La trêve est finie. Reprise le <strong style="color:rgba(255,255,255,.8)">lundi 31 août à 21h30</strong>, puis tous les lundis. Les créneaux de septembre sont déjà ouverts — inscris-toi tant qu’il reste de la place. ⚽</div>'
     +'</div>';
   wrap.innerHTML=html;
 
@@ -5921,6 +5926,11 @@ var SEASON_RESUME = new Date(2026, 7, 31, 21, 30, 0);
 (function(){
   if(!SEASON_RESUME || _parisNow() >= SEASON_RESUME) return;
   if(location.hash && location.hash.length > 1) return;
+  /* Creneaux de reprise ouverts : la semaine qui compte est celle de
+     l inscription, pas celle de l archive de la saison passee. */
+  var _openSlot = (typeof INSCRIPTION_SLOTS !== 'undefined')
+    && INSCRIPTION_SLOTS.some(function(sl){ return sl.open; });
+  if(_openSlot && typeof showInscriptions === 'function'){ showInscriptions(); return; }
   if(typeof showRecap !== 'function') return;
   showRecap();
 })();
