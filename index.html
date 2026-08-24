@@ -3069,8 +3069,21 @@ async function sbInsertVote(sessionId, voter, motm, comment) {
 }
 
 /* ── AUTO-TEAM BALANCING ── */
+/* La forme est bornee a la saison en cours : la treve remet tout le monde a
+   plat, on ne reprend pas en aout avec la dynamique de juillet. Volontairement
+   autonome (pas d'appel a _parisNow) pour rester extractible par
+   lock_session.py, qui rejoue ces fonctions dans node. */
+function _currentSeason(){
+  var d=new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Paris'}));
+  var start=(d.getMonth()>=7)?d.getFullYear():d.getFullYear()-1;   /* aout = bascule */
+  return String(start%100)+'-'+String((start+1)%100);
+}
+
 function _getPlayerForm(name) {
-  var completed = SESSIONS.filter(function(s){ return !!s.scoreWinner; });
+  var _season = _currentSeason();
+  var completed = SESSIONS.filter(function(s){
+    return !!s.scoreWinner && _seasonOfDate(s.date) === _season;
+  });
   if (completed.length === 0) return 0;
   var last3 = completed.slice(0, 3);
   var playedInLast3 = last3.some(function(s){
