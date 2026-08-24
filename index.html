@@ -4432,12 +4432,31 @@ function setPresence(sessionId, name, clickedStatus) {
   });
 
   // Optimistic UI — carte terrain + résumé
-  var fakePresences = Array.from(document.querySelectorAll('#players .player')).map(function(el) {
+  /* L'etat de chaque carte se lit sur son overlay, avec la convention posee par
+     updatePitchPresence : pas d'overlay = pas de reponse, ✓ = joue, ❓ = peut-etre,
+     ❌ = absent. L'ancienne lecture comptait « pas d'overlay » comme « joue » et
+     « ✓ » comme « peut-etre » : au premier clic sur une feuille vierge, les neuf
+     autres passaient pour confirmes, d'ou un « 🎉 Equipe au complet ! » (confettis
+     compris) une demi-seconde avant que la vraie feuille ne redescende a
+     « 1 ✅ joue » — et, symetriquement, la vraie 10e confirmation le manquait. */
+  var fakePresences = [];
+  var meOnPitch = false;
+  Array.from(document.querySelectorAll('#players .player')).forEach(function(el) {
     var n = el.dataset.name;
+    if (!n) return;
+    if (n === name) {
+      meOnPitch = true;
+      if (newStatus) fakePresences.push({name: n, status: newStatus});
+      return;
+    }
     var ov = el.querySelector('.presence-overlay');
-    var st = ov ? (ov.textContent.trim() === '❌' ? 'absent' : 'maybe') : 'playing';
-    return {name: n, status: (n === name ? (newStatus || 'none') : st)};
-  }).filter(function(p){ return p.status !== 'none'; });
+    if (!ov) return;                       /* pas de reponse : ne compte nulle part */
+    var t = ov.textContent.trim();
+    fakePresences.push({name: n, status: t === '❌' ? 'absent' : t === '❓' ? 'maybe' : 'playing'});
+  });
+  /* Un remplacant n'est pas sur le terrain : sans ca son propre clic disparaitrait
+     du resume jusqu'au retour de Supabase. */
+  if (!meOnPitch && newStatus) fakePresences.push({name: name, status: newStatus});
   updatePitchPresence(fakePresences);
   refreshPresenceSummary(fakePresences);
 
