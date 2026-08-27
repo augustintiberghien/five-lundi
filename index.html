@@ -710,6 +710,39 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   border-color:#FFE49B!important;
 }
 
+/* == VUE JOUEURS == */
+#view-joueurs{display:none}
+.jr-card{display:flex;gap:.7rem;align-items:stretch;padding:.6rem;margin-bottom:.5rem;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px}
+.jr-photo{position:relative;width:60px;height:64px;flex-shrink:0;border-radius:8px;overflow:visible}
+.jr-photo img{width:60px;height:64px;object-fit:cover;object-position:top center;border-radius:8px;display:block;
+  filter:contrast(1.02) saturate(1.05)}
+.jr-ini{width:60px;height:64px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;
+  align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;
+  font-size:1rem;font-weight:700;color:rgba(255,255,255,.45)}
+.jr-crest{position:absolute;right:-5px;bottom:-4px;line-height:0;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.8))}
+.jr-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:.22rem;justify-content:center}
+.jr-top{display:flex;align-items:baseline;gap:.5rem}
+.jr-name{font-family:'Saira Condensed',sans-serif;font-size:1rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.04em;color:#fff}
+.jr-tro{font-family:'Saira',sans-serif;font-size:.66rem;font-weight:600;color:#FFE49B;
+  background:rgba(255,228,155,.1);border:1px solid rgba(255,228,155,.25);
+  border-radius:99px;padding:.02rem .4rem;white-space:nowrap;margin-left:auto}
+.jr-sub{font-family:'Saira',sans-serif;font-size:.62rem;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jr-stats{display:flex;gap:.9rem;margin-top:.15rem}
+.jr-st{display:flex;align-items:baseline;gap:.22rem}
+.jr-st b{font-family:'Saira Condensed',sans-serif;font-size:.9rem;font-weight:700;color:#fff;
+  font-variant-numeric:tabular-nums}
+.jr-st span{font-family:'Saira',sans-serif;font-size:.55rem;color:rgba(255,255,255,.35);
+  text-transform:uppercase;letter-spacing:.08em}
+.jr-form{display:flex;gap:2px;margin-top:.1rem}
+.jr-form i{width:12px;height:12px;border-radius:3px;font-style:normal;font-size:6.5px;
+  font-family:'Saira',sans-serif;font-weight:800;line-height:12px;text-align:center;color:#000}
+.jr-form i.w{background:#4ade80}
+.jr-form i.l{background:#ef4444}
+
 /* VUE STATS */
 #view-stats{display:none;width:min(calc(100vw - 2rem),480px);padding:.5rem}
 .stats-header{
@@ -1049,6 +1082,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .sondage-bar-fill{height:100%;background:#FFE49B;border-radius:2px;transition:width .5s}
 .sondage-names{font-family:'Saira',sans-serif;font-size:.65rem;color:rgba(255,255,255,.35);line-height:1.5;min-height:.8rem}
 .tab-ins{background:rgba(255,228,155,.1);color:#FFE49B}
+.tab-joueurs{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
 .tab-ins.active{background:#FFE49B;color:#000}
 .tab-recap{background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.35)}
 .tab-recap.active{background:#4ade80;color:#000;border-color:#4ade80}
@@ -1150,6 +1184,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 <div id="view-stats"></div>
 <div id="view-inscriptions"></div>
 <div id="view-recap"></div>
+<div id="view-joueurs"></div>
 <div style="height:1.8rem"></div>
 <div id="balance-explain" style="display:none"></div>
 <div class="bench-section" id="bench-section" style="display:none"></div>
@@ -2403,6 +2438,7 @@ function setActiveTab(id){
 }
 function showPitch(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+  var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
 
   document.getElementById('view-pitch').style.display='block';
   document.getElementById('view-stats').style.display='none';
@@ -2412,6 +2448,7 @@ function showPitch(){
 }
 function showStats(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+  var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
 
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-inscriptions').style.display='none';
@@ -2748,6 +2785,204 @@ function _statsScope(){
   return null;
 }
 
+
+/* == CLUBS == */
+/* Equipe de coeur de chaque joueur. Cle vide ou absente = rien ne s'affiche,
+   la section marche donc avant meme d'avoir recolte les reponses. */
+var PLAYER_CLUBS = {
+  /* 'Gugu': 'om', 'Cyril': 'psg', ... */
+};
+
+/* Couleurs et code court de chaque club. A 14px sur une carte, ce sont les
+   couleurs qui identifient un club, pas le dessin du blason. */
+var CLUBS = {
+  psg:      {nom:'Paris Saint-Germain', code:'PSG', c1:'#004170', c2:'#DA291C'},
+  om:       {nom:'Olympique de Marseille', code:'OM', c1:'#2FAEE0', c2:'#FFFFFF'},
+  ol:       {nom:'Olympique Lyonnais', code:'OL', c1:'#FFFFFF', c2:'#D4022A'},
+  asm:      {nom:'AS Monaco', code:'ASM', c1:'#E63312', c2:'#FFFFFF'},
+  losc:     {nom:'LOSC Lille', code:'LOSC', c1:'#E01E13', c2:'#022857'},
+  fcn:      {nom:'FC Nantes', code:'FCN', c1:'#FADF00', c2:'#009B3A'},
+  rcl:      {nom:'RC Lens', code:'RCL', c1:'#FFE500', c2:'#DA291C'},
+  asse:     {nom:'AS Saint-Etienne', code:'ASSE', c1:'#00843D', c2:'#FFFFFF'},
+  ogcn:     {nom:'OGC Nice', code:'OGCN', c1:'#DA291C', c2:'#000000'},
+  srfc:     {nom:'Stade Rennais', code:'SRFC', c1:'#E23028', c2:'#000000'},
+  tfc:      {nom:'Toulouse FC', code:'TFC', c1:'#5F259F', c2:'#E3051B'},
+  mhsc:     {nom:'Montpellier HSC', code:'MHSC', c1:'#0055A4', c2:'#F5822A'},
+  sco:      {nom:'Angers SCO', code:'SCO', c1:'#000000', c2:'#FFFFFF'},
+  rma:      {nom:'Real Madrid', code:'RMA', c1:'#FFFFFF', c2:'#FEBE10'},
+  fcb:      {nom:'FC Barcelone', code:'FCB', c1:'#A50044', c2:'#004D98'},
+  atm:      {nom:'Atletico Madrid', code:'ATM', c1:'#CB3524', c2:'#FFFFFF'},
+  mun:      {nom:'Manchester United', code:'MUN', c1:'#DA291C', c2:'#FBE122'},
+  mci:      {nom:'Manchester City', code:'MCI', c1:'#6CABDD', c2:'#1C2C5B'},
+  liv:      {nom:'Liverpool', code:'LIV', c1:'#C8102E', c2:'#00B2A9'},
+  ars:      {nom:'Arsenal', code:'ARS', c1:'#EF0107', c2:'#FFFFFF'},
+  che:      {nom:'Chelsea', code:'CHE', c1:'#034694', c2:'#FFFFFF'},
+  tot:      {nom:'Tottenham', code:'TOT', c1:'#FFFFFF', c2:'#132257'},
+  juv:      {nom:'Juventus', code:'JUV', c1:'#000000', c2:'#FFFFFF'},
+  acm:      {nom:'AC Milan', code:'ACM', c1:'#FB090B', c2:'#000000'},
+  int:      {nom:'Inter Milan', code:'INT', c1:'#0068A8', c2:'#000000'},
+  fcbay:    {nom:'Bayern Munich', code:'FCB', c1:'#DC052D', c2:'#0066B2'},
+  bvb:      {nom:'Borussia Dortmund', code:'BVB', c1:'#FDE100', c2:'#000000'},
+  por:      {nom:'FC Porto', code:'FCP', c1:'#003DA5', c2:'#FFFFFF'},
+  fra:      {nom:'France', code:'FRA', c1:'#002395', c2:'#ED2939'}
+};
+
+/* Ecusson : un blason bicolore avec le code du club. Genere en SVG, donc net
+   a toutes les tailles et sans un octet d'image a charger. */
+function _crestSVG(key, size){
+  var c = CLUBS[key];
+  if(!c) return '';
+  var s = size || 16;
+  var dark = (c.c1.toUpperCase()==='#FFFFFF' || c.c1.toUpperCase()==='#FDE100'
+              || c.c1.toUpperCase()==='#FADF00' || c.c1.toUpperCase()==='#FFE500');
+  var txt = dark ? '#111' : '#fff';
+  var id = 'cr'+key+s;
+  return '<svg viewBox="0 0 20 24" width="'+s+'" height="'+(s*1.2)+'" aria-label="'+c.nom+'">'
+    + '<defs><clipPath id="'+id+'"><path d="M1 1h18v13c0 5-9 9-9 9S1 19 1 14z"/></clipPath></defs>'
+    + '<g clip-path="url(#'+id+')">'
+    + '<rect x="0" y="0" width="20" height="24" fill="'+c.c1+'"/>'
+    + '<rect x="10" y="0" width="10" height="24" fill="'+c.c2+'"/>'
+    + '</g>'
+    + '<path d="M1 1h18v13c0 5-9 9-9 9S1 19 1 14z" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="1.2"/>'
+    + (s >= 22 ? '<text x="10" y="13" text-anchor="middle" font-family="Saira Condensed,sans-serif"'
+        + ' font-size="8" font-weight="700" fill="'+txt+'">'+c.code+'</text>' : '')
+    + '</svg>';
+}
+
+function _clubOf(name){
+  var k = PLAYER_CLUBS[name];
+  return (k && CLUBS[k]) ? k : null;
+}
+
+/* Titres d'homme du match, calcules une seule fois et partages entre la vue
+   Stats et la vue Joueurs : deux onglets ne doivent jamais annoncer des
+   chiffres differents. */
+function _computeMotmTitles(allVotes){
+  var titleCount = {}, titlesBySession = {};
+  SESSIONS.forEach(function(s){
+    if(!s.scoreWinner) return;
+    var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
+    if(!sv.length) return;
+    if(mvpIsOpen(s) && !mvpIsFullVote(s, sv)) return;   /* vote encore ouvert */
+    var counts = {};
+    sv.forEach(function(v){ counts[v.motm] = (counts[v.motm]||0) + 1; });
+    var names = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; });
+    var maxC = counts[names[0]];
+    var winners = names.filter(function(n){ return counts[n] === maxC; });
+    titlesBySession[s.id] = {winners:winners, winner:winners[0], count:maxC, total:sv.length,
+      comments: sv.filter(function(v){ return v.comment && v.comment.trim(); }),
+      date:s.date, score:s.score};
+    winners.forEach(function(w){ titleCount[w] = (titleCount[w]||0) + 1; });
+  });
+  return {titleCount:titleCount, titlesBySession:titlesBySession};
+}
+
+
+/* == VUE JOUEURS ==
+   Une fiche par joueur : photo, poste, club, stats de la saison choisie et
+   trophees d'homme du match. Les stats viennent de _computeStats, donc elles
+   suivent le meme perimetre que l'onglet Stats. */
+
+var _joueursTitles = null;   /* rempli au premier chargement des votes */
+
+function showJoueurs(){
+  var ids = ['view-pitch','view-stats','view-inscriptions','view-recap'];
+  ids.forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+  ['session-header','mvp-section','article-section','bench-section',
+   'presence-section','balance-explain'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.style.display='none';
+  });
+  var v=document.getElementById('view-joueurs'); if(v) v.style.display='block';
+  renderJoueurs();
+  setActiveTab('joueurs');
+  window.scrollTo(0,0);
+}
+
+function renderJoueurs(){
+  var wrap = document.getElementById('view-joueurs');
+  if(!wrap) return;
+
+  var scope = (typeof _statsScope === 'function') ? _statsScope() : null;
+  var S = _computeStats(scope);
+  var titres = _joueursTitles || {};
+
+  var noms = Object.keys(S.players).sort(function(a,b){
+    var pa=S.players[a], pb=S.players[b];
+    var wa=pa.played?pa.wins/pa.played:0, wb=pb.played?pb.wins/pb.played:0;
+    if(pb.played !== pa.played) return pb.played - pa.played;
+    return wb - wa;
+  });
+
+  var h = '<div style="width:min(calc(100vw - 2rem),480px);padding:.5rem;margin:0 auto">';
+  h += '<div class="stats-header"><span>\u{1F464}</span><span>Les joueurs</span></div>';
+  h += '<div style="font-size:.6rem;color:rgba(255,255,255,.3);font-family:Saira,sans-serif;'
+     + 'text-transform:uppercase;letter-spacing:.1em;padding:0 .4rem .8rem">'
+     + (scope ? 'Saison '+scope : 'Depuis toujours') + ' · ' + noms.length + ' joueurs</div>';
+
+  noms.forEach(function(n){
+    var st = S.players[n];
+    var wr = st.played ? Math.round(st.wins/st.played*100) : 0;
+    var col = wr>=67 ? '#4ade80' : wr>=50 ? '#FFE49B' : '#ef4444';
+    var photo = (typeof _getPhotoSrc==='function') ? _getPhotoSrc(n) : null;
+    var role = (typeof PLAYER_ROLES!=='undefined' && PLAYER_ROLES[n]) ? PLAYER_ROLES[n] : null;
+    var club = _clubOf(n);
+    var nb = titres[n] || 0;
+    var form = (typeof getPlayerForm==='function') ? getPlayerForm(n, scope).slice(-5) : [];
+
+    h += '<div class="jr-card">';
+
+    /* Photo */
+    h += '<div class="jr-photo">';
+    h += photo ? '<img src="'+photo+'" alt="'+n+'">'
+               : '<div class="jr-ini">'+n.slice(0,2).toUpperCase()+'</div>';
+    if(club) h += '<div class="jr-crest">'+_crestSVG(club,20)+'</div>';
+    h += '</div>';
+
+    /* Identite + chiffres */
+    h += '<div class="jr-body">';
+    h += '<div class="jr-top"><span class="jr-name">'+n+'</span>';
+    if(nb>0) h += '<span class="jr-tro" title="'+nb+' titre'+(nb>1?'s':'')+' d’homme du match">'
+                + '\u{1F3C6} '+nb+'</span>';
+    h += '</div>';
+    var sub = [];
+    if(role) sub.push(role);
+    if(club) sub.push(CLUBS[club].nom);
+    h += '<div class="jr-sub">'+(sub.length?sub.join(' · '):'—')+'</div>';
+
+    h += '<div class="jr-stats">';
+    h += '<div class="jr-st"><b>'+st.played+'</b><span>matchs</span></div>';
+    h += '<div class="jr-st"><b>'+st.wins+'</b><span>victoires</span></div>';
+    h += '<div class="jr-st"><b style="color:'+col+'">'+wr+' %</b><span>winrate</span></div>';
+    h += '</div>';
+
+    if(form.length){
+      h += '<div class="jr-form">';
+      form.forEach(function(r){
+        h += '<i class="'+(r==='W'?'w':'l')+'">'+(r==='W'?'V':'D')+'</i>';
+      });
+      h += '</div>';
+    }
+    h += '</div></div>';
+  });
+
+  if(!noms.length){
+    h += '<div style="font-family:Saira,sans-serif;font-size:.7rem;color:rgba(255,255,255,.4);'
+       + 'text-align:center;padding:1.4rem .5rem;line-height:1.5">Aucun match joué sur cette saison.<br>'
+       + 'Les fiches se rempliront dès la première journée.</div>';
+  }
+  h += '</div>';
+  wrap.innerHTML = h;
+
+  /* Trophees : charges une seule fois, puis on redessine */
+  if(_joueursTitles === null && typeof sbGetAllVotes === 'function'){
+    _joueursTitles = {};   /* evite de relancer en boucle si l'appel echoue */
+    sbGetAllVotes().then(function(all){
+      _joueursTitles = _computeMotmTitles(all).titleCount;
+      if(document.getElementById('view-joueurs').style.display !== 'none') renderJoueurs();
+    }, function(){ /* Supabase muet : on garde les fiches sans trophees */ });
+  }
+}
+
 function buildStatsView(){
   /* ── CLASSEMENT JOUEURS ── */
   var rm = RANK_METHODS[_rankMethod];
@@ -2918,27 +3153,10 @@ function buildStatsView(){
   sbGetAllVotes().then(function(allVotes){
     var inner = document.getElementById('motm-hof-inner');
     if (!inner) return;
-    var titleCount = {};
-    var titlesBySession = {};
-    SESSIONS.forEach(function(s){
-      if (!s.scoreWinner) return;
-      var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
-      if (!sv.length) return;
-      var isOpen = mvpIsOpen(s) && !mvpIsFullVote(s, sv);
-      // Si vote encore ouvert : ne pas comptabiliser pour le HoF
-      if (isOpen) return;
-      var counts = {};
-      sv.forEach(function(v){ counts[v.motm] = (counts[v.motm]||0) + 1; });
-      var sortedNames = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; });
-      var maxC = counts[sortedNames[0]];
-      var hofWinners = sortedNames.filter(function(n){ return counts[n] === maxC; });
-      // Tous les feedbacks, pas seulement ceux pour le gagnant
-      var allComments = sv.filter(function(v){ return v.comment && v.comment.trim(); });
-      titlesBySession[s.id] = {winners:hofWinners, winner:hofWinners[0], count:maxC, total:sv.length,
-        comments: allComments,
-        date:s.date, score:s.score};
-      hofWinners.forEach(function(w){ titleCount[w] = (titleCount[w]||0) + 1; });
-    });
+    /* Meme calcul que la vue Joueurs : un seul endroit, pas de divergence. */
+    var _mt = _computeMotmTitles(allVotes);
+    var titleCount = _mt.titleCount;
+    var titlesBySession = _mt.titlesBySession;
 
     // Sessions avec vote encore ouvert (et pas 10/10)
     var openSessions = SESSIONS.filter(function(s){
@@ -5292,6 +5510,7 @@ function renderArticle(s) {
 
 function showInscriptions(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
+  var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
 
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-stats').style.display='none';
@@ -5825,6 +6044,7 @@ function renderRecap(){
 }
 
 function showRecap(){
+  var _vj=document.getElementById("view-joueurs"); if(_vj) _vj.style.display="none";
   document.getElementById("view-pitch").style.display="none";
   document.getElementById("view-stats").style.display="none";
   document.getElementById("view-inscriptions").style.display="none";
@@ -5977,6 +6197,11 @@ function buildTabs(){
   var bi=document.createElement('button');
   bi.className='tab tab-ins';bi.dataset.id='ins';bi.textContent='📅 Inscriptions';bi.onclick=showInscriptions;
   wrap.appendChild(bi);
+  /* Joueurs */
+  var bj=document.createElement('button');
+  bj.className='tab tab-joueurs';bj.dataset.id='joueurs';bj.textContent='👤 Joueurs';bj.onclick=showJoueurs;
+  wrap.appendChild(bj);
+
   /* Récap de saison — archive de 25-26, visible dans sa seule saison */
   if(_tabSeason==='25-26'){
     var br=document.createElement('button');
