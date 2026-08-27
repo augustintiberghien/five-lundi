@@ -217,6 +217,27 @@ Toute nouvelle dépendance de l'algo d'équilibrage doit être ajoutée à cette
 Pour la saison suivante, il n'y a **rien à faire** : la première session de `27-28`
 créera la saison toute seule.
 
+## Section Joueurs (depuis août 2026)
+
+Onglet `👤 Joueurs` : une fiche par joueur — photo, poste, équipe de cœur, matchs,
+victoires, winrate, trophées d'homme du match et forme récente. Les stats viennent de
+`_computeStats(_statsScope())`, donc la fiche suit **le même périmètre de saison que
+l'onglet Stats**.
+
+⚠️ **Les trophées MVP passent par `_computeMotmTitles(allVotes)`**, désormais partagée
+avec `buildStatsView`. Ne jamais recalculer les titres ailleurs : c'est exactement le
+piège du Récap (deux onglets qui annoncent des chiffres différents).
+
+### Équipe de cœur
+`PLAYER_CLUBS` (nom → clé de club) est **vide par défaut** : une fiche sans club
+s'affiche normalement, sans écusson. `CLUBS` porte le nom, le code court et les deux
+couleurs de chaque club ; `_crestSVG(clé, taille)` en dessine un blason bicolore.
+
+Les écussons sont **générés en SVG**, pas des images de clubs : à 14 px sur une carte de
+compo, un vrai blason est illisible, alors que les couleurs se reconnaissent. Wikimedia
+refuse par ailleurs le téléchargement automatisé de ses médias (`429`, robot policy) —
+de vrais logos doivent donc être fournis à la main.
+
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
 - Clôture = 10 votes atteints OU 22h30 le lendemain → donc au plus tard à **01h30** (nuit du lendemain au surlendemain)
