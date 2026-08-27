@@ -233,10 +233,10 @@ piège du Récap (deux onglets qui annoncent des chiffres différents).
 s'affiche normalement, sans écusson. `CLUBS` porte le nom, le code court et les deux
 couleurs de chaque club ; `_crestSVG(clé, taille)` en dessine un blason bicolore.
 
-`CLUB_LOGOS` porte les **vrais écussons** en base64, réduits de 1500 px à 96 px (71 Ko
-pour cinq, contre 576 Ko en source). `_clubBadge(clé, taille)` sert le vrai logo quand il
-existe et retombe sur `_crestSVG` sinon — c'est le cas de l'OL, dont le logo n'a pas été
-fourni.
+`CLUB_LOGOS` porte les **vrais écussons** en base64, réduits à 96 px : **117 Ko pour les
+neuf**, contre 1,1 Mo de fichiers source. `_clubBadge(clé, taille)` sert le vrai logo
+quand il existe et retombe sur `_crestSVG` sinon — plus aucun club n'est dans ce cas
+aujourd'hui, mais le repli reste la porte d'entrée d'un nouveau club.
 
 ⚠️ **Un test a démenti l'intuition de départ.** On avait supposé qu'un vrai écusson serait
 illisible à 14 px et qu'il fallait des blasons générés. Comparaison faite à la taille
