@@ -5855,11 +5855,24 @@ async function _loadInscriptionSessions(){
   var _vr = document.getElementById('view-recap');
   if(_vr && _vr.style.display === 'block') setActiveTab('recap');
   else if(_curS) setActiveTab(_curS.id);
-  // Si aucune session régulière active, afficher la 1ère session d'inscription ouverte
-  if(!SESSIONS.find(function(s){return s.current;}) && _INS_SESSIONS.length>0){
-    var slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){slotById[sl.id]=sl;});
-    var firstOpen=_INS_SESSIONS.find(function(s){var sl=slotById[s.id];return sl&&sl.open;});
-    var toShow=firstOpen||_INS_SESSIONS[0];
+  /* Quelle session afficher a l'arrivee ?
+     Tant qu'un creneau est ouvert, c'est le prochain match qu'on vient voir,
+     pas le dernier joue — meme si celui-ci porte encore current:true. Une
+     ancre dans l'URL reste prioritaire, et apres le lock du lundi la session
+     du jour devient current : ce cas cesse alors de se declencher. */
+  var _hash = location.hash && location.hash.length > 1;
+  var _slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){_slotById[sl.id]=sl;});
+  var _firstOpen=_INS_SESSIONS.find(function(s){var sl=_slotById[s.id];return sl&&sl.open;});
+  var _noCurrent = !SESSIONS.find(function(s){return s.current;});
+  /* Passer devant la session current n'a de sens que tant que la reprise est
+     devant nous : le 31 aout a 21h30 la session du jour devient elle-meme
+     current, et on doit atterrir dessus, pas sur le creneau du 7 septembre
+     qui sera alors le premier encore ouvert. La regle expire donc seule. */
+  var _avantReprise = (typeof SEASON_RESUME !== 'undefined') && SEASON_RESUME
+    && typeof _parisNow === 'function' && _parisNow() < SEASON_RESUME;
+  if(!_hash && _INS_SESSIONS.length>0 && (_noCurrent || (_avantReprise && _firstOpen))){
+    var toShow=_firstOpen||_INS_SESSIONS[0];
+    showPitch();
     renderSession(toShow);
     setActiveTab(toShow.id);
   }
@@ -6457,11 +6470,13 @@ var SEASON_RESUME = new Date(2026, 7, 31, 21, 30, 0);
 (function(){
   if(!SEASON_RESUME || _parisNow() >= SEASON_RESUME) return;
   if(location.hash && location.hash.length > 1) return;
-  /* Creneaux de reprise ouverts : la semaine qui compte est celle de
-     l inscription, pas celle de l archive de la saison passee. */
+  /* Un creneau ouvert veut dire qu'un match approche : on reste sur le
+     terrain, ou _loadInscriptionSessions rendra la session a venir. Sans
+     creneau ouvert, il n'y a rien a venir consulter : le Recap prend la
+     place. */
   var _openSlot = (typeof INSCRIPTION_SLOTS !== 'undefined')
     && INSCRIPTION_SLOTS.some(function(sl){ return sl.open; });
-  if(_openSlot && typeof showInscriptions === 'function'){ showInscriptions(); return; }
+  if(_openSlot) return;
   if(typeof showRecap !== 'function') return;
   showRecap();
 })();
