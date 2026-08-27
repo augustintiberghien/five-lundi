@@ -233,10 +233,21 @@ piège du Récap (deux onglets qui annoncent des chiffres différents).
 s'affiche normalement, sans écusson. `CLUBS` porte le nom, le code court et les deux
 couleurs de chaque club ; `_crestSVG(clé, taille)` en dessine un blason bicolore.
 
-Les écussons sont **générés en SVG**, pas des images de clubs : à 14 px sur une carte de
-compo, un vrai blason est illisible, alors que les couleurs se reconnaissent. Wikimedia
-refuse par ailleurs le téléchargement automatisé de ses médias (`429`, robot policy) —
-de vrais logos doivent donc être fournis à la main.
+`CLUB_LOGOS` porte les **vrais écussons** en base64, réduits de 1500 px à 96 px (71 Ko
+pour cinq, contre 576 Ko en source). `_clubBadge(clé, taille)` sert le vrai logo quand il
+existe et retombe sur `_crestSVG` sinon — c'est le cas de l'OL, dont le logo n'a pas été
+fourni.
+
+⚠️ **Un test a démenti l'intuition de départ.** On avait supposé qu'un vrai écusson serait
+illisible à 14 px et qu'il fallait des blasons générés. Comparaison faite à la taille
+réelle, c'est l'inverse : à 14 px l'identification tient au couple couleur + silhouette,
+et les blasons bicolores générés deviennent interchangeables entre clubs de palette
+voisine (PSG marine/rouge, LOSC rouge/marine, Toulouse violet/rouge). **Toujours préférer
+le vrai logo.**
+
+Wikimedia refuse le téléchargement automatisé de ses médias (`429`, robot policy) : les
+logos doivent être déposés à la main dans le dépôt, puis réduits (via Chromium et un
+canvas, faute de Pillow ou d'ImageMagick sur la machine).
 
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
