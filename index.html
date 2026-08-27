@@ -6191,6 +6191,10 @@ function buildTabs(){
   /* Mois actif = celui de la session current */
   var activeKey=null;
   SESSIONS.forEach(function(s){if(s.current)activeKey=_monthKey(s.date);});
+  /* La session current peut appartenir a une autre saison que celle affichee :
+     son mois est alors absent des groupes, et plus aucun ne s'ouvrirait — on
+     verrait « Aout 2026 ▸ » replie sans savoir quelle date on joue. */
+  if(activeKey && !groups[activeKey]) activeKey=null;
   /* Sinon : se caler sur le créneau ouvert affiché par défaut (firstOpen), pas le mois le plus récent */
   if(!activeKey){
     var _slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){_slotById[sl.id]=sl;});
