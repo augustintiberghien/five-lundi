@@ -6159,6 +6159,14 @@ function buildTabs(){
      Pour une meme date, la session jouee prime sur le creneau d'inscription
      (= une inscription qui a "evolue" en session). Garantit 1 onglet par date. */
   function _dateKey(str){
+    /* Le libelle d'un creneau porte prefixe et suffixe ('Lundi 31 aout 2026 ·
+       Reprise 🔥') : normalise en chaine, sa cle differe de celle de la session
+       promue le meme jour ('31 aout 2026') et l'onglet apparait en double.
+       On lit donc la date explicitement, jamais par decoupage de la chaine. */
+    var d=_matchDayFromLabel(str);
+    if(d) return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+    /* Date illisible : on retombe sur la normalisation texte plutot que sur une
+       cle vide, qui fusionnerait entre eux tous les libelles non parses. */
     return (str||'').toLowerCase()
       .replace(/[ᵉʳˢⁱᵒ]+/g,'')
       .replace(/lundi/g,'')
