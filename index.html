@@ -1969,16 +1969,7 @@ function renderSession(s){
     d.style.top=p.y+'%';
     var _ph=p.html||_getPlayerHtml(p.name).replace(/class="card team-[ab]"/,'class="card '+(p.teamA?'team-a':'team-b')+'"');
     d.innerHTML=_ph;
-    /* Ecusson du club, pose apres coup plutot que dans le gabarit de carte :
-       PLAYER_PHOTOS reste une donnee, pas un endroit ou injecter du rendu. */
-    var _ck=_clubOf(p.name), _cph=d.querySelector('.cphoto');
-    if(_ck && _cph){
-      var _b=document.createElement('div');
-      _b.className='card-club';
-      _b.title=CLUBS[_ck].nom;
-      _b.innerHTML=_clubBadge(_ck,14);
-      _cph.appendChild(_b);
-    }
+    _addClubBadge(d, p.name);
     layer.appendChild(d);
     addHexOverlays(d, p.name, p.teamA);
   });
@@ -2916,6 +2907,21 @@ function _clubBadge(key, size){
   return _crestSVG(key, size);
 }
 
+/* Ecusson du club, pose apres coup plutot que dans le gabarit de carte :
+   PLAYER_PHOTOS reste une donnee, pas un endroit ou injecter du rendu.
+   Partage par les deux chemins qui peignent le terrain — renderSession et
+   applyAutoTeams (recalcul de compo sur un creneau) : l'un des deux l'oubliait,
+   et l'ecusson disparaissait des que la compo etait regeneree. */
+function _addClubBadge(playerDiv, name){
+  var key = _clubOf(name), photo = playerDiv.querySelector('.cphoto');
+  if(!key || !photo || photo.querySelector('.card-club')) return;
+  var b = document.createElement('div');
+  b.className = 'card-club';
+  b.title = CLUBS[key].nom;
+  b.innerHTML = _clubBadge(key, 14);
+  photo.appendChild(b);
+}
+
 function _clubOf(name){
   var k = PLAYER_CLUBS[name];
   return (k && CLUBS[k]) ? k : null;
@@ -3657,6 +3663,7 @@ function applyAutoTeams(s, playing10) {
     d.style.left = p.x + '%';
     d.style.top = p.y + '%';
     d.innerHTML = p.html;
+    _addClubBadge(d, p.name);
     layer.appendChild(d);
     addHexOverlays(d, p.name, p.teamA);
   });
