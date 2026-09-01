@@ -333,12 +333,16 @@ ne se déplacent pas. Équilibrage à 69,5 contre 69 — l'écart le plus serré
 jusqu'ici — pour un but d'écart au final. Homme du match : Hugo (5 voix), devant Spy
 (3), Michael (1) et Gugu (1). Article poussé dans `ARTICLES['s18']`.
 
-**⚠️ Audit du 31 août 2026 — les crons planifiés n'ont pas tourné du tout.** Zéro
-exécution de `lock-session.yml` sur les **36 crons** de la fenêtre (dernier run
-planifié : 24 août). Ce n'est pas du retard, c'est un abandon complet — à comparer
-au 13 juillet (8/22, retard moyen 180 min) et au 20 juillet (22/22, 63 min). Le
-workflow était `active`, le dépôt public et poussé le jour même, aucun quota en
-cause : le `workflow_dispatch` manuel est passé sans problème. Conséquences en
+**⚠️ Audit du 31 août 2026 — retard record des crons (constat corrigé le 1ᵉʳ
+septembre).** Le soir même, aucun run planifié n'était visible et l'audit a conclu à
+un abandon complet. **C'était faux** : les runs sont arrivés après coup, tous en
+succès — le premier à 21h59 UTC (**23h59 Paris**), le dernier à 01h20 UTC (03h20
+Paris). La fenêtre de crons couvre 16h00→22h30 UTC : le retard va donc d'environ
+**2h50 sur le dernier cron à près de 6h sur le premier**, et **aucun n'a atterri près
+de 21h30 Paris**. À comparer au 13 juillet (8/22, retard moyen 180 min) et au
+20 juillet (22/22, 63 min). Leçon de méthode : **ne pas conclure à un abandon le soir
+même** — un run planifié peut arriver des heures plus tard, et la compensation par
+fenêtre élargie ne protège que jusqu'à ~3h30 de retard. Conséquences en
 cascade : pas d'entrée `SESSIONS` → **le site atterrissait sur s17 (27 juillet)** car
 la règle d'atterrissage de `_loadInscriptionSessions` n'opère que tant que
 `_parisNow() < SEASON_RESUME` et suppose qu'après 21h30 le lock a fait de la session
@@ -346,7 +350,7 @@ du jour la session `current` → et **pas de formulaire de score**, qui exige un
 entrée `SESSIONS` sans score. Remède appliqué : `workflow_dispatch` sur
 `lock-session.yml`, qui a repris la compo `slot_sessions` telle quelle (aucun
 reshuffle, aucune inversion de couleur). **Ne jamais retaper la compo de mémoire —
-le dispatch manuel reste fiable même quand tous les crons sont tombés.** Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
+le dispatch manuel reste fiable même quand aucun cron n'est arrivé à l'heure.** Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
 
 **⚠️ Audit du 20 juillet 2026** : le lock auto a tourné à l'heure (20h49 UTC / 22h49 Paris, dans la fenêtre étendue) mais a figé une mauvaise répartition des couleurs (Gugu/Théo et Dylan/Thomas D inversés par rapport à la compo décidée avant match). Cause : des absences de dernière minute (Alex, Cyril, Henri, Hugo, Landry, Raphaël, Tim) déclarées sur la feuille de match ont changé les 10 titulaires effectifs, mais **marquer un joueur absent ne redéclenche pas `syncSharedTeams`** (seuls `doUnregister`/nouvel inscrit le font) — la compo publiée dans `slot_sessions` est donc restée périmée. Au lock, `lock_session.py` a détecté le désaccord ("compo publiée absente ou périmée") et est tombé dans le repli : régénération complète par `_genBalancedTeams`, qui reshuffle tout le monde (option B, pas d'échange minimal) au lieu de ne remplacer que les absents. Corrigé manuellement dans `SESSIONS` (s16) + `PLAYER_STATS`/`PAIR_STATS` recalculés sur la bonne compo.
 
