@@ -56,6 +56,18 @@ masquée et créneau considéré comme verrouillé** alors que la compo était p
 Personne ne pouvait confirmer sa présence sur la reprise. `isBenchVisible` et
 `exportSessionEntry` avaient le même défaut.
 
+Reconstaté le 31 août 2026 sur `_dateKey` (dans `buildTabs`), qui était passée à
+travers la correction du 24 août. Elle dédupliquait `SESSIONS` et les créneaux par
+**normalisation de chaîne** (minuscules, `lundi` retiré, parenthèses ôtées) — ce qui
+ne retire pas un suffixe : la clé du créneau valait `31 août 2026 · reprise 🔥`
+quand celle de la session promue valait `31 août 2026`. Les deux entrées
+survivaient à la déduplication et **le 31 août apparaissait deux fois dans la barre
+d'onglets**. Le défaut ne pouvait se voir que ce jour-là : il faut à la fois un
+libellé décoré et une session promue le même jour. `_dateKey` passe désormais par
+`_matchDayFromLabel` et retourne la journée comme clé, avec repli sur l'ancienne
+normalisation si la date est illisible (sinon tous les libellés non parsés
+fusionneraient entre eux).
+
 ### Compo partagée (table Supabase `slot_sessions`) — depuis juin 2026
 
 Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).
@@ -257,7 +269,8 @@ canvas, faute de Pillow ou d'ImageMagick sur la machine).
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s17 | 27 juillet 2026 | 15 – 10 (A) | ✅ |
+| s18 | 31 août 2026 | 10 – 9 (A) | ✅ |
+| s17 | 27 juillet 2026 | 15 – 10 (A) | |
 | s16 | 20 juillet 2026 | 14 – 8 (A) | |
 | s15 | 6 juillet 2026 | 11 – 8 (A) | |
 | s14 | 29 juin 2026 | 8 – 9 (B) | |
@@ -302,10 +315,29 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
 
-## Joueurs actifs (s17 — 27 juillet 2026)
-Blanche ⚪ : Gugu, Cyril, Johann, Dylan, Hugo
-Bleue 🔵 : Ibrahima, Alex, Jack, Théo, Spy
-Blanche l'emporte 15-10. Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
+## Joueurs actifs (s18 — 31 août 2026, reprise)
+Blanche ⚪ : Michael, Edouard, Gugu, Spy, Hugo
+Bleue 🔵 : Rémi, Ibrahima, Johann, Quentin, Flo
+Blanche l'emporte 10-9. Première journée de la saison **26-27**. Seize inscrits mais
+seulement dix présents : les six du banc (Khalid, Landry, Théo, Henri, Dylan, Jack)
+ne se déplacent pas. Équilibrage à 69,5 contre 69 — l'écart le plus serré produit
+jusqu'ici — pour un but d'écart au final. Homme du match : Hugo (5 voix), devant Spy
+(3), Michael (1) et Gugu (1). Article poussé dans `ARTICLES['s18']`.
+
+**⚠️ Audit du 31 août 2026 — les crons planifiés n'ont pas tourné du tout.** Zéro
+exécution de `lock-session.yml` sur les **36 crons** de la fenêtre (dernier run
+planifié : 24 août). Ce n'est pas du retard, c'est un abandon complet — à comparer
+au 13 juillet (8/22, retard moyen 180 min) et au 20 juillet (22/22, 63 min). Le
+workflow était `active`, le dépôt public et poussé le jour même, aucun quota en
+cause : le `workflow_dispatch` manuel est passé sans problème. Conséquences en
+cascade : pas d'entrée `SESSIONS` → **le site atterrissait sur s17 (27 juillet)** car
+la règle d'atterrissage de `_loadInscriptionSessions` n'opère que tant que
+`_parisNow() < SEASON_RESUME` et suppose qu'après 21h30 le lock a fait de la session
+du jour la session `current` → et **pas de formulaire de score**, qui exige une
+entrée `SESSIONS` sans score. Remède appliqué : `workflow_dispatch` sur
+`lock-session.yml`, qui a repris la compo `slot_sessions` telle quelle (aucun
+reshuffle, aucune inversion de couleur). **Ne jamais retaper la compo de mémoire —
+le dispatch manuel reste fiable même quand tous les crons sont tombés.** Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
 
 **⚠️ Audit du 20 juillet 2026** : le lock auto a tourné à l'heure (20h49 UTC / 22h49 Paris, dans la fenêtre étendue) mais a figé une mauvaise répartition des couleurs (Gugu/Théo et Dylan/Thomas D inversés par rapport à la compo décidée avant match). Cause : des absences de dernière minute (Alex, Cyril, Henri, Hugo, Landry, Raphaël, Tim) déclarées sur la feuille de match ont changé les 10 titulaires effectifs, mais **marquer un joueur absent ne redéclenche pas `syncSharedTeams`** (seuls `doUnregister`/nouvel inscrit le font) — la compo publiée dans `slot_sessions` est donc restée périmée. Au lock, `lock_session.py` a détecté le désaccord ("compo publiée absente ou périmée") et est tombé dans le repli : régénération complète par `_genBalancedTeams`, qui reshuffle tout le monde (option B, pas d'échange minimal) au lieu de ne remplacer que les absents. Corrigé manuellement dans `SESSIONS` (s16) + `PLAYER_STATS`/`PAIR_STATS` recalculés sur la bonne compo.
 
