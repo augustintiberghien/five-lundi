@@ -5306,6 +5306,36 @@ async function submitTmotmVote(sid) {
    ARTICLES — DÉBRIEF SESSIONS
    ══════════════════════════════════════════ */
 var ARTICLES = {
+  's18': {
+    kicker: 'Five Lundi · 31 août 2026',
+    headline: 'La reprise se joue à un but, et les jambes n’y sont pour rien',
+    sub: 'Menée 1-0, la Blanche déroule jusqu’à 7-1, se relache, et finit par sauver le résultat d’un souffle — A 10 · B 9',
+    body: [
+      { type: 'p', text: 'Cinq semaines sans toucher un ballon, seize inscrits, dix présents — les six du banc n’ont pas fait le déplacement. La reprise du Five Lundi avait tout du match de remise en route, et elle a commencé comme tel : plus de kilos que de cardio, et ça s’est vu dès les premières minutes. Elle a pourtant accouché du scénario le plus tendu qu’on puisse écrire — sept buts d’avance, un effondrement, et un but d’écart au coup de sifflet final.' },
+      { type: 'h3', text: 'Un quart d’heure bleu' },
+      { type: 'p', text: 'Les premières quinze minutes appartiennent entièrement à la Bleue. Elle dicte le tempo, fait tourner le ballon avec une aisance que personne n’attendait après la trêve, et prend logiquement l’avantage. Le 1-0 tient tout ce temps. En face, on court après le ballon sans jamais l’attraper.' },
+      { type: 'h3', text: 'Le déclic' },
+      { type: 'p', text: 'Puis la Blanche se souvient de ce qui fait gagner un match de five : jouer ensemble, et faire les efforts ensemble. L’égalisation tombe à la quinzième, et le match change complètement de visage. À partir de là, plus rien ne fonctionne pour la Bleue.' },
+      { type: 'h3', text: 'Sept buts à un' },
+      { type: 'p', text: 'Ce qui suit est une démonstration. La Blanche enchaîne, le compteur s’emballe et grimpe jusqu’à <strong>7-1</strong>. <strong>Hugo</strong> et <strong>Spy</strong> se partagent l’essentiel de l’addition, le premier signant la majorité des buts blancs de la soirée. À ce moment précis, la question n’est plus de savoir qui gagne, mais de combien.' },
+      { type: 'h3', text: 'Le relâchement' },
+      { type: 'p', text: 'C’est exactement là que la soirée bascule une deuxième fois. La Blanche lâche la bride, la Bleue donne tout ce qu’il lui reste — et il lui en reste. <strong>8-4</strong>. Puis <strong>8-7</strong>. Six buts encaissés pour un marqué : le matelas a fondu, et sur le terrain plus personne ne fait le malin. C’est chaud, très chaud.' },
+      { type: 'h3', text: 'Le but le plus important de la soirée' },
+      { type: 'p', text: 'Il fallait un homme pour arrêter l’hémorragie. <strong>Spy</strong> s’en charge et plante le <strong>9-7</strong> — pas le plus beau, mais de très loin le plus utile. Grand par l’impact, il remet la Blanche à deux longueurs au moment où elle allait se faire rattraper. Le 10-7 suit dans la foulée et l’on croit l’affaire pliée.' },
+      { type: 'p', text: 'Elle ne l’était pas. <strong>10-8</strong>, puis <strong>10-9</strong> : la Bleue revient une dernière fois à portée de tir. La Blanche joue un peu le temps, l’heure de jeu arrive, et trois minutes d’arrêt de jeu — exceptionnelles — s’ajoutent avant que le score ne soit figé pour de bon.' },
+      { type: 'h3', text: 'Trois gardiens, trois bonnes raisons' },
+      { type: 'p', text: 'Au five les places tournent, les cages comprises, et ce soir elles auront beaucoup servi. Côté bleu, <strong>Rémi</strong> a sorti un gros match : sans lui, la Blanche ne s’inquiète jamais de rien. Côté blanc, <strong>Michael</strong> a tenu la boutique en début de match — « solide comme un rock », dira <strong>Spy</strong> — avant que <strong>Gugu</strong> ne prenne le relais et multiplie les arrêts pendant que la Bleue poussait. <strong>Quentin</strong>, qui a passé la soirée à lui tirer dessus, résume : « impressionnant au goal, game changer au vu du nombre d’arrêts effectués ».' },
+      { type: 'h3', text: 'Personne n’a démérité' },
+      { type: 'p', text: 'Il n’y a rien à jeter dans cette Bleue. Elle a dominé le premier quart d’heure, encaissé un 7-1 sans se désunir, puis remonté six buts d’affilée face à une équipe qui menait large. Elle finit à un but. Ce qui a manqué n’est pas l’envie mais le temps : encore dix minutes, et l’histoire s’écrivait autrement.' },
+      { type: 'p', text: 'Côté blanc, la victoire tient à une chose, et c’est celle qui a manqué pendant le premier quart d’heure : la cohérence d’équipe. Sur l’ensemble de l’heure de jeu, la Blanche aura toujours été un cran au-dessus à ce niveau-là — et c’est bien ce cran, pas les jambes, qui fait la différence au bout du compte.' },
+      { type: 'h3', text: 'L’algo avait tout dit' },
+      { type: 'p', text: 'Une note pour les amateurs de chiffres : l’équilibrage automatique avait donné <strong>69,5</strong> à la Blanche contre <strong>69</strong> à la Bleue. Un demi-point d’écart, le plus serré jamais produit pour une compo de championnat. Résultat des courses : un but d’écart après soixante-trois minutes. Difficile de faire mieux.' },
+      { type: 'h3', text: 'Homme du match : Hugo' },
+      { type: 'p', text: '<strong>Hugo</strong> remporte le vote avec <strong>cinq voix sur dix</strong>, devant <strong>Spy</strong> (trois), <strong>Michael</strong> et <strong>Gugu</strong> (une chacun). Un scrutin nettement plus disputé que le plébiscite de fin de saison dernière — ce soir, quatre joueurs différents ont reçu au moins une voix.' },
+      { type: 'p', text: 'Les mots disent le reste. <strong>Flo</strong> résume la soirée du vainqueur en une image : « le tank, quand il est lancé, impossible de l’arrêter ». <strong>Michael</strong> précise : « un Hugo tranchant ce soir, à l’aise devant la cage, auteur de la majorité des buts des blancs ». <strong>Johann</strong>, homme du match unanime de la dernière journée, et <strong>Ibrahima</strong> et <strong>Rémi</strong>, ses adversaires du soir, ont voté comme lui. Pour <strong>Spy</strong>, dauphin, <strong>Gugu</strong> salue un « match abouti de bout en bout », <strong>Hugo</strong> lui-même « l’homme de cette fin de match », et <strong>Edouard</strong> pointe l’essentiel : « ses buts à des moments clés ont été précieux pour l’équipe ».' },
+      { type: 'footer', text: 'Blanche 10 · Bleue 9 — la saison 26-27 s’ouvre sur un but d’écart, un compteur de forme remis à zéro pour tout le monde, et la confirmation que le cardio, lui, ne revient pas de trêve tout seul.' },
+    ],
+  },
   's17': {
     kicker: 'Five Lundi · 27 juillet 2026',
     headline: 'Johann refuse de finir sa saison comme ça',
