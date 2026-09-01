@@ -2812,6 +2812,9 @@ var PLAYER_CLUBS = {
   'Khalid':   'psg',
   'Cyril':    'psg',
   'Landry':   'psg',
+  'Rémi':     'psg',
+  'Samy':     'psg',
+  'Alex':     'psg',
   'Théo':     'om',
   'Ibrahima': 'om',
   'Edouard':  'om',
@@ -2849,7 +2852,7 @@ var CLUBS = {
   liv:      {nom:'Liverpool', code:'LIV', c1:'#C8102E', c2:'#00B2A9'},
   ars:      {nom:'Arsenal', code:'ARS', c1:'#EF0107', c2:'#FFFFFF'},
   che:      {nom:'Chelsea', code:'CHE', c1:'#034694', c2:'#FFFFFF'},
-  tot:      {nom:'Tottenham', code:'TOT', c1:'#FFFFFF', c2:'#132257'},
+  tot:      {nom:'Tottenham', code:'TOT', c1:'#FFFFFF', c2:'#132257', fond:'#FFFFFF'},
   juv:      {nom:'Juventus', code:'JUV', c1:'#000000', c2:'#FFFFFF'},
   acm:      {nom:'AC Milan', code:'ACM', c1:'#FB090B', c2:'#000000'},
   int:      {nom:'Inter Milan', code:'INT', c1:'#0068A8', c2:'#000000'},
@@ -2904,8 +2907,17 @@ function _crestSVG(key, size){
 function _clubBadge(key, size){
   if(!CLUBS[key]) return '';
   if(CLUB_LOGOS[key]){
-    return '<img src="'+CLUB_LOGOS[key]+'" alt="'+CLUBS[key].nom+'" '
-      + 'style="width:'+size+'px;height:'+size+'px;object-fit:contain;display:block">';
+    /* Un ecusson sombre sur fond transparent (le coq de Tottenham) disparait
+       sur le fond nuit du site : CLUBS[key].fond lui donne une pastille
+       claire. Le logo est alors legerement reduit pour laisser voir l anneau. */
+    var fond = CLUBS[key].fond;
+    var inner = fond ? Math.max(1, Math.round(size * 0.78)) : size;
+    var img = '<img src="'+CLUB_LOGOS[key]+'" alt="'+CLUBS[key].nom+'" '
+      + 'style="width:'+inner+'px;height:'+inner+'px;object-fit:contain;display:block">';
+    if(!fond) return img;
+    return '<span style="display:flex;align-items:center;justify-content:center;'
+      + 'width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+fond+';'
+      + 'box-shadow:0 0 0 .5px rgba(0,0,0,.35)">' + img + '</span>';
   }
   return _crestSVG(key, size);
 }
