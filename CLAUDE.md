@@ -245,10 +245,19 @@ piège du Récap (deux onglets qui annoncent des chiffres différents).
 s'affiche normalement, sans écusson. `CLUBS` porte le nom, le code court et les deux
 couleurs de chaque club ; `_crestSVG(clé, taille)` en dessine un blason bicolore.
 
-`CLUB_LOGOS` porte les **vrais écussons** en base64, réduits à 96 px : **117 Ko pour les
-neuf**, contre 1,1 Mo de fichiers source. `_clubBadge(clé, taille)` sert le vrai logo
+`CLUB_LOGOS` porte les **vrais écussons** en base64, réduits à 96 px : **130 Ko pour les
+dix**, contre plus d'un Mo de fichiers source. `_clubBadge(clé, taille)` sert le vrai logo
 quand il existe et retombe sur `_crestSVG` sinon — plus aucun club n'est dans ce cas
 aujourd'hui, mais le repli reste la porte d'entrée d'un nouveau club.
+
+**Écusson sombre : le champ `fond`.** Un logo foncé sur fond transparent disparaît sur le
+fond nuit du site. `CLUBS[clé].fond` (une couleur) demande alors à `_clubBadge` une
+pastille ronde de cette couleur derrière le logo, réduit à 78 % pour laisser voir l'anneau.
+Seul `tot` l'utilise : le coq de Tottenham est bleu marine et son fichier est transparent à
+83 %, contre 49 % pour le suivant. **Mesurer avant de décider** — sur un canvas, part de
+pixels transparents et luminance moyenne des pixels opaques : le coq semblait blanc, il est
+marine. Clermont est aussi sombre (luminance 71) mais opaque à 62 % : son bouclier rouge et
+son lettrage blanc suffisent, pas de pastille.
 
 ⚠️ **Un test a démenti l'intuition de départ.** On avait supposé qu'un vrai écusson serait
 illisible à 14 px et qu'il fallait des blasons générés. Comparaison faite à la taille
