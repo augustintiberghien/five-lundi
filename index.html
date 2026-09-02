@@ -5853,6 +5853,38 @@ function doUnregister(slotId, playerName){
 var _INS_SESSIONS = [];
 var _tabSeason = null;   /* saison affichee dans la barre d'onglets */
 
+/* La session sur laquelle le site s'ouvre.
+   Une seule definition, partagee par _loadInscriptionSessions (qui la rend) et
+   buildTabs (qui deplie son mois) : deux calculs separes finiraient par
+   diverger, et l'onglet actif se retrouverait dans un groupe replie.
+
+   La regle tient en une comparaison de dates. Tant que la session current est
+   celle d'aujourd'hui ou d'un jour a venir, c'est elle qu'on montre — le lundi
+   soir apres le lock, le creneau encore ouvert est celui de la semaine
+   suivante et ce serait une erreur de basculer dessus. Des que sa date est
+   passee, le prochain creneau ouvert prend la place : pendant la semaine, on
+   vient voir le match a venir, pas le resultat de lundi dernier. */
+function _landingSession(){
+  var cur = SESSIONS.find(function(s){ return s.current; });
+  if(typeof _INS_SESSIONS === 'undefined' || !_INS_SESSIONS || !_INS_SESSIONS.length)
+    return cur || null;
+  var pn = _parisNow();
+  var today = new Date(pn.getFullYear(), pn.getMonth(), pn.getDate());
+  if(cur){
+    /* Date illisible : on ne prend pas le risque de quitter la session current. */
+    var d = _matchDayFromLabel(cur.date);
+    if(!d || d.getTime() >= today.getTime()) return cur;
+  }
+  var slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){ slotById[sl.id]=sl; });
+  var next = _INS_SESSIONS.find(function(s){
+    var sl = slotById[s.id];
+    if(!sl || !sl.open) return false;
+    var sd = _matchDayFromLabel(s.date);
+    return !sd || sd.getTime() >= today.getTime();
+  });
+  return next || cur || _INS_SESSIONS[0] || null;
+}
+
 async function _loadInscriptionSessions(){
   _INS_SESSIONS=[];
   var promises=INSCRIPTION_SLOTS.map(function(slot){
@@ -5918,32 +5950,23 @@ async function _loadInscriptionSessions(){
   var _vr = document.getElementById('view-recap');
   if(_vr && _vr.style.display === 'block') setActiveTab('recap');
   else if(_curS) setActiveTab(_curS.id);
-  /* Quelle session afficher a l'arrivee ?
-     Tant qu'un creneau est ouvert, c'est le prochain match qu'on vient voir,
-     pas le dernier joue — meme si celui-ci porte encore current:false. Une
-     ancre dans l'URL reste prioritaire, et apres le lock du lundi la session
-     du jour devient current : ce cas cesse alors de se declencher. */
+  /* Une ancre dans l'URL reste prioritaire : elle dit ce qu'on est venu voir. */
   var _hash = location.hash && location.hash.length > 1;
-  var _slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){_slotById[sl.id]=sl;});
-  var _firstOpen=_INS_SESSIONS.find(function(s){var sl=_slotById[s.id];return sl&&sl.open;});
-  var _noCurrent = !SESSIONS.find(function(s){return s.current;});
-  /* Passer devant la session current n'a de sens que tant que la reprise est
-     devant nous : le 31 aout a 21h30 la session du jour devient elle-meme
-     current, et on doit atterrir dessus, pas sur le creneau du 7 septembre
-     qui sera alors le premier encore ouvert. La regle expire donc seule. */
-  var _avantReprise = (typeof SEASON_RESUME !== 'undefined') && SEASON_RESUME
-    && typeof _parisNow === 'function' && _parisNow() < SEASON_RESUME;
-  if(!_hash && _INS_SESSIONS.length>0 && (_noCurrent || (_avantReprise && _firstOpen))){
-    var toShow=_firstOpen||_INS_SESSIONS[0];
+  var _land = _landingSession();
+  if(!_hash && _land && _land !== _curS){
     showPitch();
-    renderSession(toShow);
-    setActiveTab(toShow.id);
+    renderSession(_land);
+    setActiveTab(_land.id);
   }
 }
 var _MN = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
 function _monthKey(dateStr){
-  var parts = dateStr.trim().split(' ');
+  /* Un libelle peut porter un suffixe (« … 2026 · Reprise 🔥 ») : lire l'annee
+     au dernier mot la ferait retomber sur 2026 en dur. */
+  var d=(typeof _matchDayFromLabel==='function')?_matchDayFromLabel(dateStr):null;
+  if(d) return _MN[d.getMonth()]+'-'+d.getFullYear();
+  var parts = (dateStr||'').trim().split(' ');
   for(var i=0;i<parts.length;i++){
     var p=parts[i].toLowerCase();
     if(_MN.indexOf(p)!==-1){
@@ -6259,19 +6282,15 @@ function buildTabs(){
     groups[k].sessions.push(s);
   });
 
-  /* Mois actif = celui de la session current */
+  /* Mois deplie = celui de la session d'arrivee, la meme que celle rendue sur
+     le terrain — sans quoi l'onglet actif se retrouve dans un groupe replie. */
   var activeKey=null;
-  SESSIONS.forEach(function(s){if(s.current)activeKey=_monthKey(s.date);});
-  /* La session current peut appartenir a une autre saison que celle affichee :
-     son mois est alors absent des groupes, et plus aucun ne s'ouvrirait — on
+  var _land=_landingSession();
+  if(_land) activeKey=_monthKey(_land.date);
+  /* Cette session peut appartenir a une autre saison que celle affichee : son
+     mois est alors absent des groupes, et plus aucun ne s'ouvrirait — on
      verrait « Aout 2026 ▸ » replie sans savoir quelle date on joue. */
   if(activeKey && !groups[activeKey]) activeKey=null;
-  /* Sinon : se caler sur le créneau ouvert affiché par défaut (firstOpen), pas le mois le plus récent */
-  if(!activeKey){
-    var _slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){_slotById[sl.id]=sl;});
-    var _firstOpen=_INS_SESSIONS.find(function(s){var sl=_slotById[s.id];return sl&&sl.open;});
-    if(_firstOpen) activeKey=_monthKey(_firstOpen.date);
-  }
   if(!activeKey&&gOrder.length)activeKey=gOrder[0];
   var _ak=activeKey;
 
