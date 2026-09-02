@@ -270,6 +270,29 @@ Wikimedia refuse le téléchargement automatisé de ses médias (`429`, robot po
 logos doivent être déposés à la main dans le dépôt, puis réduits (via Chromium et un
 canvas, faute de Pillow ou d'ImageMagick sur la machine).
 
+### Atterrissage : sur quelle session le site s'ouvre (depuis septembre 2026)
+
+`_landingSession()` est **la seule définition** de la session d'arrivée. Elle sert à la
+fois à `_loadInscriptionSessions` (qui la rend sur le terrain) et à `buildTabs` (qui
+déplie son mois) : deux calculs séparés finiraient par diverger et l'onglet actif se
+retrouverait dans un groupe replié.
+
+La règle tient en une comparaison de dates, avec `_matchDayFromLabel` :
+- session `current` datée d'aujourd'hui ou plus tard → **on reste dessus**. C'est le
+  lundi soir après le lock : le créneau encore ouvert est celui de la semaine suivante,
+  y basculer serait une erreur.
+- sinon → **le premier créneau ouvert dont la date n'est pas passée**. Pendant la
+  semaine on vient voir le match à venir, pas le résultat de lundi dernier.
+- une ancre dans l'URL (`#s14`) reste prioritaire sur tout.
+
+Cas limite couvert au passage : si le lock échoue un lundi soir (pas d'entrée
+`SESSIONS`, créneau resté ouvert), la session du jour est quand même celle qui
+s'affiche — c'est ce qui manquait le 31 août.
+
+⚠️ `_monthKey` passe elle aussi par `_matchDayFromLabel` : elle lisait l'année au
+dernier mot du libellé, ce qui faisait retomber `'Lundi 31 août 2026 · Reprise 🔥'` sur
+2026 en dur. Invisible cette saison, faux dès 2027.
+
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
 - Clôture = 10 votes atteints OU 22h30 le lendemain → donc au plus tard à **01h30** (nuit du lendemain au surlendemain)
@@ -344,10 +367,9 @@ de 21h30 Paris**. À comparer au 13 juillet (8/22, retard moyen 180 min) et au
 même** — un run planifié peut arriver des heures plus tard, et la compensation par
 fenêtre élargie ne protège que jusqu'à ~3h30 de retard. Conséquences en
 cascade : pas d'entrée `SESSIONS` → **le site atterrissait sur s17 (27 juillet)** car
-la règle d'atterrissage de `_loadInscriptionSessions` n'opère que tant que
-`_parisNow() < SEASON_RESUME` et suppose qu'après 21h30 le lock a fait de la session
-du jour la session `current` → et **pas de formulaire de score**, qui exige une
-entrée `SESSIONS` sans score. Remède appliqué : `workflow_dispatch` sur
+la règle d'atterrissage d'alors n'opérait que tant que `_parisNow() < SEASON_RESUME`
+(corrigé depuis, cf. « Atterrissage » plus bas) → et **pas de formulaire de score**,
+qui exige une entrée `SESSIONS` sans score. Remède appliqué : `workflow_dispatch` sur
 `lock-session.yml`, qui a repris la compo `slot_sessions` telle quelle (aucun
 reshuffle, aucune inversion de couleur). **Ne jamais retaper la compo de mémoire —
 le dispatch manuel reste fiable même quand aucun cron n'est arrivé à l'heure.** Cinq absents (Tim, Khalid, Landry, Henri, Thomas D) et trois remplacements successifs absorbés automatiquement dans la journée : la compo publiée est restée alignée sur les titulaires effectifs à chaque mouvement, et le lock l'a reprise telle quelle.
