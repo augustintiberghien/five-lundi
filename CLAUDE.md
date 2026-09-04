@@ -86,6 +86,43 @@ Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en 
 
 Secours manuel en dernier recours (le workflow_dispatch lui-même échoue) : console → `exportSessionEntry()` → coller l'entrée en tête de `SESSIONS`. Cas tournoi (4 équipes, ex. 22 juin) non géré par le workflow ni l'outil → promotion manuelle.
 
+### Filet de sécurité : le site déclenche le lock lui-même (depuis septembre 2026)
+
+**On ne peut pas rendre les crons ponctuels.** Le trigger `schedule` de GitHub Actions
+est best-effort : documenté comme retardable en période de charge, et parfois abandonné.
+Mesuré sur `lock-session.yml`, en prenant le premier run utile (celui qui tombe après
+19h30 UTC, les précédents sortant à vide) :
+
+| lundi | 1er run utile | = Paris | retard |
+|---|---|---|---|
+| 17 août | 19h32 UTC | 21h32 | 3 min |
+| 24 août | 19h33 UTC | 21h33 | 4 min |
+| 31 août | 21h21 UTC | 23h21 | **111 min** |
+
+Le `workflow_dispatch`, lui, part en **moins d'une seconde** (les deux dispatches de test
+du 4 septembre ont créé leur run dans la même seconde). C'est le seul levier : ne pas
+attendre le scheduler de GitHub, faire déclencher le dispatch par une horloge fiable.
+
+L'horloge retenue est **le site lui-même** : au chargement, `_maybeTriggerLock()` appelle
+l'Edge Function `trigger-lock`, qui dispatche `lock-session.yml`. Le lundi soir tout le
+monde ouvre la page — le premier visiteur après 21h30 réveille le lock.
+
+`_slotAwaitingLock()` ne rend un créneau que si **tout** est réuni : il est 21h30 ou plus
+à Paris, aucune entrée `SESSIONS` n'est datée d'aujourd'hui, et un créneau ouvert non-
+tournoi porte la date du jour. `trigger-lock` revérifie côté serveur (lundi, ≥ 21h30
+Paris) pour ne pas dépenser de minutes Actions sur un appel inutile.
+
+Rien ne peut partir en double : `localStorage` limite à un déclenchement par navigateur
+et par tranche de 10 min, `concurrency: lock-session` sérialise les runs, et
+`lock_session.py` sort sans rien faire si la session du jour existe déjà.
+
+⚠️ Le filet **ne couvre pas les tournois** (le script non plus) ni le cas où personne
+n'ouvre le site. Le `workflow_dispatch` manuel reste le dernier recours, et il marche
+même quand aucun cron n'est arrivé — vérifié le 31 août.
+
+⚠️ La page qui déclenche le lock ne le voit pas : il faut **recharger** une fois le run
+terminé (~1 min, plus le déploiement Pages). Pas de rechargement automatique, volontairement.
+
 **Règle position : les places ne sont pas un sujet, gardien compris.** Au five tout le monde tourne, y compris dans les buts (confirmé par l'utilisateur le 27 juillet 2026 : « on s'en fout des gardiens vraiment »). **Ne jamais alerter ni « corriger » un changement de position**, qu'il s'agisse de défenseurs qui permutent ou du gardien qui change. Ce qui doit rester stable, et cela seul : la **répartition des deux équipes** et leurs **couleurs**.
 
 Pour mémoire technique : aucun joueur actif n'a le rôle `Gardien` (seul Rémi l'a dans `PLAYER_ROLES`), donc `_assignPositions` retombe sur « premier Défenseur/Récupérateur, sinon premier de la liste » et le gardien dépend de l'ordre du roster. `_anchorPositions` (front, `index.html`) et son équivalent dans `lock_session.py` restituent à chaque joueur la place qu'il occupait dans la compo annoncée, les nouveaux venus prenant les emplacements libres. C'est du confort — éviter que l'affichage bouge sans raison — pas une règle métier : quand un gardien est absent, son remplacement dans les buts est normal et ne se signale pas.
