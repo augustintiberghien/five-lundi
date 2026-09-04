@@ -54,11 +54,14 @@ Deno.serve(async (req) => {
   const { weekday, hour, minute } = parisNow()
   const afterLock = hour > 21 || (hour === 21 && minute >= 30)
   if (weekday !== 1 || !afterLock) {
+    // Ce message est lu en panique un lundi soir : il doit dire l'heure qu'il est, pas
+    // seulement la règle. Nommer le jour courant évite de lire « lundi » un vendredi.
+    const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
     const hhmm = `${String(hour).padStart(2, '0')}h${String(minute).padStart(2, '0')}`
-    return new Response(`Hors fenêtre (lundi ${hhmm} Paris requis ≥ 21h30) — rien à faire`, {
-      status: 200,
-      headers: corsHeaders(),
-    })
+    return new Response(
+      `Hors fenêtre : il est ${jours[weekday]} ${hhmm} à Paris, requis lundi ≥ 21h30 — rien à faire`,
+      { status: 200, headers: corsHeaders() }
+    )
   }
 
   const gh = await fetch(
