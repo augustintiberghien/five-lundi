@@ -1667,7 +1667,7 @@ function renderInFormation(s){
   formBanner.style.display='';
   var _hasCache=(s.regs&&s.regs.length>0)||(s.regCount>0);
   formBanner.innerHTML=_hasCache?_buildFormingBannerHtml(s,s.regs||[],s.matchRegs||[])
-    :'<div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><span>Échauffement en cours…</span><span>On gonfle le ballon…</span><span>Distribution des chasubles…</span><span>Le coach griffonne la compo…</span></div></div>';
+    :_loadingBannerHtml();
   formBanner.style.display='block';
 
   setActiveTab(s.id);
@@ -3860,6 +3860,31 @@ var SONDAGE_JUILLET = {
    voit la même. Chaque changement des 10 titulaires (désistement, nouvel
    inscrit) déclenche un ré-équilibrage COMPLET, republié pour tous (option B).
    Plus aucune écriture après le lundi 21h30 du créneau (lock). */
+/* ── ÉCRAN DE CHARGEMENT ──
+   Les phrases se modifient ici, et ici seulement. Le même texte figure en dur dans le
+   <div id="forming-banner"> du corps de page : c'est le premier affichage, celui qui doit
+   apparaître avant que le moindre JS ne tourne, donc il ne peut pas être généré.
+   _syncLoadingPhrases() réaligne ce bloc statique sur le tableau au démarrage, pour que
+   les deux ne puissent pas diverger. Le rythme (4 phrases sur 8 s) est porté par
+   @keyframes phraseCycle et les .loading-phrases span:nth-child ; ajouter une 5ᵉ phrase
+   demande donc aussi une règle nth-child(5) et un cycle plus long. */
+var LOADING_PHRASES = [
+  'Échauffement en cours…',
+  'On gonfle le ballon…',
+  'Distribution des chasubles…',
+  'Le coach griffonne la compo…'
+];
+function _loadingBannerHtml(){
+  return '<div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases">'
+    + LOADING_PHRASES.map(function(t){
+        return '<span>' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
+      }).join('')
+    + '</div></div>';
+}
+function _syncLoadingPhrases(){
+  var el=document.getElementById('forming-banner');
+  if(el && el.querySelector('.loading-banner')) el.innerHTML=_loadingBannerHtml();
+}
 function _parisNow(){ return new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Paris'})); }
 function _slotLockDate(slot){
   var lbl=slot.label.replace(/\s*\([^)]*\)/g,'').replace(/[ᵉʳˢⁱᵒ]+/g,'').trim();
@@ -4546,6 +4571,28 @@ function renderPresence(s) {
       _matchOnlyList=(s.matchRegs||[]).filter(function(r){return _allFive.indexOf(r.player_name)===-1;});
     }
 
+    /* Origine « banc » : rang d'inscription ≥ 11 dans l'ordre du roster. C'est le seul
+       repère stable. starterNames suit s.players, or s.players est entièrement réécrit à
+       chaque rééquilibrage (option B) : dès qu'un remplaçant était promu dans la compo,
+       il devenait indiscernable d'un titulaire et perdait son badge — on ne voyait plus
+       qu'il venait du banc. Le rang d'inscription, lui, ne bouge jamais.
+       Corollaire voulu : un titulaire d'origine repoussé hors de la compo n'est PAS un
+       remplaçant, et ne porte donc pas le badge. */
+    var _benchOrigin = {};
+    if (s.regs && s.regs.length) {
+      _rosterOrder(_slot, s.regs).slice(10).forEach(function(n){ _benchOrigin[n] = true; });
+    } else {
+      /* Pas d'inscriptions sous la main (entrée SESSIONS figée) : on retombe sur le banc
+         de la session, qui est la même information une fois la compo verrouillée. */
+      bench.forEach(function(n){ _benchOrigin[n] = true; });
+    }
+    function _tagFor(name){
+      var parts = [];
+      if (_benchOrigin[name]) parts.push('🟢 Rempl.');
+      if (_matchSet[name]) parts.push('🇫🇷');
+      return parts.join(' ');
+    }
+
     var html = '';
     try {
 
@@ -4559,22 +4606,22 @@ function renderPresence(s) {
     var calledPlaying = calledUp.filter(function(n){ return byName[n] === 'playing'; });
 
     noReply.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, null, myName === name, false, _matchSet[name]?'🇫🇷':'');
+      html += presenceRowHtml(s.id, name, null, myName === name, false, _tagFor(name));
     });
     calledNoReply.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, null, myName === name, false, '🟢 Rempl.'+(_matchSet[name]?' 🇫🇷':''));
+      html += presenceRowHtml(s.id, name, null, myName === name, false, _tagFor(name));
     });
     maybe.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, 'maybe', myName === name, false, _matchSet[name]?'🇫🇷':'');
+      html += presenceRowHtml(s.id, name, 'maybe', myName === name, false, _tagFor(name));
     });
     calledMaybe.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, 'maybe', myName === name, false, '🟢 Rempl.'+(_matchSet[name]?' 🇫🇷':''));
+      html += presenceRowHtml(s.id, name, 'maybe', myName === name, false, _tagFor(name));
     });
     playing.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, 'playing', myName === name, false, _matchSet[name]?'🇫🇷':'');
+      html += presenceRowHtml(s.id, name, 'playing', myName === name, false, _tagFor(name));
     });
     calledPlaying.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, 'playing', myName === name, false, '🟢 Rempl.'+(_matchSet[name]?' 🇫🇷':''));
+      html += presenceRowHtml(s.id, name, 'playing', myName === name, false, _tagFor(name));
     });
 
     // Séparateur + remplaçants en attente
@@ -4601,7 +4648,7 @@ function renderPresence(s) {
     });
 
     benchAbsent.forEach(function(name) {
-      html += presenceRowHtml(s.id, name, 'absent', myName === name, true, 'Banc');
+      html += presenceRowHtml(s.id, name, 'absent', myName === name, true, _benchOrigin[name] ? 'Banc' : '');
     });
 
     } catch(err) {
@@ -6365,9 +6412,21 @@ function buildTabs(){
 try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('ins_teams_')===0) localStorage.removeItem(k); }); }catch(e){}
 
 buildTabs();
-// Afficher la session current:false au chargement
+_syncLoadingPhrases();
+/* Premier rendu : ne peindre la session `current` que si c'est bien celle sur laquelle on
+   va atterrir. Sinon on affichait le match précédent le temps que Supabase réponde, puis
+   on basculait sur le prochain — d'où le clignotement d'une page à l'autre au chargement,
+   et l'écran de chargement (ballon + phrases) écrasé avant d'avoir servi.
+   Même règle que _landingSession, et même prudence : une date illisible ne fait pas
+   quitter la session current. */
 var defaultSession = SESSIONS.find(function(s){ return s.current; });
-if(defaultSession) renderSession(defaultSession);
+var _curIsLanding = false;
+if(defaultSession){
+  var _cd=_matchDayFromLabel(defaultSession.date);
+  var _cpn=_parisNow();
+  _curIsLanding = !_cd || _cd.getTime() >= new Date(_cpn.getFullYear(),_cpn.getMonth(),_cpn.getDate()).getTime();
+}
+if(defaultSession && _curIsLanding) renderSession(defaultSession);
 // Sans session active : masquer le terrain vide immédiatement
 if(!defaultSession){
   var _pw=document.querySelector('.pitch-wrap');
@@ -6378,7 +6437,14 @@ var _insLoadDone=false;
 var _insLoadTimer=setTimeout(function(){
   if(_insLoadDone) return;
   _insLoadDone=true;
-  if(SESSIONS.find(function(s){return s.current;})) return;
+  var _cur0=SESSIONS.find(function(s){return s.current;});
+  if(_cur0){
+    /* Rendu retenu plus haut parce que cette session n'était pas celle d'atterrissage :
+       Supabase ne répond pas, mieux vaut afficher le dernier match que laisser tourner
+       l'écran de chargement indéfiniment. */
+    if(!_curIsLanding) renderSession(_cur0);
+    return;
+  }
   var firstOpen=INSCRIPTION_SLOTS.find(function(sl){return sl.open;});
   if(!firstOpen) return;
   var fb=document.getElementById('forming-banner');
