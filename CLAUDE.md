@@ -147,6 +147,64 @@ curl -s -i -X OPTIONS "$SB_URL/functions/v1/submit-score" \
 - Timezone : toujours via `toLocaleString('en-US', {timeZone:'Europe/Paris'})`
 - **Résumé MVP** : le code d'appel direct à l'API Anthropic a été supprimé (juin 2026 — il partait sans clé et ne marchait pas). Le résumé/article est rédigé par Claude **au débrief après chaque match** et poussé manuellement dans le HTML (`ARTICLES`). À la clôture du vote, le site affiche les commentaires bruts des votants.
 
+### ⚠️ L'ouverture du vote ne doit jamais dépendre du score (corrigé le 4 septembre 2026)
+
+`mvpIsOpen` testait « on est le soir du match après 22h30 » (`mvpMatchNight`) **OU**
+« le score est rentré ». Le premier terme retombe à faux **à minuit** : sans score saisi,
+le vote disparaissait de 00h00 jusqu'à la saisie — alors que c'est justement la clameur
+du vote qui fait rentrer le score. Le défaut n'a jamais mordu parce que le score a
+toujours été saisi le soir même (le 31 août, à 23h03, une heure avant le piège).
+
+Le vote court désormais de 22h30 le soir du match à la deadline du lendemain, score ou
+pas. `mvpMatchNight` a été retirée avec : elle n'avait que cet appelant, et la laisser
+invitait à réutiliser la logique fautive. Le garde-fou `if (!dl) return false;` reste en
+tête — c'est lui qui écarte les libellés de créneau (4 mots) et protège `_matchDateParis`.
+
+### ⚠️ Une Edge Function ne doit jamais relayer le statut 204 de GitHub
+
+`trigger-switch` (10ᵉ vote → `switch-session.yml`) faisait
+`new Response(msg, {status: gh.status})`. GitHub répond **204 No Content** à un
+`workflow_dispatch` réussi, et 204 interdit un corps : `new Response` lève
+`TypeError: Invalid response status code 204`, non attrapée → **500**. Le dispatch, lui,
+était bien parti. Le webhook DB voyait donc un échec et **rejouait**, chaque rejeu
+relançant un run `switch-session` qui dort 3 h. Corrigé le 4 septembre 2026 : succès →
+200, erreur → 502.
+
+Règle générale : ne jamais repasser tel quel le statut d'une API tierce dans
+`new Response`. Les « null body status » (101, 103, 204, 205, 304) font lever le
+constructeur dès qu'un corps est fourni.
+
+### Répétition générale : comment tester la soirée sans rien casser
+
+Rejouée le 4 septembre 2026 avant le match du 7. Aucun de ces tests n'écrit quoi que ce
+soit dans `main` :
+
+- **Lock** : copier `index.html` dans un dossier de travail, remplacer
+  `now = datetime.now(PARIS)` par la date du lundi à 21h35 dans une copie de
+  `lock_session.py`, lancer, puis lire l'entrée `SESSIONS` produite. Vérifier que le
+  message « compo publiée absente ou périmée » **n'apparaît pas** (sinon la compo
+  `slot_sessions` est désynchronisée et le lock reshufflera tout).
+- **Score** : renvoyer le score **déjà enregistré** d'une session passée à
+  `submit-score` (cf. plus haut). `set_score.py` refuse d'écraser et sort en succès.
+- **Horloges** : extraire `_matchDateParis` / `mvpDeadline` / `mvpIsOpen` et les exécuter
+  dans node avec un `Date` truqué, **sous plusieurs `TZ`** (`Europe/Paris`, `UTC`,
+  `America/New_York`) — c'est ce qui prouve que l'heure de Paris ne dépend pas du fuseau
+  du visiteur.
+- **Garde-fou stats** : après lock + score + `update_stats.py`, revérifier que
+  `_computeStats(null)` reproduit `PLAYER_STATS` et `PAIR_STATS` à l'identique.
+
+⚠️ **`trigger-switch` ne se teste pas à blanc sur une session à 10 votes** : la fonction
+dispatche pour de vrai avant de répondre. Le run `switch-session` déclenché **dort 3 h**
+avant de no-oper — l'annuler tout de suite. Pour un simple test de disponibilité, viser
+une session à moins de 10 votes : elle renvoie « N/10 — not triggering » sans rien
+déclencher.
+
+⚠️ **`switch-session` est un no-op depuis que le lock est automatique.** Le lock crée
+chaque lundi une session `current:true` en tête de `SESSIONS`, donc `switch_session.py`
+trouve toujours `idx == 0` (« Déjà sur la session la plus récente ») et sort. Ce n'est
+pas une panne. La section « Passage à la session suivante » ci-dessous décrit un geste
+que plus personne n'a à faire.
+
 ## Section « Récap 25-26 » (bilan de saison) — depuis juillet 2026
 
 Onglet `🏁 Récap 25-26` (vert, à droite d'Inscriptions) ajouté pour le message de fin de saison envoyé au groupe WhatsApp. Contenu **figé, écrit à la main** : chiffres clés, palmarès, top 10 des winrates, section chambrage, sept soirées marquantes, best-of des commentaires de vote, plan d'entraînement estival, annonce de la reprise.
