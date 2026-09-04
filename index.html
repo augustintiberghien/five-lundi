@@ -4812,34 +4812,17 @@ function mvpDeadline(sessionDate, sessionId) {
   var offsetMs = new Date(approx.toLocaleString('en-US')) - new Date(approx.toLocaleString('en-US', {timeZone: 'Europe/Paris'}));
   return new Date(approx.getTime() + offsetMs);
 }
-function mvpMatchNight(sessionDate) {
-  var months = {janvier:0,é:1};// dummy — on parse directement
-  // Accepter "8 juin 2026" et "Lundi 8 juin 2026"
-  var parts = sessionDate.trim().split(/\s+/);
-  if (parts.length === 4) parts = parts.slice(1); // retirer le jour (Lundi, Mardi…)
-  if (parts.length !== 3) return false;
-  var monthsFull = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  var mIdx = monthsFull.indexOf(parts[1].toLowerCase());
-  if (mIdx < 0) return false;
-  var now = new Date();
-  // Convertir en heure Paris (Europe/Paris)
-  var parisStr = now.toLocaleString('fr-FR', {timeZone:'Europe/Paris', hour:'numeric', minute:'numeric', day:'numeric', month:'numeric', year:'numeric'});
-  var parisNow = new Date(now.toLocaleString('en-US', {timeZone:'Europe/Paris'}));
-  var ph = parisNow.getHours(), pm = parisNow.getMinutes();
-  return parisNow.getFullYear() === parseInt(parts[2])
-      && parisNow.getMonth()    === mIdx
-      && parisNow.getDate()     === parseInt(parts[0])
-      && (ph > 22 || (ph === 22 && pm >= 30));
-}
 function mvpIsOpen(s) {
   var dl = mvpDeadline(s.date, s.id);
-  if (!dl) return false;
-  var now = new Date();
-  // Vote ouvert dès 22h30 le soir du match, score rentré ou non
-  if (mvpMatchNight(s.date)) return now < dl;
-  // Ou si match passé et deadline pas encore atteinte
-  if (s.scoreWinner) return now < dl;
-  return false;
+  if (!dl) return false;   /* libellé de créneau (4 mots) : pas de vote, et protège _matchDateParis */
+  // Ouvert de 22h30 le soir du match jusqu'à la deadline du lendemain, score rentré ou non.
+  // Ne jamais conditionner l'ouverture à scoreWinner : l'ancienne version testait
+  // « on est le soir du match après 22h30 » OU « le score est rentré ». Le premier terme
+  // retombe à faux à minuit, donc un match dont le score n'était pas encore saisi voyait
+  // son vote se refermer à 00h00 et ne rouvrir qu'à la saisie — alors que la clameur du
+  // vote est justement ce qui fait rentrer le score.
+  var now = Date.now();
+  return now >= _matchDateParis(s.date).getTime() && now < dl.getTime();
 }
 function mvpIsClosed(s) {
   var dl = mvpDeadline(s.date, s.id);

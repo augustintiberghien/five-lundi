@@ -55,7 +55,16 @@ Deno.serve(async (req) => {
     }
   )
 
-  const msg = gh.ok ? 'GitHub Action triggered' : await gh.text()
-  console.log(msg)
-  return new Response(msg, { status: gh.status })
+  // GitHub répond 204 No Content à un workflow_dispatch réussi. Renvoyer ce statut tel
+  // quel avec un corps fait lever `new Response` (« null body status » : 204 interdit un
+  // corps), l'exception remonte non attrapée et le webhook DB reçoit un 500 alors que le
+  // dispatch, lui, est bien parti — il le rejoue donc, et chaque rejeu relance un run qui
+  // dort 3h. On répond 200 sur tout succès, et on ne relaie que le statut d'erreur.
+  if (gh.ok) {
+    console.log('GitHub Action triggered')
+    return new Response('GitHub Action triggered', { status: 200 })
+  }
+  const msg = await gh.text()
+  console.error(`GitHub dispatch failed (${gh.status}): ${msg}`)
+  return new Response(msg, { status: 502 })
 })
