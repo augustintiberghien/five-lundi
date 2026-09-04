@@ -6392,7 +6392,56 @@ var _insLoadTimer=setTimeout(function(){
   var sb=document.getElementById('score-block'); if(sb) sb.style.display='none';
 }, 6000);
 // Charger les sessions d'inscription (affiche la 1ère si aucune session régulière active)
+
+/* ── FILET DE SÉCURITÉ DU LOCK 21h30 ──
+   Le trigger `schedule` de GitHub Actions est best-effort : 3 min de retard le 17 août,
+   4 min le 24, mais 111 min le 31 — aucun cron n'a atterri près de 21h30 ce soir-là et
+   la compo n'a été figée qu'à 23h21. Le `workflow_dispatch`, lui, part en moins d'une
+   seconde. Si un visiteur ouvre la page le soir du match après 21h30 et que la compo
+   n'est toujours pas figée, c'est donc la page qui réveille le lock.
+   Idempotent de bout en bout : lock_session.py sort sans rien faire si la session du
+   jour existe déjà, et `concurrency: lock-session` sérialise les runs. */
+function _slotAwaitingLock(){
+  var pn=_parisNow();
+  /* Avant 21h30, le lock n'a rien à figer : la compo peut encore bouger. */
+  if(pn.getHours()<21||(pn.getHours()===21&&pn.getMinutes()<30)) return null;
+  var today=new Date(pn.getFullYear(),pn.getMonth(),pn.getDate()).getTime();
+  /* Une entrée SESSIONS datée d'aujourd'hui = compo déjà figée, rien à déclencher. */
+  var frozen=SESSIONS.some(function(s){
+    var d=_matchDayFromLabel(s.date);
+    return d && d.getTime()===today;
+  });
+  if(frozen) return null;
+  var slot=INSCRIPTION_SLOTS.filter(function(sl){
+    if(!sl.open) return false;          /* créneau annulé ou déjà promu */
+    if(sl.tournament) return false;     /* lock_session.py ne gère pas les tournois */
+    var d=_matchDayFromLabel(sl.label);
+    return d && d.getTime()===today;
+  })[0];
+  return slot||null;
+}
+function _maybeTriggerLock(){
+  var slot;
+  try { slot=_slotAwaitingLock(); } catch(e){ return; }
+  if(!slot) return;
+  /* Un seul déclenchement par navigateur et par tranche de 10 min : vingt joueurs qui
+     rechargent à 21h35 ne doivent pas produire vingt runs. */
+  var k='lock_dispatch_'+slot.id;
+  try {
+    if(Date.now()-(parseInt(localStorage.getItem(k),10)||0) < 10*60*1000) return;
+    localStorage.setItem(k, String(Date.now()));
+  } catch(e){ /* stockage indisponible : on déclenche quand même, le lock est idempotent */ }
+  fetch(SB_URL+'/functions/v1/trigger-lock',{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({slot_id:slot.id})
+  }).then(function(r){ return r.text(); })
+    .then(function(t){ console.log('[lock] filet de sécurité :',t); })
+    .catch(function(e){ console.warn('[lock] déclenchement impossible :',e); });
+}
+
 _loadInscriptionSessions().then(function(){ _insLoadDone=true; clearTimeout(_insLoadTimer); },function(){ /* erreur Supabase — le timer affichera le fallback */ });
+_maybeTriggerLock();
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
