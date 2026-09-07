@@ -754,6 +754,42 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .jr-form i.w{background:#4ade80}
 .jr-form i.l{background:#ef4444}
 
+/* == VUE PRESSE == */
+#view-presse{display:none}
+.pr-count{font-family:'Saira',sans-serif;font-size:.6rem;color:rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.1em;padding:.7rem .4rem .6rem}
+.pr-empty{font-family:'Saira',sans-serif;font-size:.7rem;color:rgba(255,255,255,.4);
+  text-align:center;padding:1.4rem .5rem;line-height:1.6}
+.pr-search{display:flex;align-items:center;gap:.4rem;margin:.6rem .4rem 0;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;
+  padding:.1rem .2rem .1rem .6rem}
+.pr-search input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#fff;
+  font-family:'Saira',sans-serif;font-size:.78rem;padding:.45rem 0}
+.pr-search input::placeholder{color:rgba(255,255,255,.3)}
+.pr-x{background:transparent;border:none;color:rgba(255,255,255,.35);font-size:.8rem;
+  cursor:pointer;padding:.3rem .5rem;line-height:1}
+.pr-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;margin-bottom:.5rem;overflow:hidden}
+.pr-card.open{border-color:rgba(255,228,155,.3);background:rgba(255,228,155,.04)}
+.pr-head{padding:.7rem .8rem;cursor:pointer}
+.pr-meta{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.3rem}
+.pr-meta span{font-family:'Saira Condensed',sans-serif;font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;color:#FFE49B}
+.pr-score{margin-left:auto;color:rgba(255,255,255,.45)!important;font-variant-numeric:tabular-nums}
+.pr-title{font-family:'Saira Condensed',sans-serif;font-size:1rem;font-weight:700;color:#fff;
+  line-height:1.2;margin-bottom:.2rem}
+.pr-sub{font-family:'Saira',sans-serif;font-size:.72rem;color:rgba(255,255,255,.45);
+  font-style:italic;line-height:1.45}
+.pr-hit{font-family:'Saira',sans-serif;font-size:.6rem;color:#FFE49B;margin-top:.4rem;
+  text-transform:uppercase;letter-spacing:.08em}
+.pr-more{font-family:'Saira Condensed',sans-serif;font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-top:.5rem}
+.pr-body{padding:0 .8rem 1rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.2rem}
+.pr-body .article-kicker{padding-top:.9rem}
+.pr-mk{background:rgba(255,228,155,.22);color:#fff;border-radius:3px;padding:0 .12em}
+.pr-recap{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.05);cursor:pointer}
+.pr-recap .pr-meta span{color:#4ade80}
+
 /* VUE STATS */
 #view-stats{display:none;width:min(calc(100vw - 2rem),480px);padding:.5rem}
 .stats-header{
@@ -1094,6 +1130,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .sondage-names{font-family:'Saira',sans-serif;font-size:.65rem;color:rgba(255,255,255,.35);line-height:1.5;min-height:.8rem}
 .tab-ins{background:rgba(255,228,155,.1);color:#FFE49B}
 .tab-joueurs{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
+.tab-presse{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
 .tab-ins.active{background:#FFE49B;color:#000}
 .tab-recap{background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.35)}
 .tab-recap.active{background:#4ade80;color:#000;border-color:#4ade80}
@@ -1197,6 +1234,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 <div id="view-inscriptions"></div>
 <div id="view-recap"></div>
 <div id="view-joueurs"></div>
+<div id="view-presse"></div>
 <div style="height:1.8rem"></div>
 <div id="balance-explain" style="display:none"></div>
 <div class="bench-section" id="bench-section" style="display:none"></div>
@@ -1996,6 +2034,23 @@ function renderSession(s){
     if(benchWrapIns) benchWrapIns.style.display='none';
   }
   renderPresence(s);
+
+  /* Point de passage commun de tous les rendus tardifs : la bannière de créneau qui se
+     rafraîchit, le timeout de secours à 6 s quand Supabase ne répond pas, l'atterrissage.
+     Chacun révèle en-tête de session, MVP et article sans savoir ce qui est à l'écran,
+     et renderSession reprend en plus la surbrillance de l'onglet. Si une vue plein-écran
+     est ouverte, on remasque et on lui rend son onglet : le contenu vient d'être calculé,
+     il sera là au retour sur le terrain. Sans ça, cliquer sur Stats, Joueurs, Inscriptions
+     ou Presse pendant le chargement empilait l'en-tête et « Homme du match » par-dessus
+     la vue ouverte, onglet actif compris. */
+  var _openTab = _visibleViewTab();
+  if(_openTab){
+    ['session-header','mvp-section','article-section','bench-section','presence-section',
+     'balance-explain','pitch-legend','pitch-duos','tournament-section'].forEach(function(id){
+      var e = document.getElementById(id); if(e) e.style.display = 'none';
+    });
+    setActiveTab(_openTab);
+  }
 }
 
 function renderMatchEventSection(s, slot){
@@ -2447,6 +2502,18 @@ function patchRoles() {
 patchRoles();
 
 /* ── TABS ── */
+/* Quelle vue plein-ecran est ouverte, deduit du DOM plutot que d'un etat parallele
+   qui finirait par diverger. Renvoie l'id d'onglet correspondant, ou null si on est
+   sur le terrain. */
+function _visibleViewTab(){
+  var map = [['view-recap','recap'], ['view-joueurs','joueurs'], ['view-presse','presse'],
+             ['view-stats','stats'], ['view-inscriptions','ins']];
+  for(var i=0;i<map.length;i++){
+    var e = document.getElementById(map[i][0]);
+    if(e && e.style.display === 'block') return map[i][1];
+  }
+  return null;
+}
 function setActiveTab(id){
   document.querySelectorAll('.tab').forEach(function(t){
     t.classList.toggle('active', t.dataset.id===id);
@@ -2455,6 +2522,7 @@ function setActiveTab(id){
 function showPitch(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
   var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
+  var _vp=document.getElementById('view-presse'); if(_vp) _vp.style.display='none';
 
   document.getElementById('view-pitch').style.display='block';
   document.getElementById('view-stats').style.display='none';
@@ -2465,6 +2533,7 @@ function showPitch(){
 function showStats(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
   var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
+  var _vp=document.getElementById('view-presse'); if(_vp) _vp.style.display='none';
 
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-inscriptions').style.display='none';
@@ -2979,7 +3048,7 @@ function _computeMotmTitles(allVotes){
 var _joueursTitles = null;   /* rempli au premier chargement des votes */
 
 function showJoueurs(){
-  var ids = ['view-pitch','view-stats','view-inscriptions','view-recap'];
+  var ids = ['view-pitch','view-stats','view-inscriptions','view-recap','view-presse'];
   ids.forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
   ['session-header','mvp-section','article-section','bench-section',
    'presence-section','balance-explain'].forEach(function(id){
@@ -5707,9 +5776,272 @@ function renderArticle(s) {
 }
 
 
+/* == VUE PRESSE ==
+   Les articles vivaient enfermes dans la session qui les portait : un seul lisible
+   a la fois, celui du match affiche. Cette vue les rassemble, du plus recent au plus
+   ancien, avec un perimetre de saison (meme regle que l'onglet Stats) et un filtre
+   par prenom — « tous les articles qui parlent de moi ».
+   Aucune donnee nouvelle : tout est deduit d'ARTICLES + SESSIONS. */
+
+var _presseSeason;              /* undefined = non choisi, null = depuis le debut */
+var _presseQuery = '';
+var _prOpen = {};               /* id de session -> article deplie */
+
+var _PR_ACC = {a:'aàâä', c:'cç', e:'eéèêë', i:'iîï', o:'oôö', u:'uùûü', y:'yÿ', n:'nñ'};
+
+function _prNorm(str){
+  return (str||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+
+/* Recherche et surlignage doivent voir le meme texte : on construit la regex depuis
+   la requete normalisee, en rouvrant chaque lettre sur ses accents. « remi » trouve
+   donc « Rémi », et le surligne.
+   Les frontieres de mot ne sont pas un detail : sans elles « remi » comptait 9
+   mentions dans l'article du 31 aout, dont « remise en route » et « premieres ».
+   On ne les pose que si la requete commence et finit par un caractere ASCII — un
+   prenom accentue en tete (aucun aujourd'hui) ferait echouer \b, qui ne voit pas
+   les lettres accentuees comme des lettres. */
+function _prRegex(q){
+  var norm = _prNorm(q), src = '';
+  norm.split('').forEach(function(ch){
+    if(_PR_ACC[ch]) src += '[' + _PR_ACC[ch] + _PR_ACC[ch].toUpperCase() + ']';
+    else src += ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  });
+  if(!src) return null;
+  if(/[a-z0-9]/.test(norm.charAt(0)))              src = '\\b' + src;
+  if(/[a-z0-9]/.test(norm.charAt(norm.length-1)))  src = src + '\\b';
+  return new RegExp(src, 'gi');
+}
+
+function _prEsc(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* Texte brut d'un article, balises retirees : sert a chercher et a compter. */
+function _prPlain(art){
+  var parts = [art.kicker, art.headline, art.sub];
+  (art.body||[]).forEach(function(b){ parts.push(b.text); });
+  return parts.join(' ').replace(/<[^>]+>/g, ' ');
+}
+
+/* Surlignage qui ne rentre jamais dans une balise : on decoupe sur les tags et on
+   ne touche qu'aux morceaux de texte. */
+function _prMark(html, re){
+  if(!re) return html;
+  return html.split(/(<[^>]+>)/).map(function(part){
+    if(part.charAt(0) === '<') return part;
+    re.lastIndex = 0;
+    return part.replace(re, function(m){ return '<mark class="pr-mk">' + m + '</mark>'; });
+  }).join('');
+}
+
+/* Articles de la saison choisie, du plus recent au plus ancien (ordre de SESSIONS). */
+function _prList(scope){
+  var out = [];
+  SESSIONS.forEach(function(s){
+    var art = ARTICLES[s.id];
+    if(!art) return;
+    var season = (typeof _seasonOfDate === 'function') ? _seasonOfDate(s.date) : null;
+    if(scope && season !== scope) return;
+    out.push({id:s.id, art:art, s:s, season:season});
+  });
+  return out;
+}
+
+/* Meme logique que _statsScope : la saison en cours si elle a des articles, sinon tout. */
+function _presseScope(){
+  if(_presseSeason !== undefined) return _presseSeason;
+  var cur = (typeof _currentSeason === 'function') ? _currentSeason() : null;
+  if(cur && _prList(cur).length) return cur;
+  return null;
+}
+
+function _prPill(label, on, action){
+  return '<button onclick="' + action + '" style="font-family:Saira Condensed,sans-serif;'
+    + 'font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;'
+    + 'padding:.3rem .7rem;border-radius:20px;border:1.5px solid '
+    + (on ? '#FFE49B' : 'rgba(255,255,255,.2)') + ';background:'
+    + (on ? 'rgba(255,228,155,.12)' : 'transparent') + ';color:'
+    + (on ? '#FFE49B' : 'rgba(255,255,255,.5)') + ';cursor:pointer">' + label + '</button>';
+}
+
+/* Sous quelle couleur le joueur cherche a joue ce soir-la. */
+function _prWore(s, name){
+  var re = _prRegex(name);
+  var hit = null;
+  (s.players||[]).forEach(function(p){
+    if(hit) return;
+    re.lastIndex = 0;
+    if(_prNorm(p.name) === _prNorm(name) || re.test(p.name)) hit = p;
+  });
+  if(!hit) return null;
+  return hit.teamA ? '⚪ Blanche' : '🔵 Bleue';
+}
+
+function _prToggle(id){
+  _prOpen[id] = !_prOpen[id];
+  _prRenderList();
+}
+
+function _prSetSeason(sn){
+  _presseSeason = (sn === '*') ? null : sn;
+  renderPresseView();
+}
+
+/* On ne repeint que la liste : reconstruire toute la vue ferait perdre le focus du
+   champ de recherche, donc le clavier a chaque lettre tapee sur telephone. */
+function _prSearch(v){
+  _presseQuery = v || '';
+  _prRenderList();
+}
+
+function _prClear(){
+  _presseQuery = '';
+  var i = document.getElementById('pr-q'); if(i) i.value = '';
+  _prRenderList();
+}
+
+function _prRenderList(){
+  var box = document.getElementById('pr-list');
+  if(!box) return;
+
+  var scope = _presseScope();
+  var all = _prList(scope);
+  var q = _presseQuery.trim();
+  var re = q ? _prRegex(q) : null;
+
+  var rows = all.map(function(it){
+    if(!re) return {it:it, hits:0};
+    re.lastIndex = 0;
+    var m = _prPlain(it.art).match(re);
+    return {it:it, hits: m ? m.length : 0};
+  }).filter(function(r){ return !re || r.hits > 0; });
+
+  var h = '';
+
+  /* Compteur : discret, mais c'est lui qui dit si le filtre a mordu. */
+  h += '<div class="pr-count">' + rows.length + ' article' + (rows.length > 1 ? 's' : '')
+     + (re ? ' sur ' + all.length + ' — mentions de « ' + _prEsc(q) + ' »' : '')
+     + (scope ? ' · saison ' + scope : ' · depuis le début') + '</div>';
+
+  if(!rows.length){
+    h += '<div class="pr-empty">'
+       + (re ? 'Aucun article ne parle de « ' + _prEsc(q) + ' »'
+             + (scope ? ' sur la saison ' + scope + '.<br>Essaie « depuis le début ».' : '.')
+             : 'Aucun article sur cette saison.<br>Le premier arrive au débrief du prochain match.')
+       + '</div>';
+  }
+
+  rows.forEach(function(r){
+    var it = r.it, art = it.art, s = it.s;
+    var open = !!_prOpen[it.id];
+    var score = (s.score || '').replace(/\s*\([AB]\)\s*$/, '');
+    var vain = s.scoreWinner === 'A' ? '⚪' : s.scoreWinner === 'B' ? '🔵' : '';
+
+    h += '<article class="pr-card' + (open ? ' open' : '') + '">';
+    h += '<div class="pr-head" onclick="_prToggle(\'' + it.id + '\')">';
+    h += '<div class="pr-meta"><span>' + _prEsc(s.date) + '</span>';
+    if(score) h += '<span class="pr-score">' + _prEsc(score) + (vain ? ' ' + vain : '') + '</span>';
+    h += '</div>';
+    h += '<div class="pr-title">' + _prMark(art.headline, re) + '</div>';
+    h += '<div class="pr-sub">' + _prMark(art.sub, re) + '</div>';
+
+    if(re){
+      var wore = _prWore(s, q);
+      h += '<div class="pr-hit">' + r.hits + ' mention' + (r.hits > 1 ? 's' : '')
+         + (wore ? ' · a joué en ' + wore : ' · n’a pas joué ce soir-là') + '</div>';
+    }
+    h += '<div class="pr-more">' + (open ? 'Replier ▲' : 'Lire l’article ▼') + '</div>';
+    h += '</div>';
+
+    if(open){
+      var body = '<div class="article-kicker">' + _prEsc(art.kicker) + '</div>';
+      body += '<hr class="article-divider">';
+      body += '<div class="article-body">';
+      var closed = false;
+      (art.body || []).forEach(function(b){
+        if(b.type === 'p')  body += '<p>' + _prMark(b.text, re) + '</p>';
+        if(b.type === 'h3') body += '<h3>' + _prMark(b.text, re) + '</h3>';
+        if(b.type === 'footer'){ body += '</div><div class="article-footer">' + _prMark(b.text, re) + '</div>'; closed = true; }
+      });
+      if(!closed) body += '</div>';
+      h += '<div class="pr-body">' + body + '</div>';
+    }
+    h += '</article>';
+  });
+
+  /* Le recap de saison est un article comme un autre du point de vue du lecteur :
+     il a sa place dans la liste 25-26, meme s'il vit dans son propre onglet. */
+  if(!re && (scope === '25-26' || scope === null) && typeof showRecap === 'function'){
+    h += '<article class="pr-card pr-recap" onclick="showRecap()">';
+    h += '<div class="pr-head">';
+    h += '<div class="pr-meta"><span>Juillet 2026</span><span class="pr-score">Bilan</span></div>';
+    h += '<div class="pr-title">🏁 Récap 25-26 — la saison en entier</div>';
+    h += '<div class="pr-sub">Chiffres clés, palmarès, soirées marquantes et best-of des commentaires.</div>';
+    h += '<div class="pr-more">Ouvrir le récap ▸</div>';
+    h += '</div></article>';
+  }
+
+  box.innerHTML = h;
+}
+
+function renderPresseView(){
+  var wrap = document.getElementById('view-presse');
+  if(!wrap) return;
+
+  var scope = _presseScope();
+  var h = '<div style="width:min(calc(100vw - 2rem),480px);padding:.5rem;margin:0 auto">';
+  h += '<div class="stats-header"><span>📰</span><span>Articles de presse</span></div>';
+
+  /* Perimetre de saison — memes pastilles que l'onglet Stats. */
+  var seasons = (typeof _allSeasons === 'function') ? _allSeasons() : [];
+  if(seasons.length > 1 || scope !== null){
+    h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .1rem">';
+    seasons.forEach(function(sn){
+      h += _prPill('Saison ' + sn, scope === sn, '_prSetSeason(\'' + sn + '\')');
+    });
+    h += _prPill('Depuis le début', scope === null, '_prSetSeason(\'*\')');
+    h += '</div>';
+  }
+
+  /* Filtre par prenom. La datalist donne l'autocompletion native du telephone. */
+  h += '<div class="pr-search">';
+  h += '<input id="pr-q" list="pr-names" type="search" autocomplete="off" '
+     + 'placeholder="Filtrer par prénom…" value="' + _prEsc(_presseQuery) + '" '
+     + 'oninput="_prSearch(this.value)">';
+  h += '<button class="pr-x" onclick="_prClear()" title="Effacer">✕</button>';
+  h += '</div>';
+  h += '<datalist id="pr-names">';
+  Object.keys(PLAYER_NOTES).sort().forEach(function(n){
+    h += '<option value="' + _prEsc(n) + '"></option>';
+  });
+  h += '</datalist>';
+
+  h += '<div id="pr-list"></div>';
+  h += '</div>';
+  wrap.innerHTML = h;
+  _prRenderList();
+}
+
+function showPresse(){
+  ['view-pitch','view-stats','view-inscriptions','view-recap','view-joueurs'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.style.display = 'none';
+  });
+  ['session-header','mvp-section','article-section','bench-section',
+   'presence-section','balance-explain'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.style.display = 'none';
+  });
+  var v = document.getElementById('view-presse'); if(v) v.style.display = 'block';
+  renderPresseView();
+  setActiveTab('presse');
+  window.scrollTo(0,0);
+}
+
+
 function showInscriptions(){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
   var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
+  var _vp=document.getElementById('view-presse'); if(_vp) _vp.style.display='none';
 
   document.getElementById('view-pitch').style.display='none';
   document.getElementById('view-stats').style.display='none';
@@ -6022,14 +6354,20 @@ async function _loadInscriptionSessions(){
   buildTabs();
   // Restaurer la surbrillance de l'onglet actif (buildTabs recrée le DOM)
   var _curS = SESSIONS.find(function(s){ return s.current; });
-  // Pendant la trêve, le Récap est la vue affichée : lui laisser la surbrillance
-  var _vr = document.getElementById('view-recap');
-  if(_vr && _vr.style.display === 'block') setActiveTab('recap');
+  /* Une vue plein-écran ouverte garde la surbrillance : pendant la trêve c'est le
+     Récap, mais c'est vrai de Stats, Joueurs, Inscriptions et Presse dès que le
+     visiteur a cliqué avant la fin du chargement. */
+  var _openTab = _visibleViewTab();
+  if(_openTab) setActiveTab(_openTab);
   else if(_curS) setActiveTab(_curS.id);
   /* Une ancre dans l'URL reste prioritaire : elle dit ce qu'on est venu voir. */
   var _hash = location.hash && location.hash.length > 1;
   var _land = _landingSession();
-  if(!_hash && _land && _land !== _curS){
+  /* _visibleViewTab() est relu APRES l'await : entre-temps le visiteur a pu ouvrir un
+     onglet, et l'atterrissage n'a pas à le lui reprendre. Sans ce garde-fou, cliquer
+     sur Stats / Joueurs / Presse pendant le chargement rouvrait le terrain, en
+     empilant en-tête de session et « Homme du match » par-dessus la vue ouverte. */
+  if(!_hash && _land && _land !== _curS && !_visibleViewTab()){
     /* Sur une bonne connexion la réponse arrive en quelques dizaines de millisecondes :
        sans ce délai, les phrases clignotent sans être lisibles. Ne coûte rien quand le
        chargement a déjà pris plus d'une seconde, ni quand l'écran n'a pas été montré. */
@@ -6284,6 +6622,7 @@ function renderRecap(){
 
 function showRecap(){
   var _vj=document.getElementById("view-joueurs"); if(_vj) _vj.style.display="none";
+  var _vp=document.getElementById("view-presse"); if(_vp) _vp.style.display="none";
   document.getElementById("view-pitch").style.display="none";
   document.getElementById("view-stats").style.display="none";
   document.getElementById("view-inscriptions").style.display="none";
@@ -6448,6 +6787,11 @@ function buildTabs(){
   var bj=document.createElement('button');
   bj.className='tab tab-joueurs';bj.dataset.id='joueurs';bj.textContent='👤 Joueurs';bj.onclick=showJoueurs;
   wrap.appendChild(bj);
+
+  /* Presse — tous les articles, toutes saisons confondues */
+  var bp=document.createElement('button');
+  bp.className='tab tab-presse';bp.dataset.id='presse';bp.textContent='📰 Presse';bp.onclick=showPresse;
+  wrap.appendChild(bp);
 
   /* Récap de saison — archive de 25-26, visible dans sa seule saison */
   if(_tabSeason==='25-26'){

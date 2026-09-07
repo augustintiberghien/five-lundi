@@ -27,6 +27,7 @@ git push -u origin claude/setup-html-project-wSe4F
 - `ARTICLES` — articles L'Équipe par session id
 - `RANK_METHODS` + `_rankMethod` — 4 méthodes de classement (Winrate / Régularité / Équilibre / Stabilité)
 - `RECAP_*` + `renderRecap()` / `showRecap()` — section « Récap 25-26 » (bilan de saison, cf. plus bas)
+- `renderPresseView()` / `showPresse()` — onglet « 📰 Presse » (tous les articles, cf. plus bas)
 
 ## Conventions sessions
 - `current: true` → session affichée par défaut au chargement (une seule à la fois)
@@ -387,6 +388,67 @@ s'affiche — c'est ce qui manquait le 31 août.
 ⚠️ `_monthKey` passe elle aussi par `_matchDayFromLabel` : elle lisait l'année au
 dernier mot du libellé, ce qui faisait retomber `'Lundi 31 août 2026 · Reprise 🔥'` sur
 2026 en dur. Invisible cette saison, faux dès 2027.
+
+## Section Presse (depuis septembre 2026)
+
+Onglet `📰 Presse` : tous les articles d'`ARTICLES`, du plus récent au plus ancien, cartes
+repliées qu'on déplie sur place. Avant, un article n'était lisible que depuis la session qui
+le portait — un seul à la fois, celui du match affiché.
+
+**Rien de nouveau n'est stocké** : la liste est déduite d'`ARTICLES` + `SESSIONS`
+(date, score, vainqueur, composition). Écrire un article, c'est toujours ajouter une entrée
+à `ARTICLES` au débrief ; elle apparaît dans l'onglet toute seule.
+
+- **Périmètre de saison** : mêmes pastilles et même règle par défaut que l'onglet Stats
+  (`_presseScope`, calqué sur `_statsScope`) — la saison en cours si elle a des articles,
+  sinon « Depuis le début ». La saison d'un article vient de `_seasonOfDate(s.date)`.
+- **Carte Récap** : en `25-26` et en « Depuis le début », une carte verte en fin de liste
+  ouvre l'onglet Récap. Le récap est un article comme un autre pour le lecteur, même s'il
+  vit dans sa propre vue. Masquée dès qu'un filtre est actif.
+- **Filtre par prénom** : `datalist` alimentée par `PLAYER_NOTES` (autocomplétion native sur
+  téléphone). Chaque carte affiche le nombre de mentions **et la couleur portée ce soir-là**
+  (`_prWore`), les occurrences sont surlignées dans l'article déplié.
+
+⚠️ **Le champ de recherche ne doit jamais provoquer un rendu complet de la vue.**
+`_prSearch` ne repeint que `#pr-list` : reconstruire `#view-presse` ferait perdre le focus de
+l'input, donc replierait le clavier à chaque lettre tapée sur téléphone.
+
+⚠️ **Frontières de mot obligatoires dans `_prRegex`.** La recherche est insensible à la casse
+et aux accents (« remi » trouve « Rémi »), ce qui est indispensable sur mobile — mais sans
+`\b`, « remi » comptait **9 mentions** dans l'article du 31 août en surlignant « **remi**se en
+route » et « p**remi**ères ». La vraie réponse est 2. Les bornes ne sont posées que si la
+requête commence et finit par un caractère ASCII : `\b` ne voit pas les lettres accentuées
+comme des lettres, donc un prénom commençant par un accent (aucun aujourd'hui) ne serait pas
+trouvé. Recherche et surlignage partagent la même regex — c'est ce qui garantit que le compte
+affiché et ce qu'on voit surligné disent la même chose.
+
+⚠️ `renderPresseView` ≠ `renderPresence` (feuille de match). Les deux noms sont voisins dans
+un fichier de 20 Mo : toujours vérifier lequel on grep.
+
+### ⚠️ Un rendu tardif ne doit jamais repeindre par-dessus l'onglet ouvert
+
+Défaut **préexistant**, trouvé en testant la section Presse dans Chromium et corrigé au
+passage : en cliquant sur un onglet **pendant le chargement**, l'en-tête de session et
+« Homme du match » se rempilaient au-dessus de la vue ouverte, et la surbrillance repassait
+sur l'onglet de session. Reproduit à l'identique sur Stats, Joueurs, Inscriptions **et**
+Presse — ce n'est pas la nouvelle vue qui est fautive, elle héritait du défaut.
+
+Trois appelants tardifs révèlent les sections du terrain sans savoir ce qui est à l'écran :
+l'atterrissage (après un `await`), la bannière de créneau qui se rafraîchit, et le timeout de
+secours à 6 s quand Supabase ne répond pas. Le point de passage commun est `renderSession`,
+qui reprend en plus la surbrillance (`setActiveTab(s.id)`).
+
+Deux garde-fous, tous deux nécessaires :
+- **`renderSession`** remasque les sections du terrain et rend son onglet à la vue ouverte
+  quand `_visibleViewTab()` renvoie une vue. Le contenu a bien été calculé : il est là au
+  retour sur le terrain.
+- **L'atterrissage** ne s'exécute plus si une vue est ouverte — il appelle `showPitch()`,
+  qui masque les vues, donc le garde-fou de `renderSession` ne peut pas le rattraper.
+
+`_visibleViewTab()` lit l'état **dans le DOM** (quelle vue est en `display:block`) plutôt que
+dans une variable parallèle qui finirait par diverger. Toute nouvelle vue plein écran doit
+être ajoutée à sa table — et masquée dans les `show*` des autres onglets, comme les
+précédentes.
 
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
