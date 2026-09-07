@@ -3323,6 +3323,7 @@ function buildStatsView(){
     // Sessions avec vote encore ouvert (et pas 10/10)
     var openSessions = SESSIONS.filter(function(s){
       var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
+      if (_scope && _seasonOfDate(s.date) !== _scope) return false;
       return mvpIsOpen(s) && !mvpIsFullVote(s, sv) && sv.length > 0;
     });
 
@@ -3379,23 +3380,56 @@ function buildStatsView(){
       }
       mh += '<div style="font-size:.55rem;color:rgba(255,255,255,.3);text-align:center">'+d.date.split(' ').slice(0,2).join(' ')+'</div>';
       mh += '</div>';
-      hofItems.push({k:_hofKey(d.date), html:mh});
+      hofItems.push({k:_hofKey(d.date), season:_seasonOfDate(d.date), html:mh});
     });
     // Homme(s) du tournoi (4 équipes, hors SESSIONS) — désormais placé par date, comme les autres
     if (typeof INSCRIPTION_SLOTS !== 'undefined') {
       INSCRIPTION_SLOTS.forEach(function(sl){
         if (sl.tournament && sl.tournament.motm && sl.tournament.motm.winner)
-          hofItems.push({k:_hofKey(sl.label), html:_tournamentHofMedal(sl)});
+          hofItems.push({k:_hofKey(sl.label), season:_seasonOfDate(sl.label), html:_tournamentHofMedal(sl)});
       });
     }
+    /* Le palmares suit le perimetre choisi en haut de l'onglet : une seule
+       regle pour toute la vue Stats. En « Depuis toujours » on garde tout,
+       mais decoupe par saison — un mur de medaillons sans coupure ne dit plus
+       de quelle annee vient un titre. Le medaillon (or/argent/bronze) reste
+       le total de carriere, comme le trophee de la vue Joueurs : deux onglets
+       ne doivent jamais annoncer des chiffres differents. */
+    hofItems = hofItems.filter(function(it){ return !_scope || it.season === _scope; });
+    hofItems.sort(function(a,b){ return b.k - a.k; });
+
+    function _hofGrid(items){
+      var g = '<div style="display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;padding:.4rem 0">';
+      items.forEach(function(it){ g += it.html; });
+      return g + '</div>';
+    }
+    function _hofSeasonBar(sn, n){
+      return '<div style="display:flex;align-items:center;gap:.5rem;padding:.7rem .2rem .1rem">'
+        + '<span style="font-family:Saira Condensed,sans-serif;font-size:.62rem;font-weight:700;'
+        + 'text-transform:uppercase;letter-spacing:.1em;color:rgba(255,228,155,.8);white-space:nowrap">Saison ' + sn + '</span>'
+        + '<span style="flex:1;height:1px;background:rgba(255,228,155,.18)"></span>'
+        + '<span style="font-family:Saira,sans-serif;font-size:.55rem;color:rgba(255,255,255,.3);white-space:nowrap">'
+        + n + ' titre' + (n > 1 ? 's' : '') + '</span></div>';
+    }
+
     if (!hofItems.length) {
-      html += '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.75rem;font-style:italic;padding:.8rem 0">Résultats disponibles après clôture du vote.</div>';
+      html += '<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.75rem;font-style:italic;padding:.8rem 0">'
+            + (_scope ? 'Aucun homme du match sur cette saison pour l\'instant.'
+                      : 'Résultats disponibles après clôture du vote.')
+            + '</div>';
+    } else if (_scope) {
+      html += _hofGrid(hofItems);          /* la pastille dit deja la saison */
     } else {
-      // Grille de médaillons cliquables — du plus récent au plus ancien
-      hofItems.sort(function(a,b){ return b.k - a.k; });
-      html += '<div style="display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;padding:.4rem 0">';
-      hofItems.forEach(function(it){ html += it.html; });
-      html += '</div>';
+      var _order = [], _bySeason = {};
+      hofItems.forEach(function(it){
+        var sn = it.season || '—';
+        if (!_bySeason[sn]) { _bySeason[sn] = []; _order.push(sn); }
+        _bySeason[sn].push(it);
+      });
+      _order.forEach(function(sn){
+        if (_order.length > 1) html += _hofSeasonBar(sn, _bySeason[sn].length);
+        html += _hofGrid(_bySeason[sn]);
+      });
     }
     inner.innerHTML = html;
     // Pas de génération IA ici — le résumé est sur la fiche session

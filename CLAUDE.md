@@ -284,7 +284,15 @@ continuent d'être maintenues par `update_stats.py`.
   `_statsSeason` (`undefined` = non choisi, `null` = depuis toujours). Par défaut on
   ouvre sur la saison en cours **si elle a des matchs**, sinon sur « Depuis toujours » —
   sinon le classement serait vide entre la fin d'une saison et la reprise.
-  Le classement **et** la matrice des duos suivent le périmètre choisi.
+  Le classement, la matrice des duos **et** le palmarès « 🏅 Hommes du match »
+  suivent le périmètre choisi.
+- **Palmarès « Hommes du match »** (depuis septembre 2026) : filtré par le sélecteur
+  comme le reste de l'onglet, et en « Depuis toujours » **découpé par saison** (un filet
+  `Saison 26-27 · N titres` avant chaque bloc de médaillons) — un mur continu ne disait
+  plus de quelle année venait un titre. Le bandeau « vote en cours » suit la même règle.
+  ⚠️ La médaille du médaillon (🥇 ≥3 / 🥈 2 / 🏅 1) reste le **total de carrière**, pas le
+  compte de la saison affichée : c'est le même chiffre que le 🏆 de la vue Joueurs, et
+  deux onglets ne doivent jamais annoncer des totaux différents.
 - **Onglet Récap 25-26** : visible en `25-26`, et aussi tant que la saison choisie n'a
   joué aucun match (sinon il disparaîtrait pendant toute la trêve).
 - Les **courbes de duos sur le terrain** restent en all-time (`getPairWinRate`,
