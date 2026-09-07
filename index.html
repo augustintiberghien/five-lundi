@@ -753,6 +753,11 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   font-family:'Saira',sans-serif;font-weight:800;line-height:12px;text-align:center;color:#000}
 .jr-form i.w{background:#4ade80}
 .jr-form i.l{background:#ef4444}
+.jr-press{margin-top:.35rem;align-self:flex-start;font-family:'Saira Condensed',sans-serif;
+  font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:#FFE49B;background:rgba(255,228,155,.1);border:1px solid rgba(255,228,155,.25);
+  border-radius:99px;padding:.2rem .55rem;cursor:pointer}
+.jr-press:active{background:rgba(255,228,155,.2)}
 
 /* == VUE PRESSE == */
 #view-presse{display:none}
@@ -3123,6 +3128,16 @@ function renderJoueurs(){
         h += '<i class="'+(r==='W'?'w':'l')+'">'+(r==='W'?'V':'D')+'</i>';
       });
       h += '</div>';
+    }
+
+    /* Lien vers ses articles : la Presse pre-filtree sur son prenom, dans le meme
+       perimetre de saison que la fiche. Rien ne s'affiche quand aucun article ne
+       parle de lui — un bouton qui ouvrirait une liste vide ne sert personne. */
+    var nbArt = (typeof _prCountFor === 'function') ? _prCountFor(n, scope) : 0;
+    if(nbArt){
+      h += '<button class="jr-press" onclick="_prOpenFor(\''+n.replace(/'/g,"\\'")+'\','
+         + (scope ? '\''+scope+'\'' : 'null') + ')">\u{1F4F0} '
+         + nbArt + ' article' + (nbArt>1?'s':'') + ' \u203A</button>';
     }
     h += '</div></div>';
   });
@@ -5876,6 +5891,36 @@ function _prWore(s, name){
   });
   if(!hit) return null;
   return hit.teamA ? '⚪ Blanche' : '🔵 Bleue';
+}
+
+/* Texte brut d'un article, memorise : la vue Joueurs demande le compte pour chacune
+   de ses ~24 fiches, inutile de re-decouper les memes articles a chaque fois. */
+var _prPlainCache = {};
+function _prPlainOf(id, art){
+  if(!_prPlainCache[id]) _prPlainCache[id] = _prPlain(art);
+  return _prPlainCache[id];
+}
+
+/* Le nombre annonce sur une fiche joueur et ce que montre la vue Presse doivent
+   coincider : meme regex, meme perimetre de saison. Deux calculs separes finiraient
+   par se contredire — c'est exactement le piege des winrates du Recap. */
+function _prCountFor(name, scope){
+  var re = _prRegex(name);
+  if(!re) return 0;
+  var n = 0;
+  _prList(scope).forEach(function(it){
+    re.lastIndex = 0;
+    if(re.test(_prPlainOf(it.id, it.art))) n++;
+  });
+  return n;
+}
+
+/* Ouvre la Presse pre-filtree sur un joueur, dans le perimetre d'ou l'on vient : la
+   fiche annonce un nombre d'articles, la vue doit en afficher exactement autant. */
+function _prOpenFor(name, scope){
+  _presseSeason = (scope === undefined) ? null : scope;
+  _presseQuery = name;
+  showPresse();
 }
 
 function _prToggle(id){
