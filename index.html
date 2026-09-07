@@ -4091,9 +4091,12 @@ var LOADING_PHRASES = [
   'Khalid lève la main…'
 ];
 /* Durée minimale d'affichage : sur une bonne connexion la réponse arrive si vite que les
-   phrases n'ont pas le temps d'être lues. Ne s'applique QUE si l'écran a réellement été
-   montré — le lundi soir, la compo figée se peint immédiatement depuis les données
-   statiques, et rien ne doit ralentir ça. */
+   phrases n'ont pas le temps d'être lues. L'écran est montré à **chaque** chargement, y
+   compris quand la compo est déjà là dans les données statiques et qu'il n'y a rien à
+   attendre : le premier rendu est alors retenu d'autant. C'est une seconde délibérément
+   perdue, demandée le 8 septembre 2026 — sans elle, la soirée du match et le lendemain
+   étaient les seuls moments où personne ne voyait le ballon ni les phrases, alors que
+   c'est justement là que tout le monde ouvre la page. */
 var _LOADING_MIN_MS = 1000;
 var _loaderShownAt = 0;
 function _loadingMinWait(){
@@ -7014,8 +7017,18 @@ var defaultSession = SESSIONS.find(function(s){ return s.current; });
    finiraient par diverger, et le premier rendu peindrait une session que
    l'atterrissage remplace aussitôt. */
 var _curIsLanding = _sessionStillLanding(defaultSession);
-if(defaultSession && _curIsLanding) renderSession(defaultSession);
-else _loaderShownAt = Date.now();   /* l'écran de chargement reste : on lui garantit _LOADING_MIN_MS */
+_loaderShownAt = Date.now();   /* l'écran de chargement est montré, on lui garantit _LOADING_MIN_MS */
+if(defaultSession && _curIsLanding){
+  /* Rien n'est attendu ici — la compo est dans les données statiques — mais on retient
+     quand même le premier rendu le temps que les phrases se lisent (cf. _LOADING_MIN_MS). */
+  _loadingMinWait().then(function(){
+    /* Pendant cette seconde le visiteur a pu ouvrir un onglet, ou une autre date :
+       on ne lui reprend pas son écran. Même garde-fou que l'atterrissage. */
+    if(_visibleViewTab()) return;
+    if(_activeTabId && _activeTabId !== defaultSession.id) return;
+    renderSession(defaultSession);
+  });
+}
 // Sans session active : masquer le terrain vide immédiatement
 if(!defaultSession){
   var _pw=document.querySelector('.pitch-wrap');
