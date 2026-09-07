@@ -3,6 +3,10 @@
 ## Repo & branches
 - Repo : `augustintiberghien/five-lundi`
 - Branche de travail : `claude/setup-html-project-wSe4F`
+- ⏳ **En attente de merge** : `claude/couleurs-blanche-premier-inscrit` — le correctif qui
+  empêche le premier inscrit d'être systématiquement en Blanche (cf. section « L'orientation
+  des couleurs »). Volontairement gardé hors de `main` le soir du 7 septembre ; à rebaser sur
+  le `main` d'après-match avant la PR.
 - **Push direct vers `main` impossible** (403) → toujours passer par : commit → push sur la branche → PR via MCP → merge via MCP → rebase sync
 
 ## Commande type pour chaque changement
@@ -478,6 +482,52 @@ dans une variable parallèle qui finirait par diverger. Toute nouvelle vue plein
 être ajoutée à sa table — et masquée dans les `show*` des autres onglets, comme les
 précédentes.
 
+## Notifications push : construites, jamais branchées — décision de septembre 2026
+
+Le code existe et il est complet : `registerPushSubscription` dans `index.html`, `sw.js`
+(affichage + clic), les Edge Functions `send-push` et `notify-substitute`, la migration
+`supabase/migrations/20260515_push_subscriptions.sql`, et l'appel depuis le site —
+`notifySubstituteIfNeeded` prévient le remplaçant promu quand un titulaire se déclare
+absent, exactement le scénario qui a mis la pagaille les 6 et 20 juillet.
+
+**Rien de tout ça ne peut fonctionner aujourd'hui**, et c'est volontaire. Constaté le
+7 septembre 2026, trois verrous dont chacun suffit :
+
+1. **`VAPID_PUBLIC_KEY` est vide** dans `index.html`. `registerPushSubscription` sort à sa
+   première ligne : la demande d'autorisation n'a jamais été affichée à personne.
+2. **La table `push_subscriptions` n'existe pas** dans le projet Supabase — la migration
+   est dans le dépôt, elle n'a jamais été appliquée. Vérifiable en une requête :
+   `registrations`, `presences`, `votes` et `slot_sessions` répondent, `push_subscriptions`
+   (comme `push_tokens`, `sessions` et `player_profiles`, tables du projet mobile) renvoie
+   **404**.
+3. **`icon-192.png` est absent du dépôt** alors que `sw.js` le référence en `icon` et en
+   `badge` — la notification s'afficherait sans logo.
+
+### Pourquoi on ne l'allume pas
+
+**On ne sait pas à qui on parle.** L'abonnement est rattaché au nom que le visiteur a tapé
+sur le site et que garde son `localStorage` : n'importe qui peut saisir n'importe quel
+prénom, et un téléphone partagé casse la correspondance. Prévenir « le bon joueur » suppose
+donc une **authentification**, qui est au backlog mobile et hors de portée à date. Envoyer
+une notification au mauvais joueur est pire que ne rien envoyer : le remplaçant croit être
+titulaire.
+
+Second obstacle, indépendant : sur **iPhone**, le push web exige que le site ait été
+**ajouté à l'écran d'accueil**, ce qui suppose un `manifest.json` (absent lui aussi) et un
+geste d'installation de chaque personne du groupe. Le groupe WhatsApp fait ce travail moins
+bien, mais sans rien installer.
+
+### Si on y revient un jour
+
+Dans cet ordre, et pas autrement : **authentification d'abord** (c'est elle qui débloque le
+sujet), puis paire de clés VAPID (publique dans `index.html`, privée dans les secrets
+Supabase), application de la migration, redéploiement des fonctions — attention,
+`deploy-functions.yml` déploie tout d'un bloc et échoue en bloc — puis `icon-192.png` et
+`manifest.json`.
+
+⚠️ **Ne pas recocher la ligne du backlog sans l'authentification.** Elle était cochée alors
+que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonction marchait.
+
 ## Passage à la session suivante
 - **3 heures après la clôture du vote**, passer `current: true` à la session suivante (et `current: false` sur la session active)
 - Clôture = 10 votes atteints OU 22h30 le lendemain → donc au plus tard à **01h30** (nuit du lendemain au surlendemain)
@@ -530,7 +580,7 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 ### Infra
 - [ ] **Authentification** — connexion Google OAuth (+ email/password fallback)
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
-- [x] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence"
+- [ ] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence". **Code écrit, jamais branché** : dépend de l'authentification, sans laquelle on ne peut pas garantir qu'on prévient le bon joueur (cf. « Notifications push : construites, jamais branchées »)
 
 ## Joueurs actifs (s18 — 31 août 2026, reprise)
 Blanche ⚪ : Michael, Edouard, Gugu, Spy, Hugo
