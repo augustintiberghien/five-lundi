@@ -15,10 +15,30 @@ git push -u origin claude/setup-html-project-wSe4F
 ```
 
 ## Stack
-- **App** : single-file HTML (`index.html`, ~20MB) — tout est dedans : CSS, JS, photos joueurs en base64
+- **App** : single-file HTML (`index.html`, ~0,8 Mo) — tout est dedans : CSS, JS, photos joueurs en base64
 - **Backend votes MVP** : Supabase
 - **Hébergement** : GitHub Pages via le repo
-- **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (fichier trop grand pour les outils Read/Edit)
+- **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (le fichier reste trop long pour un Read en une fois : ~7 000 lignes, dont des lignes de plusieurs centaines de Ko)
+
+### ⚠️ Toute photo ajoutée doit être réduite avant d'être collée (depuis septembre 2026)
+
+Les photos de `PLAYER_PHOTOS` s'affichent en **56×58 px** sur le terrain et **60×64 px**
+sur les fiches. Elles étaient stockées en pleine résolution : 1276×1298, 1428×1200… soit
+**5,95 Mo de base64 pour 22 photos**, 94 % du fichier. Une seule pesait 2,1 Mo.
+
+Réduites à ~240×260 (large même à 3× de densité), en JPEG q0.82 : **5,95 Mo → 0,28 Mo**,
+et `index.html` passe de 6,5 Mo à 0,8 Mo. Comparaison faite à 1,5× la taille réelle du
+téléphone, terrain et fiches sont **indiscernables** de l'avant.
+
+**La règle, pour ne pas y revenir** : une nouvelle photo se réduit à ~240 px de large
+**avant** d'être inlinée. Sinon un seul ajout rend les 5 Mo d'un coup — et le fichier est
+retéléchargé en entier par tout le monde à chaque commit du lundi soir (lock, puis score).
+
+Pas de Pillow ni d'ImageMagick sur la machine : la réduction passe par Chromium + un
+canvas (`playwright-core`, binaire dans `/opt/pw-browsers/`), comme les écussons de clubs.
+Deux garde-fous à garder dans le script : ne **jamais agrandir** une image déjà plus petite
+que la cible, et **ne pas ré-encoder** quand ça ne fait pas gagner d'octets — sept photos
+sources (80×100) grossissaient en repassant par le canvas, elles ont été laissées intactes.
 
 ## Architecture du fichier index.html
 - `SESSIONS` array (newest first : s11 → s1) — chaque session a `id`, `date`, `score`, `scoreWinner`, `current`, `bench`, `nameA`, `nameB`, `players`
