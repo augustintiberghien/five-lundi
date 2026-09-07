@@ -3625,6 +3625,14 @@ function _duoPairScore(team) {
   return score;
 }
 
+/* Empreinte stable d'une moitié d'équipe (FNV-1a sur les noms triés) : sert à trancher
+   quelle moitié porte le blanc, sans dépendre de l'ordre du roster. */
+function _halfHash(names) {
+  var str = names.slice().sort().join('|'), h = 2166136261;
+  for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
 function _genBalancedTeams(names10, together) {
   // Pre-compute top-2 by adjusted note (à séparer si possible)
   var sorted = names10.slice().sort(function(a,b){ return _adjustedNote(b)-_adjustedNote(a); });
@@ -3689,7 +3697,25 @@ function _genBalancedTeams(names10, together) {
   });
 
   var best = pool[0];
-  return {teamA: best.teamA, teamB: best.teamB, smA: best.smA, smB: best.smB, noteA: best.noteA, noteB: best.noteB};
+
+  /* Orientation des couleurs. Sans arbitrage explicite, c'est l'énumération qui tranchait :
+     chaque split apparaît deux fois dans allCombos (une moitié, puis son complément), les
+     deux orientations ont un score de tri strictement identique (dSM et dN sont des valeurs
+     absolues, pen teste A et B, duoPen est un max) et Array.sort est stable — la gagnante
+     était donc toujours la première énumérée, c'est-à-dire celle qui contient names10[0].
+     Le premier inscrit se retrouvait en Blanche à chaque journée (mesuré : 400/400 tirages,
+     et 10 compos publiées sur 10 pour Gugu, qui ouvre la feuille chaque semaine).
+     On tranche désormais sur l'empreinte des deux moitiés : déterministe — tous les
+     navigateurs et le lock doivent calculer la même compo avant publication dans
+     slot_sessions, un tirage au sort les ferait diverger — mais sans ancrage sur un joueur,
+     la composition d'une moitié changeant à chaque journée. */
+  var tA = best.teamA, tB = best.teamB, smA = best.smA, smB = best.smB, nA = best.noteA, nB = best.noteB;
+  if (_halfHash(tA) > _halfHash(tB)) {
+    var _t = tA; tA = tB; tB = _t;
+    var _s = smA; smA = smB; smB = _s;
+    var _n = nA; nA = nB; nB = _n;
+  }
+  return {teamA: tA, teamB: tB, smA: smA, smB: smB, noteA: nA, noteB: nB};
 }
 
 function _genTournamentTeams(allNames, fixedTeam, pairs) {
@@ -4172,9 +4198,9 @@ function _setBenchFromCompo(s, slot, regs){
   (s.players||[]).forEach(function(p){ inCompo[p.name]=true; });
   s.bench=_rosterOrder(slot, regs).filter(function(n){ return !inCompo[n]; });
 }
-/* La couleur annoncée fait foi (cf. CLAUDE.md). _genBalancedTeams attribue teamA/teamB
-   selon l'ordre d'énumération C(10,5) : le même split peut donc ressortir avec les
-   couleurs retournées si l'ordre du roster change. On réaligne sur la compo de
+/* La couleur annoncée fait foi (cf. CLAUDE.md). _genBalancedTeams tranche l'orientation
+   sur l'empreinte des deux moitiés : le même joueur peut donc changer de couleur dès que
+   la composition d'une moitié bouge (un désistement suffit). On réaligne sur la compo de
    référence — même réancrage que celui de lock_session.py au moment du lock.
    Renvoie true si les deux équipes ont été échangées (les notes suivent). */
 function _anchorColors(raw, ref){
