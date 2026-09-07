@@ -6396,17 +6396,35 @@ var _tabSeason = null;   /* saison affichee dans la barre d'onglets */
    suivante et ce serait une erreur de basculer dessus. Des que sa date est
    passee, le prochain creneau ouvert prend la place : pendant la semaine, on
    vient voir le match a venir, pas le resultat de lundi dernier. */
+/* La session du match reste celle d'arrivée tant que son vote n'est pas clos.
+   « Sa date est aujourd'hui ou plus tard » retombait à faux à minuit : le mardi
+   à 00h00, le site quittait le match de la veille — score tout juste rentré,
+   vote en cours, article pas encore écrit — pour le créneau de la semaine
+   suivante. Une soirée de five déborde sur le lendemain ; une comparaison de
+   journées ne peut pas le voir. Même piège que mvpIsOpen, corrigé le
+   4 septembre : c'est la deadline du vote (22h30 le lendemain) qui dit quand la
+   soirée est finie, pas le passage de minuit.
+   La clôture anticipée à 10 votes ne déplace volontairement pas l'atterrissage :
+   la page ne doit pas sauter pendant que le groupe commente encore le match. */
+function _sessionStillLanding(s){
+  if(!s) return false;
+  /* Date illisible : on ne prend pas le risque de quitter la session current. */
+  var d = _matchDayFromLabel(s.date);
+  if(!d) return true;
+  var pn = _parisNow();
+  var today = new Date(pn.getFullYear(), pn.getMonth(), pn.getDate());
+  if(d.getTime() >= today.getTime()) return true;
+  var dl = (typeof mvpDeadline === 'function') ? mvpDeadline(s.date, s.id) : null;
+  return !!dl && Date.now() < dl.getTime();
+}
+
 function _landingSession(){
   var cur = SESSIONS.find(function(s){ return s.current; });
   if(typeof _INS_SESSIONS === 'undefined' || !_INS_SESSIONS || !_INS_SESSIONS.length)
     return cur || null;
   var pn = _parisNow();
   var today = new Date(pn.getFullYear(), pn.getMonth(), pn.getDate());
-  if(cur){
-    /* Date illisible : on ne prend pas le risque de quitter la session current. */
-    var d = _matchDayFromLabel(cur.date);
-    if(!d || d.getTime() >= today.getTime()) return cur;
-  }
+  if(_sessionStillLanding(cur)) return cur;
   var slotById={}; INSCRIPTION_SLOTS.forEach(function(sl){ slotById[sl.id]=sl; });
   var next = _INS_SESSIONS.find(function(s){
     var sl = slotById[s.id];
@@ -6966,12 +6984,10 @@ _syncLoadingPhrases();
    Même règle que _landingSession, et même prudence : une date illisible ne fait pas
    quitter la session current. */
 var defaultSession = SESSIONS.find(function(s){ return s.current; });
-var _curIsLanding = false;
-if(defaultSession){
-  var _cd=_matchDayFromLabel(defaultSession.date);
-  var _cpn=_parisNow();
-  _curIsLanding = !_cd || _cd.getTime() >= new Date(_cpn.getFullYear(),_cpn.getMonth(),_cpn.getDate()).getTime();
-}
+/* Même test que _landingSession, par la même fonction : deux copies de la règle
+   finiraient par diverger, et le premier rendu peindrait une session que
+   l'atterrissage remplace aussitôt. */
+var _curIsLanding = _sessionStillLanding(defaultSession);
 if(defaultSession && _curIsLanding) renderSession(defaultSession);
 else _loaderShownAt = Date.now();   /* l'écran de chargement reste : on lui garantit _LOADING_MIN_MS */
 // Sans session active : masquer le terrain vide immédiatement

@@ -426,6 +426,25 @@ Cas limite couvert au passage : si le lock échoue un lundi soir (pas d'entrée
 `SESSIONS`, créneau resté ouvert), la session du jour est quand même celle qui
 s'affiche — c'est ce qui manquait le 31 août.
 
+⚠️ **« Aujourd'hui ou plus tard » retombait à faux à minuit** (corrigé le
+8 septembre 2026). Le mardi à 00h00, la session du match de la veille n'était plus
+« datée d'aujourd'hui ou plus tard » : le site quittait le match — score rentré à
+peine une heure plus tôt, **vote en cours**, article pas encore écrit — pour le
+créneau de la semaine suivante. Constaté à 00h34 le 8 septembre, avec s19 verrouillée
+et son vote ouvert jusqu'au mardi 22h30. C'est **exactement le piège de `mvpIsOpen`**
+corrigé le 4 septembre, sur une autre fonction : une soirée de five déborde sur le
+lendemain, et une comparaison de **journées** ne peut pas le voir.
+
+La règle passe désormais par `_sessionStillLanding(s)`, seule définition du test, et
+c'est la **deadline du vote** (22h30 le lendemain) qui dit quand la soirée est finie.
+La clôture anticipée à 10 votes ne déplace **volontairement pas** l'atterrissage :
+la page ne doit pas sauter pendant que le groupe commente encore le match.
+
+Le premier rendu (`_curIsLanding`, avant la réponse de Supabase) appelle la même
+fonction. Il en avait sa propre copie, et deux copies d'une règle de date finissent
+toujours par diverger : le terrain aurait peint une session que l'atterrissage
+remplace aussitôt.
+
 ⚠️ `_monthKey` passe elle aussi par `_matchDayFromLabel` : elle lisait l'année au
 dernier mot du libellé, ce qui faisait retomber `'Lundi 31 août 2026 · Reprise 🔥'` sur
 2026 en dur. Invisible cette saison, faux dès 2027.
@@ -545,7 +564,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s18 | 31 août 2026 | 10 – 9 (A) | ✅ |
+| s19 | 7 septembre 2026 | 9 – 8 (A) | ✅ |
+| s18 | 31 août 2026 | 10 – 9 (A) | |
 | s17 | 27 juillet 2026 | 15 – 10 (A) | |
 | s16 | 20 juillet 2026 | 14 – 8 (A) | |
 | s15 | 6 juillet 2026 | 11 – 8 (A) | |
