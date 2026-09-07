@@ -2866,6 +2866,35 @@ function _currentSeason(){
 
 var _statsSeason;   /* undefined = non choisi, null = depuis toujours */
 
+/* Pastilles de saison. Stats, Joueurs et Presse affichent la meme rangee : trois
+   copies du meme bouton finiraient par diverger. `action` est le nom d'une
+   fonction qui recoit la saison, ou '*' pour « tout ». */
+function _seasonPill(label, on, action){
+  return '<button onclick="' + action + '" style="font-family:Saira Condensed,sans-serif;'
+    + 'font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;'
+    + 'padding:.3rem .7rem;border-radius:20px;border:1.5px solid '
+    + (on ? '#FFE49B' : 'rgba(255,255,255,.2)') + ';background:'
+    + (on ? 'rgba(255,228,155,.12)' : 'transparent') + ';color:'
+    + (on ? '#FFE49B' : 'rgba(255,255,255,.5)') + ';cursor:pointer">' + label + '</button>';
+}
+
+/* Rien a choisir tant qu'il n'y a qu'une saison : la rangee reste cachee. */
+function _seasonPills(scope, action, allLabel){
+  var seasons = (typeof _allSeasons === 'function') ? _allSeasons() : [];
+  if(seasons.length < 2 && scope === null) return '';
+  var h = '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .1rem">';
+  seasons.forEach(function(sn){
+    h += _seasonPill('Saison ' + sn, scope === sn, action + '(\'' + sn + '\')');
+  });
+  h += _seasonPill(allLabel || 'Depuis toujours', scope === null, action + '(\'*\')');
+  return h + '</div>';
+}
+
+/* Stats et Joueurs partagent _statsSeason : les deux onglets montrent les memes
+   chiffres, ils ne doivent pas pouvoir etre regles sur deux saisons differentes. */
+function _stSetSeason(sn){ _statsSeason = (sn === '*') ? null : sn; buildStatsView(); }
+function _jrSetSeason(sn){ _statsSeason = (sn === '*') ? null : sn; renderJoueurs(); }
+
 function _statsScope(){
   if(_statsSeason!==undefined) return _statsSeason;
   var cur=_currentSeason();
@@ -3016,13 +3045,15 @@ function _clubOf(name){
   return (k && CLUBS[k]) ? k : null;
 }
 
-/* Titres d'homme du match, calcules une seule fois et partages entre la vue
-   Stats et la vue Joueurs : deux onglets ne doivent jamais annoncer des
-   chiffres differents. */
-function _computeMotmTitles(allVotes){
+/* Titres d'homme du match, calcules au meme endroit pour la vue Stats et la vue
+   Joueurs : deux onglets ne doivent jamais annoncer des chiffres differents.
+   `season` restreint au perimetre affiche (null ou absent = depuis toujours) —
+   un trophee doit se compter sur la meme periode que les matchs de la fiche. */
+function _computeMotmTitles(allVotes, season){
   var titleCount = {}, titlesBySession = {};
   SESSIONS.forEach(function(s){
     if(!s.scoreWinner) return;
+    if(season && _seasonOfDate(s.date) !== season) return;
     var sv = allVotes.filter(function(v){ return v.session_id === s.id; });
     if(!sv.length) return;
     if(mvpIsOpen(s) && !mvpIsFullVote(s, sv)) return;   /* vote encore ouvert */
@@ -3045,7 +3076,7 @@ function _computeMotmTitles(allVotes){
    trophees d'homme du match. Les stats viennent de _computeStats, donc elles
    suivent le meme perimetre que l'onglet Stats. */
 
-var _joueursTitles = null;   /* rempli au premier chargement des votes */
+var _joueursVotes = null;   /* votes bruts, charges une fois puis rejoues par saison */
 
 function showJoueurs(){
   var ids = ['view-pitch','view-stats','view-inscriptions','view-recap','view-presse'];
@@ -3066,7 +3097,8 @@ function renderJoueurs(){
 
   var scope = (typeof _statsScope === 'function') ? _statsScope() : null;
   var S = _computeStats(scope);
-  var titres = _joueursTitles || {};
+  /* Les titres suivent le perimetre choisi, comme les matchs et le winrate. */
+  var titres = _joueursVotes ? _computeMotmTitles(_joueursVotes, scope).titleCount : {};
 
   var noms = Object.keys(S.players).sort(function(a,b){
     var pa=S.players[a], pb=S.players[b];
@@ -3077,9 +3109,13 @@ function renderJoueurs(){
 
   var h = '<div style="width:min(calc(100vw - 2rem),480px);padding:.5rem;margin:0 auto">';
   h += '<div class="stats-header"><span>\u{1F464}</span><span>Les joueurs</span></div>';
+  /* Memes pastilles que l'onglet Stats, et le meme _statsSeason derriere : on
+     regle le perimetre depuis l'onglet ou l'on se trouve. */
+  var pills = _seasonPills(scope, '_jrSetSeason');
+  h += pills;
   h += '<div style="font-size:.6rem;color:rgba(255,255,255,.3);font-family:Saira,sans-serif;'
-     + 'text-transform:uppercase;letter-spacing:.1em;padding:0 .4rem .8rem">'
-     + (scope ? 'Saison '+scope : 'Depuis toujours') + ' · ' + noms.length + ' joueurs</div>';
+     + 'text-transform:uppercase;letter-spacing:.1em;padding:' + (pills ? '.5rem' : '0') + ' .4rem .8rem">'
+     + (pills ? '' : (scope ? 'Saison '+scope : 'Depuis toujours') + ' · ') + noms.length + ' joueurs</div>';
 
   noms.forEach(function(n){
     var st = S.players[n];
@@ -3103,7 +3139,8 @@ function renderJoueurs(){
     /* Identite + chiffres */
     h += '<div class="jr-body">';
     h += '<div class="jr-top"><span class="jr-name">'+n+'</span>';
-    if(nb>0) h += '<span class="jr-tro" title="'+nb+' titre'+(nb>1?'s':'')+' d’homme du match">'
+    if(nb>0) h += '<span class="jr-tro" title="'+nb+' titre'+(nb>1?'s':'')+' d’homme du match '
+                + (scope ? 'en '+scope : 'depuis toujours')+'">'
                 + '\u{1F3C6} '+nb+'</span>';
     h += '</div>';
     var sub = [];
@@ -3136,10 +3173,10 @@ function renderJoueurs(){
   wrap.innerHTML = h;
 
   /* Trophees : charges une seule fois, puis on redessine */
-  if(_joueursTitles === null && typeof sbGetAllVotes === 'function'){
-    _joueursTitles = {};   /* evite de relancer en boucle si l'appel echoue */
+  if(_joueursVotes === null && typeof sbGetAllVotes === 'function'){
+    _joueursVotes = [];    /* evite de relancer en boucle si l'appel echoue */
     sbGetAllVotes().then(function(all){
-      _joueursTitles = _computeMotmTitles(all).titleCount;
+      _joueursVotes = all;
       if(document.getElementById('view-joueurs').style.display !== 'none') renderJoueurs();
     }, function(){ /* Supabase muet : on garde les fiches sans trophees */ });
   }
@@ -3170,17 +3207,7 @@ function buildStatsView(){
   h += '<div class="stats-header"><span>📊</span><span>Classement Joueurs</span></div>';
 
   /* Selecteur de perimetre : la saison en cours ou tout l'historique. */
-  var _seasons=_allSeasons();
-  if(_seasons.length>1 || _scope!==null){
-    h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .1rem">';
-    _seasons.forEach(function(sn){
-      var on=(_scope===sn);
-      h += '<button onclick="_statsSeason=\''+sn+'\';buildStatsView()" style="font-family:Saira Condensed,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.3rem .7rem;border-radius:20px;border:1.5px solid '+(on?'#FFE49B':'rgba(255,255,255,.2)')+';background:'+(on?'rgba(255,228,155,.12)':'transparent')+';color:'+(on?'#FFE49B':'rgba(255,255,255,.5)')+';cursor:pointer">Saison '+sn+'</button>';
-    });
-    var onAll=(_scope===null);
-    h += '<button onclick="_statsSeason=null;buildStatsView()" style="font-family:Saira Condensed,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.3rem .7rem;border-radius:20px;border:1.5px solid '+(onAll?'#FFE49B':'rgba(255,255,255,.2)')+';background:'+(onAll?'rgba(255,228,155,.12)':'transparent')+';color:'+(onAll?'#FFE49B':'rgba(255,255,255,.5)')+';cursor:pointer">Depuis toujours</button>';
-    h += '</div>';
-  }
+  h += _seasonPills(_scope, '_stSetSeason');
 
   /* Une saison qui vient de commencer n'a encore aucun match joue. */
   if(ranking.length===0){
@@ -3315,8 +3342,8 @@ function buildStatsView(){
   sbGetAllVotes().then(function(allVotes){
     var inner = document.getElementById('motm-hof-inner');
     if (!inner) return;
-    /* Meme calcul que la vue Joueurs : un seul endroit, pas de divergence. */
-    var _mt = _computeMotmTitles(allVotes);
+    /* Meme calcul que la vue Joueurs, meme perimetre : pas de divergence. */
+    var _mt = _computeMotmTitles(allVotes, _scope);
     var titleCount = _mt.titleCount;
     var titlesBySession = _mt.titlesBySession;
 
@@ -3392,9 +3419,10 @@ function buildStatsView(){
     /* Le palmares suit le perimetre choisi en haut de l'onglet : une seule
        regle pour toute la vue Stats. En « Depuis toujours » on garde tout,
        mais decoupe par saison — un mur de medaillons sans coupure ne dit plus
-       de quelle annee vient un titre. Le medaillon (or/argent/bronze) reste
-       le total de carriere, comme le trophee de la vue Joueurs : deux onglets
-       ne doivent jamais annoncer des chiffres differents. */
+       de quelle annee vient un titre. La medaille (or/argent/bronze) compte les
+       titres du perimetre affiche, exactement comme le trophee de la vue
+       Joueurs : deux onglets ne doivent jamais annoncer des chiffres
+       differents. */
     hofItems = hofItems.filter(function(it){ return !_scope || it.season === _scope; });
     hofItems.sort(function(a,b){ return b.k - a.k; });
 
@@ -5890,15 +5918,6 @@ function _presseScope(){
   return null;
 }
 
-function _prPill(label, on, action){
-  return '<button onclick="' + action + '" style="font-family:Saira Condensed,sans-serif;'
-    + 'font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;'
-    + 'padding:.3rem .7rem;border-radius:20px;border:1.5px solid '
-    + (on ? '#FFE49B' : 'rgba(255,255,255,.2)') + ';background:'
-    + (on ? 'rgba(255,228,155,.12)' : 'transparent') + ';color:'
-    + (on ? '#FFE49B' : 'rgba(255,255,255,.5)') + ';cursor:pointer">' + label + '</button>';
-}
-
 /* Sous quelle couleur le joueur cherche a joue ce soir-la. */
 function _prWore(s, name){
   var re = _prRegex(name);
@@ -6027,16 +6046,9 @@ function renderPresseView(){
   var h = '<div style="width:min(calc(100vw - 2rem),480px);padding:.5rem;margin:0 auto">';
   h += '<div class="stats-header"><span>📰</span><span>Articles de presse</span></div>';
 
-  /* Perimetre de saison — memes pastilles que l'onglet Stats. */
-  var seasons = (typeof _allSeasons === 'function') ? _allSeasons() : [];
-  if(seasons.length > 1 || scope !== null){
-    h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem .4rem .1rem">';
-    seasons.forEach(function(sn){
-      h += _prPill('Saison ' + sn, scope === sn, '_prSetSeason(\'' + sn + '\')');
-    });
-    h += _prPill('Depuis le début', scope === null, '_prSetSeason(\'*\')');
-    h += '</div>';
-  }
+  /* Perimetre de saison — memes pastilles que Stats et Joueurs, mais son propre
+     _presseSeason : lire les articles d'une saison ne change pas le classement. */
+  h += _seasonPills(scope, '_prSetSeason', 'Depuis le début');
 
   /* Filtre par prenom. La datalist donne l'autocompletion native du telephone. */
   h += '<div class="pr-search">';
