@@ -3,10 +3,6 @@
 ## Repo & branches
 - Repo : `augustintiberghien/five-lundi`
 - Branche de travail : `claude/setup-html-project-wSe4F`
-- ⏳ **En attente de merge** : `claude/couleurs-blanche-premier-inscrit` — le correctif qui
-  empêche le premier inscrit d'être systématiquement en Blanche (cf. section « L'orientation
-  des couleurs »). Volontairement gardé hors de `main` le soir du 7 septembre ; à rebaser sur
-  le `main` d'après-match avant la PR.
 - **Push direct vers `main` impossible** (403) → toujours passer par : commit → push sur la branche → PR via MCP → merge via MCP → rebase sync
 
 ## Commande type pour chaque changement
@@ -152,7 +148,35 @@ terminé (~1 min, plus le déploiement Pages). Pas de rechargement automatique, 
 
 Pour mémoire technique : aucun joueur actif n'a le rôle `Gardien` (seul Rémi l'a dans `PLAYER_ROLES`), donc `_assignPositions` retombe sur « premier Défenseur/Récupérateur, sinon premier de la liste » et le gardien dépend de l'ordre du roster. `_anchorPositions` (front, `index.html`) et son équivalent dans `lock_session.py` restituent à chaque joueur la place qu'il occupait dans la compo annoncée, les nouveaux venus prenant les emplacements libres. C'est du confort — éviter que l'affichage bouge sans raison — pas une règle métier : quand un gardien est absent, son remplacement dans les buts est normal et ne se signale pas.
 
-**Règle couleur : la couleur annoncée avant 21h30 fait foi.** `teamA=true` → Blanche ⚪, `teamA=false` → Bleue 🔵. La régénération du lock attribue `teamA`/`teamB` arbitrairement (ordre d'énumération `C(10,5)`) et pouvait donc **inverser la couleur** d'une équipe par rapport à ce qui était affiché avant le lock. Depuis juin 2026, `lock_session.py` **réancre les couleurs** sur la compo `slot_sessions` annoncée (échange des moitiés si l'orientation est inversée). Le lock ne doit jamais inverser une couleur déjà annoncée.
+**Règle couleur : la couleur annoncée avant 21h30 fait foi.** `teamA=true` → Blanche ⚪, `teamA=false` → Bleue 🔵. La régénération du lock peut **inverser la couleur** d'une équipe par rapport à ce qui était affiché avant le lock. Depuis juin 2026, `lock_session.py` **réancre les couleurs** sur la compo `slot_sessions` annoncée (échange des moitiés si l'orientation est inversée). Le lock ne doit jamais inverser une couleur déjà annoncée.
+
+### ⚠️ L'orientation des couleurs ne doit jamais dépendre de l'ordre du roster (corrigé le 7 septembre 2026)
+
+`_genBalancedTeams` ne choisissait pas l'orientation : elle la subissait. Chaque split est
+énuméré **deux fois** dans `allCombos` (une moitié, puis son complément), les deux
+orientations ont un score de tri **strictement identique** (`dSM` et `dN` sont des valeurs
+absolues, `pen` teste A *et* B, `duoPen` est un `max`), et `Array.sort` est stable : la
+gagnante était donc toujours la **première énumérée**, c'est-à-dire celle contenant
+`names10[0]`. Autrement dit **le premier inscrit était en Blanche à chaque journée**.
+
+Mesuré : 400/400 tirages aléatoires, part en Blanche de 100 % pour la place 1 contre 42-49 %
+pour toutes les autres ; et **10 compos publiées sur 10** avec Gugu en ⚪, lui qui ouvre la
+feuille d'inscription toutes les semaines. « Blanche » ne voulait donc pas dire une couleur,
+mais « l'équipe du premier inscrit ». Les deux exceptions apparentes (s13, s14) confirment le
+mécanisme : les compos publiées avaient bien Gugu en ⚪, c'est la régénération du lock, avant
+que le réancrage n'existe, qui a retourné les couleurs.
+
+L'orientation se décide désormais sur `_halfHash` — une empreinte FNV-1a des noms triés de
+chaque moitié, la plus petite prend le blanc. **Ne jamais la remplacer par un tirage au
+sort** : plusieurs navigateurs calculent la compo en parallèle avant qu'elle soit publiée
+dans `slot_sessions`, et le lock la recalcule encore ; le déterminisme est ce qui les fait
+tomber d'accord. Un hash convient parce qu'aucun joueur n'y est ancré : la composition d'une
+moitié change à chaque journée. Après correctif, sur 400 tirages : place 1 à 48,5 %, toutes
+les places entre 47 et 53 %, et « même roster, même ordre → même compo » 100 fois sur 100.
+
+`_halfHash` doit rester **dans le bloc `/* ── AUTO-TEAM BALANCING ── */`** : c'est la tranche
+que `lock_session.py` extrait pour rejouer l'algo dans node. Un helper posé ailleurs ferait
+planter le lock.
 
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 

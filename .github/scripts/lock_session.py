@@ -173,10 +173,11 @@ if {p['name'] for p in players} != set(effective):
 
 # ── Ancrage des couleurs sur la compo annoncée (slot_sessions) ──
 # La couleur annoncée avant 21h30 fait foi. teamA=true → Blanche ⚪, teamA=false → Bleue 🔵.
-# La régénération attribue teamA/teamB arbitrairement (ordre d'énumération C(10,5)) et peut
-# donc retourner l'orientation des couleurs. Si la moitié « bleue » finale recoupe surtout la
-# moitié « blanche » annoncée, on échange les deux équipes (couleur + côté du terrain) pour
-# que chaque joueur conserve la couleur sous laquelle il a été annoncé.
+# La régénération tranche l'orientation sur l'empreinte des deux moitiés (_halfHash) : dès que
+# la composition d'une moitié bouge, les couleurs peuvent se retourner. Si la moitié « bleue »
+# finale recoupe surtout la moitié « blanche » annoncée, on échange les deux équipes
+# (couleur + côté du terrain) pour que chaque joueur conserve la couleur sous laquelle il a
+# été annoncé.
 announced = row.get('players') or []
 if announced:
     announced_blue = {p['name'] for p in announced if not p['teamA']}
