@@ -310,9 +310,18 @@ continuent d'être maintenues par `update_stats.py`.
   comme le reste de l'onglet, et en « Depuis toujours » **découpé par saison** (un filet
   `Saison 26-27 · N titres` avant chaque bloc de médaillons) — un mur continu ne disait
   plus de quelle année venait un titre. Le bandeau « vote en cours » suit la même règle.
-  ⚠️ La médaille du médaillon (🥇 ≥3 / 🥈 2 / 🏅 1) reste le **total de carrière**, pas le
-  compte de la saison affichée : c'est le même chiffre que le 🏆 de la vue Joueurs, et
-  deux onglets ne doivent jamais annoncer des totaux différents.
+- **Vue Joueurs** : les mêmes pastilles, sur la **même variable `_statsSeason`** que
+  l'onglet Stats — les deux vues montrent les mêmes chiffres, elles ne doivent pas
+  pouvoir être réglées sur deux saisons différentes. La Presse garde son
+  `_presseSeason` : lire les articles d'une saison ne doit pas déplacer le classement.
+  Les trois rangées passent par `_seasonPills(scope, action, allLabel)` — trois copies
+  du même bouton finiraient par diverger.
+- **Titres d'homme du match : toujours sur le périmètre affiché.**
+  `_computeMotmTitles(allVotes, season)` prend la saison en 2ᵉ argument ; le 🏆 de la
+  fiche Joueurs et la médaille du palmarès (🥇 ≥3 / 🏅 1) s'en servent tous les deux.
+  ⚠️ Le trophée était resté un total de carrière : sur la pastille `26-27`, une fiche
+  annonçait « 1 match » et « 🏆 2 ». Un compteur ne doit jamais couvrir une autre période
+  que les matchs affichés à côté de lui.
 - **Onglet Récap 25-26** : visible en `25-26`, et aussi tant que la saison choisie n'a
   joué aucun match (sinon il disparaîtrait pendant toute la trêve).
 - Les **courbes de duos sur le terrain** restent en all-time (`getPairWinRate`,
