@@ -3,10 +3,6 @@
 ## Repo & branches
 - Repo : `augustintiberghien/five-lundi`
 - Branche de travail : `claude/setup-html-project-wSe4F`
-- ⏳ **En attente de merge** : `claude/couleurs-blanche-premier-inscrit` — le correctif qui
-  empêche le premier inscrit d'être systématiquement en Blanche (cf. section « L'orientation
-  des couleurs »). Volontairement gardé hors de `main` le soir du 7 septembre ; à rebaser sur
-  le `main` d'après-match avant la PR.
 - **Push direct vers `main` impossible** (403) → toujours passer par : commit → push sur la branche → PR via MCP → merge via MCP → rebase sync
 
 ## Commande type pour chaque changement
