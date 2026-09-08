@@ -561,6 +561,14 @@ Au-delà elle passe sur deux lignes (pas cassé, mais moins net), et sur un écr
 la limite tombe à ~24 caractères. Se mesurer avec un `<span>` sonde plutôt qu'au jugé :
 les majuscules et l'interlettrage coûtent bien plus large qu'on ne le croit.
 
+Liste réécrite par l'utilisateur le 8 septembre 2026, et **les vingt tiennent maintenant
+sur une ligne à toutes les largeurs testées** (320, 360, 390, 430 px) : la plus longue,
+« Marc n'est toujours pas revenu… », fait 243 px pour 262 px disponibles à 320 px. Les
+deux anciennes qui débordaient partout — « Jack s'échauffe pour vous pulvériser… » et
+« Spy vise le trophée d'homme du match… », 383 et 378 px — ont été raccourcies de moitié.
+C'est l'état à préserver : **mesurer une nouvelle phrase avant de l'ajouter**, la marge
+n'est plus que d'une vingtaine de pixels sur petit écran.
+
 ⚠️ **Le même texte est en dur dans le `<div id="forming-banner">` du corps de page** :
 c'est le tout premier affichage, celui d'avant l'exécution du JS, il ne peut pas être
 généré. Le CSS statique (`animation:phraseCycle Ns`, les `nth-child` et les pourcentages
