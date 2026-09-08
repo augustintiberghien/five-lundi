@@ -717,9 +717,18 @@ Homme du match : **Spy**, 6 voix sur 10, devant Johann (2), Gugu (1) et Alex (1)
 **son premier titre**, après avoir figuré au vote cinq fois sans jamais le gagner
 (1, 1, 2, 2, 3 voix, puis 6). Lock automatique à 21h39, score saisi depuis le site à
 23h00 : la chaîne complète a tourné sans intervention. Article poussé dans
-`ARTICLES['s19']` — écrit à partir du score, des compos et des **verbatims des dix
-votes**, sans récit de match (le déroulé minute par minute n'a pas été rapporté ;
-ne rien inventer de tel).
+`ARTICLES['s19']`, écrit à partir du déroulé donné par l'utilisateur **et** des
+verbatims des dix votes. Le match : 3-0 Blanche (deux buts de Gugu, dont l'ouverture
+sous ses nouvelles couleurs du LOSC, le second à la 13ᵉ), remontée bleue but à but
+jusqu'à 7-7, puis **7-8 — la Bleue devant pour la première fois** ; dix minutes de
+stress, égalisation de Spy à 8-8, faute tactique de Gugu sur Flo, et 9-8 signé Alex
+au bout d'**une heure et trois minutes**.
+
+⚠️ **Méthode, pour la prochaine fois** : une première version de cet article a été
+écrite sans le récit du match, faute de l'avoir retrouvé dans le fil — et l'article
+s'était replié sur le vote. Le déroulé avait pourtant été envoyé la veille. **Avant
+d'écrire un article, demander le film du match plutôt que de faire sans** ; ne jamais
+inventer un scénario, mais ne pas s'en passer non plus quand il existe.
 
 ## Joueurs actifs (s18 — 31 août 2026, reprise)
 Blanche ⚪ : Michael, Edouard, Gugu, Spy, Hugo
