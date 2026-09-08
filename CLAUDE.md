@@ -464,31 +464,40 @@ c'est la **deadline du vote** (22h30 le lendemain) qui dit quand la soirée est 
 La clôture anticipée à 10 votes ne déplace **volontairement pas** l'atterrissage :
 la page ne doit pas sauter pendant que le groupe commente encore le match.
 
-### L'article publié libère l'atterrissage (depuis le 8 septembre 2026, l'après-midi)
+### L'article publié libère l'atterrissage, 4 h plus tard (8 septembre 2026)
 
-Trois tests, dans cet ordre, et l'ordre fait tout :
+Quatre tests, **dans cet ordre, et l'ordre fait tout** :
 
-1. **Le soir du match, on ne quitte jamais la session.** Quoi qu'il arrive par
-   ailleurs — c'est ce qui interdit à un article publié à 23h de faire sauter la page
-   pendant que le groupe est encore dessus.
-2. **Le lendemain, un article publié clôt la soirée** et l'atterrissage passe au
-   prochain créneau ouvert.
-3. **Sans article, la deadline du vote comme avant.**
+1. **Le soir du match, on ne quitte jamais la session.** Quoi qu'il arrive par ailleurs —
+   c'est ce qui interdit à un article publié à 23h de faire sauter la page pendant que le
+   groupe est encore dessus.
+2. **Passé la deadline du vote, on est parti.** Ce plafond est testé *avant* l'article, et
+   c'est lui qui rend la règle **monotone** : une fois la session quittée on n'y revient
+   jamais, même si l'article est déposé le lendemain. Sans ce test placé là, un article
+   écrit le mercredi ramènerait tout le monde sur le match du lundi.
+3. **Un article publié raccourcit l'attente, mais laisse `_ARTICLE_READ_MS` (4 h) pour le
+   lire** avant de basculer sur le prochain créneau.
+4. **Sans article — ou sans `publishedAt` —, la deadline du vote comme avant.**
 
 Le raisonnement : l'article s'écrit au débrief, une fois l'homme du match connu (règle
-posée par l'utilisateur lui-même : « ne publions pas avant de savoir qui est l'homme du
-match et les commentaires de chacun »). Sa présence veut donc dire « il n'y a plus rien
-à attendre sur cette page ». C'est aussi **un levier volontaire** : publier l'article
-fait passer tout le monde au match suivant, ce qui compte quand la compo bouge — le
-8 septembre, cinq absents étaient déjà déclarés pour le 14 et l'intérêt était d'ouvrir
-sur la feuille de match plutôt que sur le résultat de la veille.
+posée par l'utilisateur : « ne publions pas avant de savoir qui est l'homme du match et
+les commentaires de chacun »). Sa présence veut dire « c'est raconté ». Les 4 h sont là
+pour que ceux qui ouvrent le site dans la foulée tombent sur l'article plutôt que sur la
+feuille du match suivant. C'est aussi **un levier volontaire** : publier l'article
+programme le passage au match d'après, ce qui compte quand la compo bouge — le
+8 septembre, cinq absents étaient déjà déclarés pour le 14.
 
-⚠️ **Le test de l'article vient après celui du jour du match, jamais avant** : inversés,
-on retomberait exactement dans le défaut corrigé le matin même. Vérifié sur six horloges
-truquées, dont le cas d'origine (mardi 00h34, vote ouvert, pas d'article → la session est
-gardée) et son symétrique (mardi 00h34 avec article → on passe au créneau suivant).
-Le test se fait sur `ARTICLES[s.id]`, donc **synchrone** : `_curIsLanding`, qui s'exécute
-avant la réponse de Supabase, donne la même réponse que l'atterrissage.
+**`ARTICLES[id].publishedAt`** porte l'horodatage (ISO, `…Z`). Les 18 articles antérieurs
+n'en ont pas : ils ne raccourcissent rien, on retombe sur la deadline, donc rien du passé
+ne bouge. **À renseigner à chaque nouvel article**, sinon le levier ne sert pas.
+
+⚠️ Le test se fait sur `ARTICLES[s.id]`, donc **synchrone** : `_curIsLanding`, qui
+s'exécute avant la réponse de Supabase, donne la même réponse que l'atterrissage.
+
+Vérifié sur huit horloges truquées, dont les trois qui comptent : le cas d'origine
+(mardi 00h34, vote ouvert, pas d'article → session gardée), un article publié 34 min plus
+tôt à minuit (→ session gardée, les 4 h courent), et un article déposé le mercredi matin
+(→ **on ne revient pas** sur le match du lundi).
 
 Le premier rendu (`_curIsLanding`, avant la réponse de Supabase) appelle la même
 fonction. Il en avait sa propre copie, et deux copies d'une règle de date finissent

@@ -5628,6 +5628,8 @@ async function submitTmotmVote(sid) {
    ══════════════════════════════════════════ */
 var ARTICLES = {
   's19': {
+    /* 1re mise en ligne de l'article : 8 septembre 2026, 10h36 Paris. */
+    publishedAt: '2026-09-08T08:36:00Z',
     kicker: 'Five Lundi · 7 septembre 2026',
     headline: 'Menée pour la première fois à 7-8, la Blanche gagne quand même',
     sub: 'Deux buts de Gugu pour lancer la soirée, l’égalisation de Spy dans le money time, la délivrance d’Alex à la 63ᵉ — 9-8, et un premier trophée pour Spy',
@@ -6489,6 +6491,10 @@ var _tabSeason = null;   /* saison affichee dans la barre d'onglets */
    soirée est finie, pas le passage de minuit.
    La clôture anticipée à 10 votes ne déplace volontairement pas l'atterrissage :
    la page ne doit pas sauter pendant que le groupe commente encore le match. */
+/* Delai de lecture laisse sur le match de la veille apres publication de l'article,
+   avant que l'atterrissage ne passe au prochain creneau. Demande a 4 h le 8 septembre
+   2026 : « pour laisser le temps de lire ». */
+var _ARTICLE_READ_MS = 4 * 60 * 60 * 1000;
 function _sessionStillLanding(s){
   if(!s) return false;
   /* Date illisible : on ne prend pas le risque de quitter la session current. */
@@ -6500,17 +6506,21 @@ function _sessionStillLanding(s){
      Ce test passe avant celui de l'article : publier un article a 23h ne doit pas
      faire sauter la page pendant que le groupe est encore dessus. */
   if(d.getTime() >= today.getTime()) return true;
-  /* Le lendemain, la soiree tient jusqu'a la deadline du vote — sauf si elle est deja
-     racontee. L'article publie est ce signal : il s'ecrit au debrief, une fois l'homme
-     du match connu, donc sa presence veut dire « il n'y a plus rien a attendre ici ».
-     C'est aussi un levier volontaire : publier l'article fait passer tout le monde au
-     match suivant, ce qui compte quand la compo bouge (absences a anticiper).
-     Sans article, exactement l'ancien comportement — c'est lui qui evite le piege du
-     8 septembre, ou la page quittait le match a minuit, vote encore ouvert et article
-     pas ecrit. */
-  if(typeof ARTICLES !== 'undefined' && ARTICLES[s.id]) return false;
+  /* Plafond, teste avant l'article : passe la deadline du vote, la soiree est finie de
+     toute facon. Le mettre ici rend la regle monotone — une fois qu'on a quitte la
+     session on n'y revient jamais, meme si un article est depose plus tard. */
   var dl = (typeof mvpDeadline === 'function') ? mvpDeadline(s.date, s.id) : null;
-  return !!dl && Date.now() < dl.getTime();
+  if(!dl || Date.now() >= dl.getTime()) return false;
+  /* Le lendemain, la soiree tient jusqu'a la deadline — sauf qu'un article publie la
+     raccourcit : il s'ecrit au debrief, une fois l'homme du match connu, donc sa
+     presence veut dire « c'est raconte ». On laisse quand meme _ARTICLE_READ_MS pour
+     le lire avant de basculer sur le match suivant.
+     Un article sans `publishedAt` (les 18 d'avant septembre 2026) ne raccourcit rien :
+     on retombe sur la deadline, c'est-a-dire le comportement d'origine. */
+  var art = (typeof ARTICLES !== 'undefined') ? ARTICLES[s.id] : null;
+  var pub = (art && art.publishedAt) ? Date.parse(art.publishedAt) : NaN;
+  if(!isNaN(pub)) return Date.now() < pub + _ARTICLE_READ_MS;
+  return true;
 }
 
 function _landingSession(){
