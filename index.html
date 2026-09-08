@@ -1192,6 +1192,15 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .forming-players{margin-top:1.2rem;display:flex;flex-direction:column;gap:.3rem;width:min(340px,90%);margin-left:auto;margin-right:auto}
 .forming-player-row{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:8px;padding:.35rem .7rem;font-family:Saira,sans-serif;font-size:.82rem;color:rgba(255,255,255,.7)}
 .forming-rank{font-family:Saira Condensed,sans-serif;font-size:.65rem;color:rgba(255,255,255,.3);width:1.2rem}
+.forming-sep{font-family:'Saira Condensed',sans-serif;font-size:.58rem;font-weight:700;color:rgba(239,68,68,.5);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:.5rem;padding:.7rem .2rem .2rem}
+.forming-sep::after{content:'';flex:1;height:1px;background:rgba(239,68,68,.16)}
+.forming-out{opacity:.42;text-decoration:line-through}
+/* Effectif incomplet : trop de desistements pour aligner dix joueurs. */
+.roster-alert{width:min(340px,92vw);margin:0 auto 1.1rem;box-sizing:border-box;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:.85rem .9rem;text-align:center}
+.roster-alert-title{font-family:'Saira Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#f08b8b}
+.roster-alert-sub{font-family:Saira,sans-serif;font-size:.67rem;color:rgba(255,255,255,.42);margin-top:.32rem;line-height:1.5}
+.roster-alert-holes{font-family:Saira,sans-serif;font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.55rem;line-height:1.45}
+.roster-alert-cta{display:inline-block;margin-top:.7rem;font-family:'Saira Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#FFE49B;background:rgba(255,228,155,.09);border:1px solid rgba(255,228,155,.28);border-radius:20px;padding:.34rem .95rem;cursor:pointer}
 .ins-match-section{margin-top:1rem;border-top:1px solid rgba(255,255,255,.07);padding-top:.8rem}
 .ins-match-header{font-family:Saira Condensed,sans-serif;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;text-align:center}
 
@@ -1232,7 +1241,8 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div class="mvp-section" id="mvp-section" style="display:none;margin-bottom:1.6rem"></div>
 
-<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack te met un petit pont…</span><span>Spy te la met sur la tête…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid chauffe ses mains…</span></div><div class="loading-pair"><span>Henri cherche une excuse…</span><span>Quentin bosse la tactique…</span></div><div class="loading-pair"><span>Alex tricote et pas un pull…</span><span>Hugo consulte une IA…</span></div><div class="loading-pair"><span>Johann fait des squats…</span><span>Edouard boit du bon vin…</span></div><div class="loading-pair"><span>Flo voit avec sa femme…</span><span>Cyril se rachète un genou…</span></div><div class="loading-pair"><span>Théo place les plots…</span><span>Landry est sur le banc…</span></div><div class="loading-pair"><span>Marc n’est toujours pas revenu…</span><span>Claude raconte n’imp…</span></div></div></div></div>  <div class="pitch-wrap" style="display:none">
+<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack te met un petit pont…</span><span>Spy te la met sur la tête…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid chauffe ses mains…</span></div><div class="loading-pair"><span>Henri cherche une excuse…</span><span>Quentin bosse la tactique…</span></div><div class="loading-pair"><span>Alex tricote et pas un pull…</span><span>Hugo consulte une IA…</span></div><div class="loading-pair"><span>Johann fait des squats…</span><span>Edouard boit du bon vin…</span></div><div class="loading-pair"><span>Flo voit avec sa femme…</span><span>Cyril se rachète un genou…</span></div><div class="loading-pair"><span>Théo place les plots…</span><span>Landry est sur le banc…</span></div><div class="loading-pair"><span>Marc n’est toujours pas revenu…</span><span>Claude raconte n’imp…</span></div></div></div></div>  <div id="roster-alert" style="display:none"></div>
+  <div class="pitch-wrap" style="display:none">
     <div class="pitch" id="pitch">
       <div class="pitch-bg">
         <div class="stripe" style="top:0;height:20%"></div>
@@ -1675,19 +1685,34 @@ function drawDuoLinks(players, container) {
 
 
 /* ── SESSION ── */
-function _buildFormingBannerHtml(s, regs, matchRegs){
+/* byStatus (feuille de match) est facultatif : sans lui, le décompte reste celui des
+   inscrits, comme avant. Avec lui, ce sont les DISPONIBLES qui sont comptés — sinon un
+   créneau à 18 inscrits dont 9 se sont désistés affichait « 18/10 », c'est-à-dire un
+   effectif au complet, le jour où il manquait un joueur. */
+function _buildFormingBannerHtml(s, regs, matchRegs, byStatus){
   var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
-  var n=regs.length;
+  byStatus=byStatus||{};
   var myName=localStorage.getItem('presence_name')||'';
   var regNames=regs.map(function(r){return r.player_name;});
   var isRegistered=myName&&regNames.indexOf(myName)!==-1;
+  var avail=[], out=[];
+  regs.forEach(function(r,i){
+    (byStatus[r.player_name]==='absent'?out:avail).push({name:r.player_name, rank:i+1});
+  });
+  var n=avail.length;
 
-  var rows=regs.map(function(r,i){
+  var rows=avail.map(function(r){
     var nameSpan=slot&&slot.open
-      ?'<span class="forming-name-tap" data-confirm-slot="'+s.id+'" data-confirm-name="'+r.player_name+'" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px">'+r.player_name+'</span>'
-      :'<span>'+r.player_name+'</span>';
-    return '<div class="forming-player-row"><span class="forming-rank">'+(i+1)+'</span>'+nameSpan+'</div>';
+      ?'<span class="forming-name-tap" data-confirm-slot="'+s.id+'" data-confirm-name="'+r.name+'" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px">'+r.name+'</span>'
+      :'<span>'+r.name+'</span>';
+    return '<div class="forming-player-row"><span class="forming-rank">'+r.rank+'</span>'+nameSpan+'</div>';
   }).join('');
+  if(out.length){
+    rows+='<div class="forming-sep">❌ '+out.length+' désistement'+(out.length>1?'s':'')+'</div>';
+    rows+=out.map(function(r){
+      return '<div class="forming-player-row forming-out"><span class="forming-rank">'+r.rank+'</span><span>'+r.name+'</span></div>';
+    }).join('');
+  }
 
   var matchSection='';
   if(matchRegs&&matchRegs.length>0){
@@ -1699,7 +1724,8 @@ function _buildFormingBannerHtml(s, regs, matchRegs){
     matchSection='<div style="font-family:Saira Condensed,sans-serif;font-size:.6rem;color:rgba(100,150,255,.7);letter-spacing:.1em;text-transform:uppercase;margin:1rem 0 .4rem;text-align:center">📺 '+matchLabel+'</div><div class="forming-players">'+matchRows+'</div>';
   }
 
-  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">joueurs inscrits</div><div class="forming-players">'+rows+'</div>'+matchSection+'</div>';
+  var countLabel=out.length?'joueurs disponibles':'joueurs inscrits';
+  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">'+countLabel+'</div><div class="forming-players">'+rows+'</div>'+matchSection+'</div>';
 }
 
 function renderInFormation(s){
@@ -1731,6 +1757,10 @@ function renderInFormation(s){
   if(balanceEl) balanceEl.style.display='none';
   var scoreFormEl=document.getElementById('score-form-wrap');
   if(scoreFormEl) scoreFormEl.style.display='none';
+  /* Pas de terrain ici : la bannière d'effectif incomplet n'a rien à surmonter, et
+     le décompte de la bannière « en formation » porte déjà la même information. */
+  var rosterAlertEl=document.getElementById('roster-alert');
+  if(rosterAlertEl){ rosterAlertEl.style.display='none'; rosterAlertEl.innerHTML=''; }
 
   var viewPitch=document.getElementById('view-pitch');
   var _ts2=document.getElementById('tournament-section');
@@ -1743,7 +1773,7 @@ function renderInFormation(s){
   }
   formBanner.style.display='';
   var _hasCache=(s.regs&&s.regs.length>0)||(s.regCount>0);
-  formBanner.innerHTML=_hasCache?_buildFormingBannerHtml(s,s.regs||[],s.matchRegs||[])
+  formBanner.innerHTML=_hasCache?_buildFormingBannerHtml(s,s.regs||[],s.matchRegs||[],s.byStatus)
     :_loadingBannerHtml();
   formBanner.style.display='block';
 
@@ -1762,26 +1792,34 @@ function renderInFormation(s){
   var slot=INSCRIPTION_SLOTS.find(function(sl){return sl.id===s.id;});
   var fivePr=sbGetRegistrations(s.id);
   var matchPr=slot&&slot.matchEvent?sbGetRegistrations(slot.matchEvent.id):Promise.resolve([]);
-  Promise.all([fivePr,matchPr]).then(function(res){
+  /* La feuille de match est lue ici plutôt que dans syncSharedTeams : c'est la même
+     requête, et elle sert aussi au décompte de la bannière. `undefined` en cas d'échec
+     — jamais {} —, pour que syncSharedTeams la relise et suspende la publication au
+     lieu de conclure « aucun absent » sur une lecture ratée. */
+  var presPr=sbGetPresenceMap(s.id).catch(function(){ return undefined; });
+  Promise.all([fivePr,matchPr,presPr]).then(function(res){
     var freshRegs=res[0]; var freshMatch=res[1];
+    s.byStatus=res[2];
+    var _byStatus=res[2]||{};
     s.regs=freshRegs; s.regCount=freshRegs.length;
+    s.availCount=freshRegs.filter(function(r){ return _byStatus[r.player_name]!=='absent'; }).length;
     s.bench=freshRegs.slice(10).map(function(r){return r.player_name;});
     if(slot&&slot.benchPriority){var _bp=slot.benchPriority;s.bench.sort(function(a,b){var ai=_bp.indexOf(a),bi=_bp.indexOf(b);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
     if(slot&&slot.matchEvent) s.matchRegs=freshMatch;
     var tabBtn=document.querySelector('.tab[data-id="'+s.id+'"]');
-    if(tabBtn) tabBtn.textContent=_dayTabLabel(s, freshRegs.length);
+    if(tabBtn) tabBtn.textContent=_dayTabLabel(s, s.availCount);
     if(freshRegs.length>=10){
       if(slot&&slot.tournament){
         _setTournamentTeams(s, freshRegs, slot);
         renderSession(s);
       } else {
-        syncSharedTeams(s, freshRegs).then(function(ok){
+        syncSharedTeams(s, freshRegs, res[2]).then(function(ok){
           if(ok&&s.players.length>0){ renderSession(s); }
-          else { formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch); formBanner.onclick=_fbClick; }
+          else { formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch,res[2]); formBanner.onclick=_fbClick; }
         });
       }
     } else {
-      formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch);
+      formBanner.innerHTML=_buildFormingBannerHtml(s,freshRegs,freshMatch,res[2]);
       formBanner.onclick=_fbClick;
     }
   }).catch(function(){
@@ -1790,32 +1828,36 @@ function renderInFormation(s){
     // Sinon réessayer silencieusement après 2s
     setTimeout(function(){
       Promise.all([sbGetRegistrations(s.id),
-        (slot&&slot.matchEvent?sbGetRegistrations(slot.matchEvent.id):Promise.resolve([]))
+        (slot&&slot.matchEvent?sbGetRegistrations(slot.matchEvent.id):Promise.resolve([])),
+        sbGetPresenceMap(s.id).catch(function(){ return undefined; })
       ]).then(function(res2){
         var fr2=res2[0]; var fm2=res2[1];
+        s.byStatus=res2[2];
+        var _bs2=res2[2]||{};
         s.regs=fr2; s.regCount=fr2.length;
+        s.availCount=fr2.filter(function(r){ return _bs2[r.player_name]!=='absent'; }).length;
         s.bench=fr2.slice(10).map(function(r){return r.player_name;});
         if(slot&&slot.benchPriority){var _bp2=slot.benchPriority;s.bench.sort(function(a,b){var ai=_bp2.indexOf(a),bi=_bp2.indexOf(b);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
         if(slot&&slot.matchEvent) s.matchRegs=fm2;
         var tb=document.querySelector('.tab[data-id="'+s.id+'"]');
-        if(tb) tb.textContent=_dayTabLabel(s, fr2.length);
+        if(tb) tb.textContent=_dayTabLabel(s, s.availCount);
         if(fr2.length>=10){
           if(slot&&slot.tournament){
             _setTournamentTeams(s, fr2, slot);
             renderSession(s);
           } else {
-            syncSharedTeams(s, fr2).then(function(ok){
+            syncSharedTeams(s, fr2, res2[2]).then(function(ok){
               if(ok&&s.players.length>0){ renderSession(s); }
-              else if(formBanner){ formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2); formBanner.onclick=_fbClick; }
+              else if(formBanner){ formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2,res2[2]); formBanner.onclick=_fbClick; }
             });
           }
         } else {
-          if(formBanner) formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2);
+          if(formBanner) formBanner.innerHTML=_buildFormingBannerHtml(s,fr2,fm2,res2[2]);
           if(formBanner) formBanner.onclick=_fbClick;
         }
       }).catch(function(){
         // Toujours en échec : afficher ce qu'on a en cache sans message d'erreur
-        if(formBanner&&s.regs&&s.regs.length>0) formBanner.innerHTML=_buildFormingBannerHtml(s,s.regs,s.matchRegs||[]);
+        if(formBanner&&s.regs&&s.regs.length>0) formBanner.innerHTML=_buildFormingBannerHtml(s,s.regs,s.matchRegs||[],s.byStatus);
       });
     },2000);
   });
@@ -1823,6 +1865,9 @@ function renderInFormation(s){
 
 function renderTournament(s) {
   showPitch();
+  /* Le workflow de lock ne gère pas les tournois, la règle des dix non plus. */
+  var _ra = document.getElementById('roster-alert');
+  if (_ra) { _ra.style.display = 'none'; _ra.innerHTML = ''; }
   var layer = document.getElementById('players');
   if (layer) layer.innerHTML = '';
   var pitchWrap = document.querySelector('.pitch-wrap');
@@ -4008,6 +4053,18 @@ function refreshPresenceSummary(presences, waiting) {
 }
 
 /* ── PRESENCE FUNCTIONS ── */
+/* sbGetPresences renvoie [] aussi bien sur une lecture ratee que sur une feuille
+   vide. La distinction n'est pas cosmetique : republier la compo sur une lecture
+   ratee, c'est reintegrer les absents (constate le 27 juillet 2026, Tim republie
+   titulaire). Cette version-ci leve, et l'appelant decide quoi faire. */
+async function sbGetPresenceMap(sessionId) {
+  var r = await fetch(SB_URL + '/rest/v1/presences?session_id=eq.' + encodeURIComponent(sessionId) + '&select=name,status', {headers: sbHeaders()});
+  if (!r.ok) throw new Error('presences ' + r.status);
+  var out = {};
+  (await r.json()).forEach(function(p) { out[p.name] = p.status; });
+  return out;
+}
+
 async function sbGetPresences(sessionId) {
   try {
     var r = await fetch(SB_URL + '/rest/v1/presences?session_id=eq.' + encodeURIComponent(sessionId) + '&select=name,status', {headers: sbHeaders()});
@@ -4300,18 +4357,27 @@ async function syncSharedTeams(s, regs, byStatus){
      On distingue ici les deux cas pour ne jamais publier sur une lecture ratée. */
   var presOk=true;
   if(!byStatus){
-    byStatus={};
-    try{
-      var _pr=await fetch(SB_URL+'/rest/v1/presences?session_id=eq.'+encodeURIComponent(s.id)+'&select=name,status', {headers: sbHeaders()});
-      if(!_pr.ok) throw new Error('presences '+_pr.status);
-      (await _pr.json()).forEach(function(p){ byStatus[p.name]=p.status; });
-    }catch(e){ presOk=false; console.warn('[compo partagée] feuille de match illisible — publication suspendue', e); }
+    try{ byStatus=await sbGetPresenceMap(s.id); }
+    catch(e){ byStatus={}; presOk=false; console.warn('[compo partagée] feuille de match illisible — publication suspendue', e); }
   }
   // Lecture ratée et compo déjà publiée : on garde celle-ci plutôt que d'en calculer
   // une nouvelle à partir d'absences inconnues
   if(!presOk&&row&&row.players&&row.players.length>0){ _applySharedCompo(s, row, slot, regs); return true; }
   var top10=_effectiveRoster(slot, regs, byStatus);
-  if(top10.length<10) return false;
+  /* Moins de 10 disponibles : trop de désistements, et le banc ne couvre plus les
+     trous. On ne peut plus rééquilibrer (l'algo travaille sur dix noms) et surtout
+     on ne publie rien. Mais rendre `false` renvoyait le créneau à la bannière « en
+     formation » : terrain, compo, feuille de match et remplaçants disparaissaient
+     d'un coup, remplacés par « 18/10 joueurs inscrits » — un décompte qui annonce
+     un effectif au complet le jour précis où il manque quelqu'un.
+     On garde donc la dernière compo publiée telle quelle. Elle reste la compo
+     annoncée au groupe, les absents y portent leur ❌ (updatePitchPresence) et le
+     trou se voit à la place qu'il laisse ; renderRosterAlert dit combien il en
+     manque, juste au-dessus du terrain. */
+  if(top10.length<10){
+    if(row&&row.players&&row.players.length>0){ _applySharedCompo(s, row, slot, regs); return true; }
+    return false;
+  }
   var rosterKey=top10.slice().sort().join(',');
   // Compo publiée encore valable : on la prend telle quelle
   if(row&&row.players&&row.players.length>0&&row.roster_key===rosterKey){ _applySharedCompo(s, row, slot, regs); return true; }
@@ -4723,12 +4789,41 @@ function presenceRowHtml(sid, name, status, isMe, faded, tag) {
   return html;
 }
 
+/* ── EFFECTIF INCOMPLET ──
+   L'information existait déjà : renderPresence calcule depuis toujours le nombre de
+   postes que le banc ne couvre plus. Elle était imprimée en italique tout en bas de la
+   feuille de match, après la liste des absents — alors que c'est la seule chose à faire
+   ce jour-là : trouver quelqu'un. Elle remonte donc au-dessus du terrain.
+   La bannière vit dans #view-pitch : chaque onglet plein écran masque ce conteneur
+   entier, il n'y a donc pas un septième endroit où penser à la cacher (Stats, Joueurs,
+   Presse, Inscriptions et Récap listent déjà chacun les sections à masquer). */
+function renderRosterAlert(s, missing, holes, absentCount, regCount) {
+  var el = document.getElementById('roster-alert');
+  if (!el) return;
+  if (!(missing > 0)) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  var pl = missing > 1 ? 's' : '';
+  var h = '<div class="roster-alert">';
+  h += '<div class="roster-alert-title">⚠️ Il manque ' + missing + ' joueur' + pl + '</div>';
+  h += '<div class="roster-alert-sub">' + (10 - missing) + ' disponibles sur 10'
+     + (absentCount ? ' · ' + absentCount + ' désistement' + (absentCount > 1 ? 's' : '') : '')
+     + (regCount ? ' sur ' + regCount + ' inscrits' : '') + '</div>';
+  if (holes && holes.length) {
+    h += '<div class="roster-alert-holes">Personne au banc pour remplacer <strong style="color:#f08b8b;font-weight:600">'
+       + holes.join('</strong>, <strong style="color:#f08b8b;font-weight:600">') + '</strong></div>';
+  }
+  h += '<div class="roster-alert-cta" onclick="showInscriptions()">➕ Inscrire un remplaçant</div>';
+  h += '</div>';
+  el.innerHTML = h;
+  el.style.display = 'block';
+}
+
 function renderPresence(s) {
   var wrap = document.getElementById('presence-section');
   if (!wrap) return;
 
   if (!isPresenceVisible(s)) {
     wrap.style.display = 'none';
+    renderRosterAlert(s, 0);
     // Match verrouillé/joué : compo figée (aucun rééquilibrage après 21h30) ; on fetch uniquement pour le vote MVP
     if (isPresenceLocked(s)) {
       sbGetPresences(s.id).then(function(presences) {
@@ -4825,6 +4920,21 @@ function renderPresence(s) {
     updateBenchHighlight(calledUp);
     if (s.tournamentTeams) _updateTournamentPresenceMarks(byName);
 
+    /* L'onglet du lundi porte le décompte des disponibles : il doit suivre le clic
+       qu'on vient de faire, pas attendre un rechargement de la page. */
+    if (s.fromInscription && s.regs && s.regs.length) {
+      s.availCount = s.regs.filter(function(r){ return byName[r.player_name] !== 'absent'; }).length;
+      var _tb = document.querySelector('.tab[data-id="' + s.id + '"]');
+      if (_tb) _tb.textContent = _dayTabLabel(s, s.availCount);
+    }
+
+    /* Les trous que le banc ne couvre plus : les absents appelés en dernier n'ont
+       trouvé personne derrière eux. calledUp remplace les premiers dans l'ordre. */
+    var _holes = absentStarters.slice(calledUp.length);
+    renderRosterAlert(s, locked ? 0 : _holes.length, _holes,
+      absentStarters.length + benchAbsent.length,
+      (s.regs && s.regs.length) || (starterNames.length + bench.length));
+
     refreshPresenceSummary(presences, waiting);
     if (!locked) updatePitchPresence(presences);
     if (locked) {
@@ -4909,11 +5019,8 @@ function renderPresence(s) {
       });
     }
 
-    // Postes sans remplaçant dispo
-    var uncovered = absentStarters.length - calledUp.length;
-    if (uncovered > 0) {
-      html += '<div style="font-family:Saira,sans-serif;font-size:.65rem;color:rgba(239,68,68,.7);font-style:italic;padding:.4rem .5rem">⚠️ ' + uncovered + ' poste' + (uncovered > 1 ? 's' : '') + ' sans remplaçant disponible</div>';
-    }
+    /* Les postes sans remplaçant étaient annoncés ici, sous le banc, en petit et en
+       italique. C'est renderRosterAlert qui le dit maintenant, au-dessus du terrain. */
 
     // Séparateur + absents
     if (absentStarters.length + benchAbsent.length > 0) {
@@ -6546,7 +6653,14 @@ function _landingSession(){
 async function _loadInscriptionSessions(){
   _INS_SESSIONS=[];
   var promises=INSCRIPTION_SLOTS.map(function(slot){
-    return sbGetRegistrations(slot.id).then(function(regs){
+    /* Seuls les créneaux ouverts : sur un créneau fermé la compo est figée et
+       syncSharedTeams sort avant même de lire la feuille de match.
+       `undefined` en cas d'échec — jamais {} — pour ne pas faire passer une lecture
+       ratée pour « aucun absent ». */
+    var presPr=slot.open?sbGetPresenceMap(slot.id).catch(function(){ return undefined; })
+                        :Promise.resolve(undefined);
+    return Promise.all([sbGetRegistrations(slot.id), presPr]).then(function(_r){
+      var regs=_r[0], byStatus=_r[1];
       var shortDate='';
       var parts=slot.label.split(' ');
       // "Lundi 1ᵉʳ juin" → "1 juin" (sans exposants)
@@ -6560,6 +6674,11 @@ async function _loadInscriptionSessions(){
         fromInscription:true,
         locked:!slot.open,
         regCount:regs.length,
+        /* Le décompte qui compte pour « est-ce qu'on joue ? » : les inscrits moins les
+           désistements. Un créneau à 18 inscrits dont 9 se sont désistés n'est pas un
+           créneau plein, et l'onglet ne doit pas le laisser croire. */
+        availCount:regs.filter(function(r){ return (byStatus||{})[r.player_name]!=='absent'; }).length,
+        byStatus:byStatus,
         regs:regs,
         bench:regs.slice(10).map(function(r){return r.player_name;}),
         nameA:'Blanche ⚪',
@@ -6571,7 +6690,7 @@ async function _loadInscriptionSessions(){
       if(slot.benchPriority){var _bp4=slot.benchPriority;s.bench.sort(function(a,b){var ai=_bp4.indexOf(a),bi=_bp4.indexOf(b);if(ai!==-1&&bi===-1)return -1;if(ai===-1&&bi!==-1)return 1;if(ai!==-1&&bi!==-1)return ai-bi;return 0;});}
       // Si >= 10 inscrits, charger/générer la compo partagée (Supabase)
       if(slot.tournament) { _setTournamentTeams(s, regs, slot); }
-      var compoPr=(!slot.tournament&&regs.length>=10)?syncSharedTeams(s, regs).catch(function(){return false;}):Promise.resolve(false);
+      var compoPr=(!slot.tournament&&regs.length>=10)?syncSharedTeams(s, regs, byStatus).catch(function(){return false;}):Promise.resolve(false);
       return compoPr.then(function(){
         // Fetch match event regs si applicable
         if(slot.matchEvent){
@@ -6589,7 +6708,7 @@ async function _loadInscriptionSessions(){
       if(partsFb.length>=3) shortDateFb=partsFb.slice(1).join(' ').replace(/[ᵉʳˢᵉⁱᵒ]+/g,'');
       else shortDateFb=slot.label.replace(/[ᵉʳˢᵉⁱᵒ]+/g,'');
       shortDateFb=shortDateFb.replace(/\s*\([^)]*\)/g,'').trim();
-      var _fbS={id:slot.id,date:slot.label,shortDate:shortDateFb,fromInscription:true,regCount:0,players:[],locked:!slot.open,regs:[],bench:[],nameA:'Blanche ⚪',nameB:'Bleue 🔵',score:'— vs —',current:false};
+      var _fbS={id:slot.id,date:slot.label,shortDate:shortDateFb,fromInscription:true,regCount:0,availCount:0,players:[],locked:!slot.open,regs:[],bench:[],nameA:'Blanche ⚪',nameB:'Bleue 🔵',score:'— vs —',current:false};
       if(slot.tournament) _setTournamentTeams(_fbS,[],slot);
       _INS_SESSIONS.push(_fbS);
     });
@@ -7022,8 +7141,11 @@ function buildTabs(){
       var b=document.createElement('button');
       b.dataset.id=s.id;
       if(s.fromInscription){
+        /* Le style suit les inscrits (une compo existe dès 10 inscrits, et elle reste
+           affichée même si des désistements font tomber l'effectif) ; le décompte, lui,
+           suit les disponibles — c'est lui qui dit s'il manque quelqu'un. */
         b.className='tab'+(s.regCount>=10?' tab-ins-session':' tab-forming');
-        b.textContent=_dayTabLabel(s, s.regCount);
+        b.textContent=_dayTabLabel(s, s.availCount!=null?s.availCount:s.regCount);
       } else {
         b.className='tab'+(s.current?' active':'');
         b.textContent=_dayTabLabel(s);

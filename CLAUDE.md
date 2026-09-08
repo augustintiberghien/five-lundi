@@ -93,6 +93,68 @@ fusionneraient entre eux).
 
 Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedTeams`) et la **publie dans la table Supabase `slot_sessions`** (`syncSharedTeams` dans index.html) : tous les visiteurs voient la même compo. À **chaque changement des 10 titulaires** (désistement via `doUnregister`, nouvel inscrit), le front **ré-équilibre entièrement** et republie pour tout le monde (option B : meilleur mix à chaque mouvement, pas d'échange minimal). Migration : `supabase/migrations/20260610_slot_sessions.sql`. Les anciens caches locaux `ins_teams_v2_*` sont supprimés (purgés au boot).
 
+### Effectif sous les 10 : la compo reste affichée (depuis septembre 2026)
+
+Le 8 septembre 2026, le créneau du 14 comptait **18 inscrits et 9 désistements** : neuf
+joueurs disponibles, un de moins qu'il n'en faut. Le site affichait alors
+`18/10 joueurs inscrits` et une liste de dix-huit noms — **ni terrain, ni compo, ni
+feuille de match**. Autrement dit un décompte qui annonce un effectif au complet le jour
+précis où il manque quelqu'un, et plus aucun moyen de voir qui s'est désisté.
+
+La cause : `syncSharedTeams` rendait `false` dès que `_effectiveRoster` tombait sous dix
+(l'algo d'équilibrage travaille sur exactement dix noms), et `renderSession` renvoie toute
+session `fromInscription` de moins de dix joueurs à `renderInFormation`, qui masque le
+terrain **et** la feuille de match.
+
+Trois corrections, par ordre d'importance :
+
+1. **La dernière compo publiée reste affichée.** Sous dix disponibles, `syncSharedTeams`
+   reprend la ligne `slot_sessions` telle quelle — et ne publie rien, puisqu'on ne peut
+   plus rééquilibrer. C'est la compo annoncée au groupe, les absents y portent déjà leur
+   ❌ (`updatePitchPresence`) et **le trou se voit à la place qu'il laisse**. Ne pas
+   remplacer ça par une compo générée à neuf : `_genBalancedTeams` énumère C(10,5), et
+   c'est le bloc que `lock_session.py` extrait pour rejouer l'algo dans node.
+2. **`renderRosterAlert`**, une bannière au-dessus du terrain : « ⚠️ Il manque 1 joueur ·
+   9 disponibles sur 10 · 9 désistements sur 18 inscrits · Personne au banc pour remplacer
+   Jack », avec un raccourci vers Inscriptions. Le chiffre n'est pas nouveau —
+   `renderPresence` calculait déjà les postes que le banc ne couvre plus — il était
+   imprimé en italique **tout en bas de la feuille de match**, sous la liste des absents,
+   alors que c'est la seule chose à faire ce jour-là : trouver quelqu'un. La bannière vit
+   dans `#view-pitch` : chaque onglet plein écran masque ce conteneur entier, il n'y a donc
+   pas un septième endroit où penser à la cacher (Stats, Joueurs, Presse, Inscriptions et
+   Récap listent déjà chacun les sections à masquer, et ces listes divergeraient).
+3. **Les décomptes comptent les disponibles, pas les inscrits** : la bannière « en
+   formation » (`9/10 joueurs disponibles`, désistements listés à part et barrés, rang
+   d'inscription conservé) et l'onglet du lundi (`Lun 14 (9/10)`).
+   `_loadInscriptionSessions` lit la feuille de match des créneaux **ouverts** en même
+   temps que les inscriptions et pose `availCount` ; la requête n'est pas nouvelle, elle
+   est seulement remontée d'un cran (`syncSharedTeams` la faisait pour son compte).
+   `renderPresence` rafraîchit `availCount` à chaque clic, pour que l'onglet suive sans
+   rechargement.
+
+⚠️ **`undefined`, jamais `{}`, quand la feuille de match ne se lit pas.** `sbGetPresences`
+renvoie `[]` sur une lecture ratée comme sur une feuille vide — c'est ce qui avait republié
+Tim titulaire le 27 juillet. La nouvelle `sbGetPresenceMap` **lève**, et chaque appelant
+décide : la publication reste suspendue et le site retombe sur son comportement d'avant,
+plutôt que d'annoncer « il manque un joueur » sur une requête en erreur.
+
+Le **style** de l'onglet suit toujours les inscrits (`tab-ins-session` dès 10 inscrits), pas
+les disponibles : une compo existe, l'onglet ne doit pas repasser au gris « en formation ».
+
+⚠️ **Mesurer les débordements avec les vraies polices.** Un premier test donnait la feuille
+de match débordante à 320 px : c'était la police de repli du harnais, Google Fonts étant
+injoignable depuis le conteneur. Avec Saira Condensed rapatriée en local et servie par le
+routeur Playwright, aucun débordement, ni avant ni après. Une police de repli est toujours
+plus large — conclure sur elle, c'est « corriger » une mise en page qui va bien.
+
+Vérifié dans Chromium sur la vraie base : désistement en direct (la compo ne bouge pas, la
+bannière apparaît, l'onglet passe à `(9/10)`), retour du joueur (tout redisparaît), et
+non-régression quand le banc peut encore remplacer — testé sur le 21 septembre, Cyril entre,
+la compo est republiée dans `slot_sessions`, aucune bannière. `_computeStats(null)` reproduit
+toujours `PLAYER_STATS` et `PAIR_STATS` à l'identique (24 joueurs, 161 paires), et
+l'extraction node de `lock_session.py` rejoue l'algo sans erreur, avec la même compo et les
+mêmes notes.
+
 ### Contrainte exceptionnelle `together` (par créneau)
 
 Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **Retirée d'`ins_jul_06` après le match ; elle ne subsiste que sur l'ancien `ins_jun_15`, fermé, donc sans effet. Aucun créneau ouvert n'en porte aujourd'hui.**
