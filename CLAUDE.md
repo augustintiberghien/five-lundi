@@ -95,7 +95,7 @@ Dès **10 inscrits** sur un créneau, le front génère la compo (`_genBalancedT
 
 ### Contrainte exceptionnelle `together` (par créneau)
 
-Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **⚠️ Posée sur `ins_jul_06` (match du 6 juillet) — à retirer après. Reste aussi sur l'ancien `ins_jun_15` fermé (sans effet).**
+Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **Retirée d'`ins_jul_06` après le match ; elle ne subsiste que sur l'ancien `ins_jun_15`, fermé, donc sans effet. Aucun créneau ouvert n'en porte aujourd'hui.**
 
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
@@ -534,6 +534,41 @@ dans une variable parallèle qui finirait par diverger. Toute nouvelle vue plein
 être ajoutée à sa table — et masquée dans les `show*` des autres onglets, comme les
 précédentes.
 
+## Écran de chargement : la vraie limite est la largeur, pas le nombre
+
+`LOADING_PHRASES` (dans `index.html`) porte les phrases affichées sous le ballon pendant
+le chargement. Elles sortent **deux par deux**, l'ordre des paires est tiré au hasard à
+chaque ouverture, et `_syncLoadingPhrases()` recalcule seul le rythme (2 s par paire) :
+**ajouter ou retirer une ligne suffit**, il n'y a rien d'autre à régler dans le JS.
+
+Passé de 8 à **20 phrases (10 paires) le 8 septembre 2026**.
+
+**Il n'y a pas de plafond dans le code.** Ce qui se paie, c'est la visibilité : l'écran
+ne vit qu'environ une seconde (`_LOADING_MIN_MS`) et une paire tient 2 s, donc **on ne
+voit qu'une paire par chargement**. Chaque paire a exactement `1/nb_paires` chance de
+sortir — 25 % à 4 paires, 10 % à 10. En ajouter donne de la variété d'une visite à
+l'autre ; ça ne fait jamais lire plus de deux phrases d'un coup.
+
+**La contrainte réelle, mesurée : la longueur.** Le corps de page est un flex
+`align-items:center`, donc `#view-pitch` se rétracte sur son contenu : pendant le
+chargement la bannière ne faisait que **210 px de large**, et *six des huit phrases
+d'origine passaient à la ligne au milieu d'un mot*. `.loading-banner` porte désormais
+`width:min(340px,92vw)`, ce qui donne **308 px de texte utile** dès 360 px de viewport.
+
+À la règle : une phrase tient sur une ligne jusqu'à **~290 px** en Saira Condensed
+0,8 rem, graisse 600, `letter-spacing:.18em`, en majuscules — soit **28 à 30 caractères**.
+Au-delà elle passe sur deux lignes (pas cassé, mais moins net), et sur un écran de 320 px
+la limite tombe à ~24 caractères. Se mesurer avec un `<span>` sonde plutôt qu'au jugé :
+les majuscules et l'interlettrage coûtent bien plus large qu'on ne le croit.
+
+⚠️ **Le même texte est en dur dans le `<div id="forming-banner">` du corps de page** :
+c'est le tout premier affichage, celui d'avant l'exécution du JS, il ne peut pas être
+généré. Le CSS statique (`animation:phraseCycle Ns`, les `nth-child` et les pourcentages
+de `@keyframes`) est réglé sur le nombre de paires du moment. `_syncLoadingPhrases()`
+remplace les deux au démarrage, donc une divergence ne se voit que quelques dizaines de
+millisecondes — mais **ne pas la laisser s'installer** : c'est ce bloc statique qui
+s'affiche sur une connexion lente, exactement quand l'écran de chargement sert vraiment.
+
 ## Notifications push : construites, jamais branchées — décision de septembre 2026
 
 Le code existe et il est complet : `registerPushSubscription` dans `index.html`, `sw.js`
@@ -634,6 +669,49 @@ Application mobile (React Native) iOS + Android pour généraliser le concept à
 - [ ] **Authentification** — connexion Google OAuth (+ email/password fallback)
 - [ ] **Supabase** — tout automatiser : sessions, inscriptions, votes MVP, stats, articles, profils, photos
 - [ ] **Notifications push** — relances ciblées, ex. : joueur titulaire dans 3 jours sans statut → push "Tu joues lundi ? Confirme ta présence". **Code écrit, jamais branché** : dépend de l'authentification, sans laquelle on ne peut pas garantir qu'on prévient le bon joueur (cf. « Notifications push : construites, jamais branchées »)
+
+## Revue du 8 septembre 2026 (tour complet du site)
+
+Passage de tous les onglets dans Chromium avec Supabase branché. Chaîne du lundi soir
+vérifiée sur s19 : lock automatique à **21h39** (9 min de retard, dans la fenêtre), score
+saisi depuis le site à **23h00**, atterrissage sur s19 le lendemain, vote MVP ouvert
+jusqu'à 22h30. Garde-fou des stats revérifié : `_computeStats(null)` reproduit
+`PLAYER_STATS` et `PAIR_STATS` **à l'identique** — 24 joueurs, **161 paires** (157 au
+24 août, deux journées de plus depuis). Aucune erreur JS sur aucun onglet.
+
+Quatre défauts trouvés et corrigés le jour même :
+
+- **« résultats à midi »** sous le bandeau « vote en cours » de l'onglet Stats. La
+  clôture est à 10 voix ou 22h30 le lendemain, jamais à midi — l'heure était en dur et
+  fausse depuis que la deadline a bougé. Remplacée par « résultats après clôture », qui
+  ne redit pas une règle vivant déjà dans `mvpDeadline`.
+- **Teaser d'Inscriptions périmé** : « La trêve est finie. Reprise le lundi 31 août à
+  21h30 » s'affichait encore alors que deux journées étaient jouées.
+- **`SEASON_RESUME` resté au 31 août 2026**, dans le passé, alors que son propre
+  commentaire dit de le repasser à `null` à la reprise. Sans effet (tous les tests sont
+  `> now`) mais c'est un piège posé : remis à `null`, avec le mode d'emploi pour la
+  prochaine trêve.
+- **`getNextMatchDate` lisait la date par `split(' ')` avec `length === 3`** — le piège
+  documenté plus haut, tombé trois fois déjà. Il ne mordait pas encore (les entrées
+  `SESSIONS` portent une date nue), mais la première date décorée aurait fait tomber le
+  compte à rebours sur « lundi prochain » en silence. Passé par `_matchDayFromLabel`.
+
+Deux points laissés en l'état, volontairement :
+
+- **Pas d'article pour s19** dans `ARTICLES` — il s'écrit au débrief, le vote n'était pas
+  clos. L'onglet Presse n'affiche donc qu'un article pour la saison 26-27.
+- **Le compte à rebours raisonne en heure locale du visiteur**, pas en heure de Paris
+  (`new Date()`, et un « lundi prochain » calculé sur `d.getDay()` local). Sans
+  conséquence pour un groupe qui est à Paris ; à reprendre le jour où quelqu'un ouvre le
+  site depuis un autre fuseau, et à ne pas confondre avec les horloges du vote et du
+  lock, qui passent bien par `_parisNow()`.
+
+## Joueurs actifs (s19 — 7 septembre 2026)
+Blanche ⚪ : Spy, Alex, Cyril, Hugo, Gugu
+Bleue 🔵 : Michael, Flo, Edouard, Johann, Quentin
+Blanche l'emporte 9-8. Équilibrage à 69,5 partout — le premier nul parfait de
+l'algorithme. Lock automatique à 21h39, score saisi depuis le site à 23h00 : la chaîne
+complète a tourné sans intervention. Article à écrire au débrief.
 
 ## Joueurs actifs (s18 — 31 août 2026, reprise)
 Blanche ⚪ : Michael, Edouard, Gugu, Spy, Hugo

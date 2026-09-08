@@ -1173,16 +1173,22 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .forming-banner{text-align:center;padding:2rem 1rem;color:rgba(255,255,255,.5)}
 .forming-count{font-family:Saira Condensed,sans-serif;font-size:2.5rem;font-weight:700;color:#FFE49B;line-height:1}
 .forming-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem;color:rgba(255,255,255,.35)}
-.loading-banner{display:flex;flex-direction:column;align-items:center;gap:1.1rem;padding:2.8rem 1rem}
+.loading-banner{display:flex;flex-direction:column;align-items:center;gap:1.1rem;padding:2.8rem 1rem;width:min(340px,92vw);box-sizing:border-box}
 .loading-ball{font-size:2.4rem;line-height:1;animation:ballBounce .65s cubic-bezier(.35,0,.65,1) infinite alternate;filter:drop-shadow(0 14px 7px rgba(0,0,0,.5))}
 @keyframes ballBounce{0%{transform:translateY(-20px) rotate(-12deg)}100%{transform:translateY(8px) rotate(12deg)}}
 .loading-phrases{position:relative;height:3.1em;width:100%;text-align:center}
-.loading-pair{position:absolute;left:0;right:0;top:0;bottom:0;opacity:0;display:flex;flex-direction:column;justify-content:center;gap:.35em;animation:phraseCycle 8s infinite}
+.loading-pair{position:absolute;left:0;right:0;top:0;bottom:0;opacity:0;display:flex;flex-direction:column;justify-content:center;gap:.35em;animation:phraseCycle 20s infinite}
 .loading-pair span{font-family:Saira Condensed,sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#FFE49B}
 .loading-pair:nth-child(2){animation-delay:2s}
 .loading-pair:nth-child(3){animation-delay:4s}
 .loading-pair:nth-child(4){animation-delay:6s}
-@keyframes phraseCycle{0%{opacity:0}6%,20%{opacity:1}26%,100%{opacity:0}}
+.loading-pair:nth-child(5){animation-delay:8s}
+.loading-pair:nth-child(6){animation-delay:10s}
+.loading-pair:nth-child(7){animation-delay:12s}
+.loading-pair:nth-child(8){animation-delay:14s}
+.loading-pair:nth-child(9){animation-delay:16s}
+.loading-pair:nth-child(10){animation-delay:18s}
+@keyframes phraseCycle{0%{opacity:0}2.4%,8%{opacity:1}10.4%,100%{opacity:0}}
 .forming-players{margin-top:1.2rem;display:flex;flex-direction:column;gap:.3rem;width:min(340px,90%);margin-left:auto;margin-right:auto}
 .forming-player-row{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:8px;padding:.35rem .7rem;font-family:Saira,sans-serif;font-size:.82rem;color:rgba(255,255,255,.7)}
 .forming-rank{font-family:Saira Condensed,sans-serif;font-size:.65rem;color:rgba(255,255,255,.3);width:1.2rem}
@@ -1226,7 +1232,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div class="mvp-section" id="mvp-section" style="display:none;margin-bottom:1.6rem"></div>
 
-<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack s’échauffe pour vous pulvériser…</span><span>Spy vise le trophée d’homme du match…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid lève la main…</span></div></div></div></div>  <div class="pitch-wrap" style="display:none">
+<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack s’échauffe pour vous pulvériser…</span><span>Spy vise le trophée d’homme du match…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid lève la main…</span></div><div class="loading-pair"><span>Henri cherche une excuse…</span><span>Quentin ne dira rien…</span></div><div class="loading-pair"><span>Alex prépare ses deux mots…</span><span>Hugo consulte une IA…</span></div><div class="loading-pair"><span>Johann cire ses crampons…</span><span>Edouard compte les plots…</span></div><div class="loading-pair"><span>Flo cherche une place…</span><span>Cyril règle le chrono…</span></div><div class="loading-pair"><span>Théo consulte la météo…</span><span>Landry arme la frappe…</span></div><div class="loading-pair"><span>Marc n’est toujours pas revenu…</span><span>L’algo tire à pile ou face…</span></div></div></div></div>  <div class="pitch-wrap" style="display:none">
     <div class="pitch" id="pitch">
       <div class="pitch-bg">
         <div class="stripe" style="top:0;height:20%"></div>
@@ -3411,7 +3417,11 @@ function buildStatsView(){
         var cnt = allVotes.filter(function(v){ return v.session_id === s.id; }).length;
         html += '<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,228,155,.06);border:1px solid rgba(255,228,155,.2);border-radius:8px;padding:.5rem .8rem;margin-bottom:.6rem">';
         html += '<span style="font-family:Saira Condensed,sans-serif;font-size:.75rem;font-weight:700;color:#FFE49B;text-transform:uppercase">🗳 Vote en cours · ' + s.date + '</span>';
-        html += '<span style="font-size:.68rem;color:rgba(255,255,255,.35)">' + cnt + ' vote' + (cnt>1?'s':'') + ' · résultats à midi</span>';
+        /* Jamais d'heure en dur ici : le vote se clot a 10 voix OU a 22h30 le lendemain,
+           jamais a midi. La formule exacte vit dans mvpDeadline, ce bandeau n'a pas a la
+           repeter — il dirait faux le jour ou elle bouge, comme il disait faux depuis
+           que la deadline est passee a 22h30. */
+        html += '<span style="font-size:.68rem;color:rgba(255,255,255,.35)">' + cnt + ' vote' + (cnt>1?'s':'') + ' · résultats après clôture</span>';
         html += '</div>';
       });
     }
@@ -4088,7 +4098,19 @@ var LOADING_PHRASES = [
   'Jack s’échauffe pour vous pulvériser…',
   'Spy vise le trophée d’homme du match…',
   'Michael muscle les épaules…',
-  'Khalid lève la main…'
+  'Khalid lève la main…',
+  'Henri cherche une excuse…',
+  'Quentin ne dira rien…',
+  'Alex prépare ses deux mots…',
+  'Hugo consulte une IA…',
+  'Johann cire ses crampons…',
+  'Edouard compte les plots…',
+  'Flo cherche une place…',
+  'Cyril règle le chrono…',
+  'Théo consulte la météo…',
+  'Landry arme la frappe…',
+  'Marc n’est toujours pas revenu…',
+  'L’algo tire à pile ou face…'
 ];
 /* Durée minimale d'affichage : sur une bonne connexion la réponse arrive si vite que les
    phrases n'ont pas le temps d'être lues. L'écran est montré à **chaque** chargement, y
@@ -6242,7 +6264,7 @@ function renderInscriptions(){
   html+='<div style="text-align:center;background:linear-gradient(135deg,rgba(255,228,155,.09),rgba(255,140,0,.06));border:1px solid rgba(255,228,155,.22);border-radius:14px;padding:1.1rem 1.1rem;margin-top:1.1rem">'
     +'<div style="font-size:1.7rem;line-height:1">⚽🔥</div>'
     +'<div style="font-family:Saira Condensed,sans-serif;font-size:1rem;font-weight:700;color:#FFE49B;text-transform:uppercase;letter-spacing:.1em;margin-top:.45rem">Saison 26-27</div>'
-    +'<div style="font-family:Saira,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">La trêve est finie. Reprise le <strong style="color:rgba(255,255,255,.8)">lundi 31 août à 21h30</strong>, puis tous les lundis. Les créneaux de septembre sont déjà ouverts — inscris-toi tant qu’il reste de la place. ⚽</div>'
+    +'<div style="font-family:Saira,sans-serif;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.55;margin-top:.45rem">La saison est lancée. Rendez-vous <strong style="color:rgba(255,255,255,.8)">tous les lundis à 21h30</strong> — inscris-toi tant qu’il reste de la place. ⚽</div>'
     +'</div>';
   wrap.innerHTML=html;
 
@@ -7250,11 +7272,12 @@ function injectTrophies() {
 }
 
 /* ── COMPTE À REBOURS ── */
-/* Reprise apres la treve estivale : lundi 31 aout 2026, 21h30.
-   Tant que cette date est devant nous, elle prime sur le calcul « lundi prochain »,
-   qui pointerait sinon sur des lundis d'aout ou personne ne joue. Repasser a null
-   une fois la saison relancee pour revenir au comportement normal. */
-var SEASON_RESUME = new Date(2026, 7, 31, 21, 30, 0);
+/* Date de reprise apres une treve estivale (ex. le 31 aout 2026 pour la 26-27).
+   Tant qu'elle est devant nous, elle prime sur le calcul « lundi prochain », qui
+   pointerait sinon sur des lundis de juillet-aout ou personne ne joue, et le Recap
+   de saison s'ouvre par defaut. A null hors treve : c'est l'etat normal, a ne
+   renseigner qu'au moment de fermer une saison, et a remettre a null a la reprise. */
+var SEASON_RESUME = null;
 
 /* ── PAGE D'ACCUEIL PENDANT LA TRÊVE ──
    Tant que la reprise est devant nous, le Récap de saison s'ouvre par défaut
@@ -7282,18 +7305,15 @@ function getNextMatchDate() {
   // Find current session date
   var cur = SESSIONS.find(function(s){ return s.current; });
   if(cur) {
-    // Parse date from session (e.g. "27 avril 2026")
-    var months = {'janvier':0,'février':1,'mars':2,'avril':3,'mai':4,'juin':5,
-                  'juillet':6,'août':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11};
-    var parts = cur.date.split(' ');
-    if(parts.length === 3) {
-      var day = parseInt(parts[0]);
-      var month = months[parts[1].toLowerCase()];
-      var year = parseInt(parts[2]);
-      if(!isNaN(day) && month !== undefined && !isNaN(year)) {
-        var matchDate = new Date(year, month, day, 21, 30, 0);
-        if(matchDate > now) return matchDate;
-      }
+    /* Date lue par _matchDayFromLabel, jamais par un split(' ') attendant trois mots :
+       c'est le piege deja tombe trois fois (isPresenceVisible, isBenchVisible, _dateKey).
+       Ici il ne mordait pas encore — les entrees SESSIONS portent une date nue — mais la
+       premiere date decoree aurait fait tomber le compte a rebours sur « lundi prochain »
+       sans que rien ne le signale. */
+    var day = _matchDayFromLabel(cur.date);
+    if(day) {
+      var matchDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 21, 30, 0);
+      if(matchDate > now) return matchDate;
     }
   }
   // Treve estivale : viser la reprise plutot qu'un lundi sans match
