@@ -491,6 +491,13 @@ programme le passage au match d'après, ce qui compte quand la compo bouge — l
 n'en ont pas : ils ne raccourcissent rien, on retombe sur la deadline, donc rien du passé
 ne bouge. **À renseigner à chaque nouvel article**, sinon le levier ne sert pas.
 
+Le champ marque **le début de la fenêtre de lecture, pas l'heure du commit** : on peut le
+reculer volontairement pour ouvrir tout de suite sur le match suivant. C'est ce qui a été
+fait pour s19 le 8 septembre (article en ligne à 10h36, horodatage posé à 08h00) parce que
+cinq absents étaient déjà déclarés pour le 14 et que la feuille de match primait sur le
+résultat de la veille. Quand on recule, **dire pourquoi dans le commentaire juste à côté** —
+sinon la valeur se lit plus tard comme une heure de publication, et elle est fausse.
+
 ⚠️ Le test se fait sur `ARTICLES[s.id]`, donc **synchrone** : `_curIsLanding`, qui
 s'exécute avant la réponse de Supabase, donne la même réponse que l'atterrissage.
 

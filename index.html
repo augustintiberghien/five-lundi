@@ -5628,8 +5628,11 @@ async function submitTmotmVote(sid) {
    ══════════════════════════════════════════ */
 var ARTICLES = {
   's19': {
-    /* 1re mise en ligne de l'article : 8 septembre 2026, 10h36 Paris. */
-    publishedAt: '2026-09-08T08:36:00Z',
+    /* Debut de la fenetre de lecture de 4 h, pas forcement l'heure du commit :
+       l'article a ete mis en ligne le 8 septembre a 10h36 Paris, mais l'horodatage a
+       ete recule a 08h00 sur demande, pour que le site ouvre tout de suite sur le
+       creneau du 14 — cinq absents deja declares, la feuille de match primait. */
+    publishedAt: '2026-09-08T06:00:00Z',
     kicker: 'Five Lundi · 7 septembre 2026',
     headline: 'Menée pour la première fois à 7-8, la Blanche gagne quand même',
     sub: 'Deux buts de Gugu pour lancer la soirée, l’égalisation de Spy dans le money time, la délivrance d’Alex à la 63ᵉ — 9-8, et un premier trophée pour Spy',
