@@ -709,9 +709,17 @@ Deux points laissés en l'état, volontairement :
 ## Joueurs actifs (s19 — 7 septembre 2026)
 Blanche ⚪ : Spy, Alex, Cyril, Hugo, Gugu
 Bleue 🔵 : Michael, Flo, Edouard, Johann, Quentin
-Blanche l'emporte 9-8. Équilibrage à 69,5 partout — le premier nul parfait de
-l'algorithme. Lock automatique à 21h39, score saisi depuis le site à 23h00 : la chaîne
-complète a tourné sans intervention. Article à écrire au débrief.
+Blanche l'emporte 9-8. Vingt inscrits, trois absents de dernière minute (Samy, Rémi,
+Jack), sept sur le banc. Équilibrage à 69,5 partout — zéro d'écart, ce qui **n'est pas
+une première** (s12, s14, s16 et s17 aussi ; ne pas répéter l'erreur de la première
+version de cette note), mais aucun de ces ex æquo n'avait donné un score aussi serré.
+Homme du match : **Spy**, 6 voix sur 10, devant Johann (2), Gugu (1) et Alex (1) —
+**son premier titre**, après avoir figuré au vote cinq fois sans jamais le gagner
+(1, 1, 2, 2, 3 voix, puis 6). Lock automatique à 21h39, score saisi depuis le site à
+23h00 : la chaîne complète a tourné sans intervention. Article poussé dans
+`ARTICLES['s19']` — écrit à partir du score, des compos et des **verbatims des dix
+votes**, sans récit de match (le déroulé minute par minute n'a pas été rapporté ;
+ne rien inventer de tel).
 
 ## Joueurs actifs (s18 — 31 août 2026, reprise)
 Blanche ⚪ : Michael, Edouard, Gugu, Spy, Hugo
