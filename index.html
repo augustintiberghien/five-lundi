@@ -6496,7 +6496,19 @@ function _sessionStillLanding(s){
   if(!d) return true;
   var pn = _parisNow();
   var today = new Date(pn.getFullYear(), pn.getMonth(), pn.getDate());
+  /* Le soir du match, on ne quitte jamais la session — quoi qu'il arrive par ailleurs.
+     Ce test passe avant celui de l'article : publier un article a 23h ne doit pas
+     faire sauter la page pendant que le groupe est encore dessus. */
   if(d.getTime() >= today.getTime()) return true;
+  /* Le lendemain, la soiree tient jusqu'a la deadline du vote — sauf si elle est deja
+     racontee. L'article publie est ce signal : il s'ecrit au debrief, une fois l'homme
+     du match connu, donc sa presence veut dire « il n'y a plus rien a attendre ici ».
+     C'est aussi un levier volontaire : publier l'article fait passer tout le monde au
+     match suivant, ce qui compte quand la compo bouge (absences a anticiper).
+     Sans article, exactement l'ancien comportement — c'est lui qui evite le piege du
+     8 septembre, ou la page quittait le match a minuit, vote encore ouvert et article
+     pas ecrit. */
+  if(typeof ARTICLES !== 'undefined' && ARTICLES[s.id]) return false;
   var dl = (typeof mvpDeadline === 'function') ? mvpDeadline(s.date, s.id) : null;
   return !!dl && Date.now() < dl.getTime();
 }

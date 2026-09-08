@@ -464,6 +464,32 @@ c'est la **deadline du vote** (22h30 le lendemain) qui dit quand la soirée est 
 La clôture anticipée à 10 votes ne déplace **volontairement pas** l'atterrissage :
 la page ne doit pas sauter pendant que le groupe commente encore le match.
 
+### L'article publié libère l'atterrissage (depuis le 8 septembre 2026, l'après-midi)
+
+Trois tests, dans cet ordre, et l'ordre fait tout :
+
+1. **Le soir du match, on ne quitte jamais la session.** Quoi qu'il arrive par
+   ailleurs — c'est ce qui interdit à un article publié à 23h de faire sauter la page
+   pendant que le groupe est encore dessus.
+2. **Le lendemain, un article publié clôt la soirée** et l'atterrissage passe au
+   prochain créneau ouvert.
+3. **Sans article, la deadline du vote comme avant.**
+
+Le raisonnement : l'article s'écrit au débrief, une fois l'homme du match connu (règle
+posée par l'utilisateur lui-même : « ne publions pas avant de savoir qui est l'homme du
+match et les commentaires de chacun »). Sa présence veut donc dire « il n'y a plus rien
+à attendre sur cette page ». C'est aussi **un levier volontaire** : publier l'article
+fait passer tout le monde au match suivant, ce qui compte quand la compo bouge — le
+8 septembre, cinq absents étaient déjà déclarés pour le 14 et l'intérêt était d'ouvrir
+sur la feuille de match plutôt que sur le résultat de la veille.
+
+⚠️ **Le test de l'article vient après celui du jour du match, jamais avant** : inversés,
+on retomberait exactement dans le défaut corrigé le matin même. Vérifié sur six horloges
+truquées, dont le cas d'origine (mardi 00h34, vote ouvert, pas d'article → la session est
+gardée) et son symétrique (mardi 00h34 avec article → on passe au créneau suivant).
+Le test se fait sur `ARTICLES[s.id]`, donc **synchrone** : `_curIsLanding`, qui s'exécute
+avant la réponse de Supabase, donne la même réponse que l'atterrissage.
+
 Le premier rendu (`_curIsLanding`, avant la réponse de Supabase) appelle la même
 fonction. Il en avait sa propre copie, et deux copies d'une règle de date finissent
 toujours par diverger : le terrain aurait peint une session que l'atterrissage
