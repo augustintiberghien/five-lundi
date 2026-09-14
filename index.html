@@ -7477,41 +7477,74 @@ var SEASON_RESUME = null;
   showRecap();
 })();
 
+/* La prochaine echeance, c'est le plus proche 21h30 encore devant nous — pris sur la
+   session `current` ET sur les creneaux ouverts, pas sur un « lundi prochain » calcule
+   dans le vide.
+
+   Tout se calcule en heure de Paris : `_parisNow()` rend une Date dont les champs locaux
+   portent l'heure murale parisienne, et l'echeance est construite dans le meme repere.
+   Les deux subissent donc le meme decalage et leur difference est la bonne, ou que soit
+   le visiteur. C'est la convention de `_slotLocked` : ne jamais melanger un `_parisNow()`
+   avec un `new Date()`. */
 function getNextMatchDate() {
-  // Next Monday 21:30 Paris time
-  // Use the current session date if it's in the future
-  var now = new Date();
-  // Find current session date
-  var cur = SESSIONS.find(function(s){ return s.current; });
-  if(cur) {
+  var now = _parisNow();
+  var todayKey = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+  var best = null;
+
+  function consider(label) {
     /* Date lue par _matchDayFromLabel, jamais par un split(' ') attendant trois mots :
        c'est le piege deja tombe trois fois (isPresenceVisible, isBenchVisible, _dateKey).
-       Ici il ne mordait pas encore — les entrees SESSIONS portent une date nue — mais la
-       premiere date decoree aurait fait tomber le compte a rebours sur « lundi prochain »
-       sans que rien ne le signale. */
-    var day = _matchDayFromLabel(cur.date);
-    if(day) {
-      var matchDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 21, 30, 0);
-      if(matchDate > now) return matchDate;
-    }
+       Indispensable ici, les libelles de creneau etant decores (« … · Reprise 🔥 »). */
+    var day = _matchDayFromLabel(label);
+    if (!day) return;
+    var t = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 21, 30, 0);
+    /* Une echeance du jour reste retenue meme apres 21h30 : le compteur bascule alors sur
+       « ⚽ Ce soir ! » jusqu'a minuit, au lieu de repartir sur la semaine suivante pendant
+       que le match se joue. Cette branche `diff <= 0` n'etait jamais atteinte. */
+    var isToday = (day.getFullYear() + '-' + day.getMonth() + '-' + day.getDate()) === todayKey;
+    if (!isToday && t <= now) return;
+    if (!best || t < best) best = t;
   }
+
+  var cur = SESSIONS.find(function(s){ return s.current; });
+  if (cur) consider(cur.date);
+  /* Les creneaux ouverts n'etaient pas consultes — or ce sont eux qui portent le match a
+     venir tant que le lock de 21h30 n'a pas cree l'entree SESSIONS. Chaque lundi, de
+     minuit a 21h30, le compteur annoncait donc le match dans une semaine, juste au-dessus
+     de l'onglet du soir et de sa compo (constate le 14 septembre 2026 : « 7 J 14 H »
+     au-dessus de « Lun 14 » en surbrillance). */
+  if (typeof INSCRIPTION_SLOTS !== 'undefined') INSCRIPTION_SLOTS.forEach(function(sl){
+    if (sl.open) consider(sl.label);
+  });
+  if (best) return best;
+
   // Treve estivale : viser la reprise plutot qu'un lundi sans match
   if (SEASON_RESUME && SEASON_RESUME > now) return SEASON_RESUME;
-  // Fallback: next Monday
-  var d = new Date();
-  var daysUntilMonday = (1 - d.getDay() + 7) % 7 || 7;
-  d.setDate(d.getDate() + daysUntilMonday);
-  d.setHours(21, 30, 0, 0);
+
+  /* Repli, quand aucun creneau n'est ouvert : le prochain lundi 21h30. L'ancien
+     `(1 - getDay() + 7) % 7 || 7` sautait le lundi courant des minuit, alors qu'il reste
+     21h30 a attendre ; on n'ajoute une semaine que si l'heure est effectivement passee. */
+  var add = (1 - now.getDay() + 7) % 7;
+  var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add, 21, 30, 0);
+  if (d <= now) d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add + 7, 21, 30, 0);
   return d;
 }
 
 function updateCountdown() {
   var el = document.getElementById('countdown-timer');
   if(!el) return;
-  var now = new Date();
+  /* Meme repere que getNextMatchDate : heure de Paris des deux cotes. */
+  var now = _parisNow();
   var target = getNextMatchDate();
-  // Pendant la treve, le compteur annonce la reprise et non un « prochain match »
-  var isResume = !!(SEASON_RESUME && target.getTime() === SEASON_RESUME.getTime());
+  /* Pendant la treve, le compteur annonce la reprise et non un « prochain match ». Le
+     test porte sur la JOURNEE et non sur l'instant : depuis que les creneaux ouverts sont
+     pris en compte, la cible peut venir du creneau de reprise plutot que de SEASON_RESUME
+     lui-meme — meme date, meme sens, mais plus le meme objet, et l'egalite a la
+     milliseconde ne tenait que par coincidence. */
+  var isResume = !!(SEASON_RESUME && SEASON_RESUME > now
+    && target.getFullYear() === SEASON_RESUME.getFullYear()
+    && target.getMonth()    === SEASON_RESUME.getMonth()
+    && target.getDate()     === SEASON_RESUME.getDate());
   var lbl = document.querySelector('#countdown-wrap .countdown-label');
   if (lbl) lbl.textContent = isResume ? 'Reprise' : 'Prochain match';
   var diff = target - now;
