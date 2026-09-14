@@ -577,6 +577,55 @@ remplace aussitôt.
 dernier mot du libellé, ce qui faisait retomber `'Lundi 31 août 2026 · Reprise 🔥'` sur
 2026 en dur. Invisible cette saison, faux dès 2027.
 
+## Compte à rebours : corrigé le 14 septembre 2026
+
+Le matin du match, le compteur affichait **« PROCHAIN MATCH · 7 J 14 H »** — juste au-dessus
+de l'onglet « Lun 14 » en surbrillance et de la compo du soir. Deux défauts, indépendants,
+dans `getNextMatchDate()`.
+
+**1. Les créneaux ouverts n'étaient pas consultés.** La fonction ne regardait que la session
+`current` de `SESSIONS` (le dernier match **joué**, donc passé tant que le lock de 21h30 n'a
+pas tourné), puis retombait sur un « lundi prochain » calculé dans le vide. Or c'est
+`INSCRIPTION_SLOTS` qui porte le match à venir. Le compteur se trompait donc **tous les
+lundis, de minuit à 21h30** — toute la journée du match, celle où on le regarde.
+
+Aggravant : le repli `(1 - getDay() + 7) % 7 || 7` **sautait le lundi courant**. Le `|| 7`
+transforme 0 en 7 : un lundi, « le prochain lundi » était celui d'après, même à 8h du matin.
+
+La règle est maintenant « le plus proche 21h30 encore devant nous », pris sur la session
+`current` **et** sur tous les créneaux ouverts, la plus petite échéance l'emportant.
+
+**2. Tout se calculait dans le fuseau du visiteur.** `new Date()` pour l'instant courant,
+`new Date(y, m, d, 21, 30)` pour la cible (donc 21h30 **locales**), `d.getDay()` local pour
+le lundi. Le même instant donnait quatre réponses différentes selon le fuseau — mesuré, le
+dimanche 20 à 23h Paris : `22h30` depuis Paris, `1j 00h30` depuis UTC, **`7j 15h30` depuis
+Tokyo**, où `getDay()` disait déjà lundi et où le repli sautait donc une semaine entière.
+
+`getNextMatchDate` et `updateCountdown` passent désormais par **`_parisNow()`** des deux
+côtés. La convention à tenir est celle de `_slotLocked` : `_parisNow()` rend une Date dont
+les champs *locaux* portent l'heure murale de Paris, et toute échéance comparée à elle doit
+être construite dans le même repère — **ne jamais mélanger un `_parisNow()` avec un
+`new Date()`**, la différence de deux Dates du même repère est juste où que soit le visiteur.
+
+**Effet de bord voulu : « ⚽ Ce soir ! » existe enfin.** La branche `diff <= 0` n'était
+jamais atteinte, la cible sautant à la semaine suivante dès 21h30. Une échéance **du jour**
+est désormais retenue même passée, donc de 21h30 à minuit le compteur affiche « Ce soir ! »
+au lieu de repartir sur lundi prochain pendant que le match se joue.
+
+⚠️ `isResume` (le libellé « Reprise » au lieu de « Prochain match ») comparait
+`target.getTime() === SEASON_RESUME.getTime()`. Depuis que les créneaux ouverts sont pris en
+compte, la cible peut venir du **créneau de reprise** plutôt que de `SEASON_RESUME` : même
+date, même sens, mais plus le même objet, et l'égalité à la milliseconde ne tenait que par
+coïncidence. Le test porte maintenant sur la **journée**. `SEASON_RESUME` est à `null` hors
+trêve, donc ce chemin ne se reteste pas tout seul : il l'a été sur deux copies truquées
+(reprise avec créneau ouvert, reprise sans aucun créneau).
+
+Vérifié sur **sept horloges × quatre fuseaux** (`Europe/Paris`, `UTC`, `America/New_York`,
+`Asia/Tokyo`), `Date` truquée dans Chromium : les quatre fuseaux donnent maintenant la
+**même** réponse partout, là où l'ancienne version en donnait quatre. Les sept cas :
+lundi 9h (`12h30`), 21h29 (`00h01`), 21h31 et 23h50 (`Ce soir !`), mardi 00h10 (`6j21h20`,
+on est bien reparti), mercredi, et dimanche 23h (`22h30`).
+
 ## Section Presse (depuis septembre 2026)
 
 Onglet `📰 Presse` : tous les articles d'`ARTICLES`, du plus récent au plus ancien, cartes
@@ -812,11 +861,10 @@ Deux points laissés en l'état, volontairement :
 
 - **Pas d'article pour s19** dans `ARTICLES` — il s'écrit au débrief, le vote n'était pas
   clos. L'onglet Presse n'affiche donc qu'un article pour la saison 26-27.
-- **Le compte à rebours raisonne en heure locale du visiteur**, pas en heure de Paris
-  (`new Date()`, et un « lundi prochain » calculé sur `d.getDay()` local). Sans
-  conséquence pour un groupe qui est à Paris ; à reprendre le jour où quelqu'un ouvre le
-  site depuis un autre fuseau, et à ne pas confondre avec les horloges du vote et du
-  lock, qui passent bien par `_parisNow()`.
+- ~~**Le compte à rebours raisonne en heure locale du visiteur**~~ — **corrigé le
+  14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
+  créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
+  rebours » plus haut.
 
 ## Joueurs actifs (s19 — 7 septembre 2026)
 Blanche ⚪ : Spy, Alex, Cyril, Hugo, Gugu
