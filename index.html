@@ -5743,6 +5743,57 @@ async function submitTmotmVote(sid) {
    ARTICLES — DÉBRIEF SESSIONS
    ══════════════════════════════════════════ */
 var ARTICLES = {
+  's20': {
+    /* Heure reelle de publication (15 septembre, 14h00 Paris), non reculee :
+       le vote s'est cloture a 10 voix le 15 a 13h18, l'article suit dans la foulee.
+       La fenetre de lecture de 4 h court donc jusqu'a 18h00, apres quoi le site
+       ouvre sur le creneau du 21. */
+    publishedAt: '2026-09-15T12:00:00Z',
+    kicker: 'Five Lundi · 14 septembre 2026',
+    headline: 'Menée de quatre buts, la Bleue renverse tout : 10-9',
+    sub: 'Le retour de Khalid après huit semaines, un mur nommé Henri, quatre buts d’avance dilapidés par la Blanche — et le « plus gros vol de l’histoire », de l’aveu même de ses victimes',
+    body: [
+      { type: 'p', text: 'Vingt et un inscrits, <strong>onze désistements</strong> : dix joueurs, pas un de plus, personne au banc. La troisième journée de la saison 26-27 s’est jouée sans filet — et elle a accouché de ce que <strong>Rémi</strong> appelle lui-même, à chaud, « <strong>le plus gros vol de l’histoire</strong> ». La Bleue l’emporte <strong>10-9</strong>. La Bleue a été dominée tout le match. Les deux phrases sont vraies.' },
+
+      { type: 'h3', text: 'Le quart d’heure où tout semblait plié' },
+      { type: 'p', text: 'La Blanche part comme un train. <strong>Samba</strong>, l’invité du soir, est très très fort d’entrée. <strong>Alex</strong> colle une <strong>prise de volée</strong> de très haute facture. Et <strong>Rémi</strong> — le gardien, oui — quitte sa cage le temps d’un passage et y va de son <strong>petit doublé</strong>. À vue d’œil, <strong>quatre buts d’avance</strong>. Le mot employé par les acteurs à ce moment-là est « humiliant ». Il n’aura pas servi longtemps.' },
+
+      { type: 'h3', text: 'Les offrandes' },
+      { type: 'p', text: 'Ce qui suit porte un nom très laid : la Blanche s’est mise à <strong>offrir des buts</strong>. Pas des buts concédés, pas des buts pris sur une belle action adverse — des ballons rendus dans sa propre surface, des relances cadeau, des situations où la Bleue « <strong>avait juste à pousser la balle</strong> ». Un, puis deux, puis le doute, puis un compteur qui se recolle presque tout seul. On ne perd pas un match avec quatre buts d’avance sans y mettre beaucoup du sien.' },
+
+      { type: 'h3', text: 'Khalid trouve un cinquième poumon' },
+      { type: 'p', text: 'Encore fallait-il, en face, que quelqu’un décide de prendre le cadeau au sérieux. C’est <strong>Khalid</strong> qui s’en charge. Il n’avait plus joué depuis le <strong>20 juillet</strong> — <strong>huit semaines</strong>, trois journées manquées — et il revient en trouvant, selon le mot de la soirée, un « <strong>cinquième poumon</strong> » quand la Bleue n’en avait déjà plus quatre. Il ne s’arrêtera plus. Dans le même temps, <strong>Thomas Doré</strong> remonte d’un cran et joue plus haut : la Bleue cesse enfin de subir dans son camp. Deux ajustements, pas un mot de tactique, et une soirée qui se retourne.' },
+      { type: 'p', text: 'Le but décisif revient à <strong>Michael</strong>. Comme d’habitude — le mot est de Rémi. Vingt et un matchs au compteur, le plus capé du groupe, et cette manie tranquille de marquer celui qui compte.' },
+
+      { type: 'h3', text: 'Henri a sauvé la baraque' },
+      { type: 'p', text: 'Rien de tout cela n’existe sans l’homme qui n’a pas quitté ses six mètres. <strong>Henri</strong>, dans les buts bleus, a été <strong>énorme</strong> — le mot revient deux fois dans le débrief, en ouverture et en conclusion, ce qui n’arrive jamais par hasard. « Il sauve la baraque » : tant que la Blanche dilapidait, lui tenait. Sans ses arrêts, le +4 devient +6 et il n’y a pas de match à raconter. Accessoirement, Henri repart avec <strong>six victoires en huit matchs</strong>, le meilleur ratio du groupe. À ce stade, ce n’est plus une coïncidence.' },
+
+      { type: 'h3', text: 'Rémi, gardien buteur' },
+      { type: 'p', text: 'En face, le seul gardien de métier du groupe a fait le même travail dans l’autre cage : « toujours aussi énorme au but », avec en prime cette sortie sur le front de l’attaque et son doublé. Un gardien qui encaisse dix buts et finit quand même dans la liste des meilleurs, c’est en général que les dix buts ne lui appartenaient pas tout à fait.' },
+
+      { type: 'h3', text: 'Les autres copies' },
+      { type: 'p', text: '<strong>Samba</strong>, pour une première, laisse une trace : énorme des deux côtés du débrief. <strong>Edouard</strong> a été « comme d’habitude », ce qui chez lui est un compliment de série. <strong>Michael</strong>, très très précieux. <strong>Alex</strong> a signé un très bon match. Et <strong>Thibault</strong>, qui découvrait le rendez-vous du lundi, a été <strong>intermittent</strong> : très fort au début, moins tranchant ensuite — le résumé assez juste d’une première fois.' },
+
+      { type: 'h3', text: 'Sept voix sur dix' },
+      { type: 'p', text: 'Le vote n’a pas hésité une seconde. <strong>Khalid</strong> le remporte avec <strong>sept voix sur dix</strong>, les trois autres se dispersant sur Henri, Samba et Ibrahima. C’est <strong>son premier titre d’homme du match en championnat</strong> : il avait figuré quatre fois au tableau sans jamais le gagner — deux voix le 11 mai, une le 25 mai, deux le 8 juin, trois le 20 juillet — et son unique trophée jusqu’ici était celui du <strong>tournoi du 22 juin</strong>, huit voix sur vingt. Huit semaines sans jouer, et il revient prendre le scrutin le plus large depuis Johann le 27 juillet.' },
+      { type: 'p', text: '<strong>Michael</strong> pose le décor : « un grand Khalid pour son retour, le cardio est toujours là, la technique aussi, il a porté les bleus ce soir ». <strong>Thomas Doré</strong> fait l’inventaire : « devant, derrière, au milieu, à gauche, à droite. Il a tout fait, il a fatigué les blancs et fait gagner les bleus ». <strong>Edouard</strong> note le détail qui a tout changé : « grosse couverture du terrain avec un pressing intense qui a permis des interceptions clés ». Sept bulletins, sept façons de décrire le même homme en train de couvrir tout le terrain.' },
+
+      { type: 'h3', text: 'La Blanche a voté pour son bourreau' },
+      { type: 'p', text: 'Le plus parlant vient de l’autre vestiaire. <strong>Trois des cinq Blancs ont voté Khalid</strong> — c’est-à-dire pour l’homme qui venait de leur reprendre quatre buts. <strong>Ibrahima</strong> dit exactement ce qu’ils ont subi : « il sonnait la révolte bleue, présent défensivement et offensivement ». <strong>Rémi</strong>, qui parlait de vol une heure plus tôt, ne cherche pas la contradiction : « c’est lui qui a mené la révolte côté bleu, et son abnégation mérite ce titre d’homme du match ». Perdre de cette façon et désigner quand même le meilleur d’en face, c’est une forme d’honnêteté qu’on ne trouve pas dans tous les vestiaires.' },
+      { type: 'p', text: 'Les deux derniers bulletins blancs, tombés en fin de matinée, ont préféré regarder à l’intérieur : <strong>Alex</strong> a voté <strong>Ibrahima</strong>, et <strong>Thibault</strong> — pour son tout premier vote, comme pour son tout premier match — a désigné <strong>Samba</strong>. Les deux nouveaux venus de la soirée repartent chacun avec une voix : ce n’est pas le trophée, mais pour une première c’est déjà une ligne au palmarès.' },
+
+      { type: 'h3', text: 'Le plus beau geste de la soirée (ou pas)' },
+      { type: 'p', text: 'Restait alors le geste le plus élégant du scrutin. <strong>Khalid, lui, avait voté Henri</strong> — « une belle cardio, des actions clutch ». L’homme du match donnant sa voix au gardien qui l’avait maintenu en vie assez longtemps pour qu’il puisse renverser le match ; et <strong>Henri</strong> lui répondant du tac au tac, en deux mots : « <strong>évident !</strong> ». Deux hommes du même camp, chacun désignant l’autre. On tenait la plus belle image de la soirée.' },
+      { type: 'p', text: 'On nous signale dans l’oreillette qu’<strong>Henri a voté depuis le profil de Khalid</strong>, et qu’il a voté pour lui-même. Mince. Ça tombe à l’eau.' },
+      { type: 'p', text: 'Treize minutes plus tard, un second bulletin tombe : <strong>Khalid, depuis le profil d’Henri</strong>, vote pour Khalid. « Évident ! » — deux mots, et un autoportrait. Mais que personne ne parle ici d’une seconde étourderie : Khalid avait vu passer le vote émis en son nom, et il est allé rétablir les comptes à la main, sur le téléphone du coupable. Ce n’est pas une plantade, c’est une <strong>rattrapade</strong>.' },
+      { type: 'p', text: 'Œil pour œil, profil pour profil : la justice ainsi rendue a ceci de remarquable qu’elle est <strong>exacte au bulletin près</strong>. Henri s’était offert une voix, Khalid s’en est repris une ; le tableau final — <strong>sept voix à Khalid, une à Henri</strong> — est précisément celui qu’aurait produit un scrutin où personne n’aurait touché au téléphone de personne. Le classement est faux dans les noms et juste dans les chiffres, et il n’a pas fallu d’arbitre pour ça.' },
+
+      { type: 'h3', text: 'Ce que dit l’algo' },
+      { type: 'p', text: 'L’équilibrage avait rendu <strong>66,5</strong> contre <strong>67</strong> : un demi-point pour la Bleue. Troisième journée de la saison, <strong>troisième match à un but d’écart</strong> — 10-9, 9-8, 9-10. Et la Bleue met fin à <strong>cinq victoires blanches de rang</strong> : elle n’avait plus gagné depuis le 29 juin. Il aura fallu qu’on lui offre la moitié de ses buts, mais l’Histoire ne retient que les scores.' },
+
+      { type: 'footer', text: 'Bleue 10 · Blanche 9 — quatre buts d’avance dilapidés, un gardien buteur d’un côté, un gardien sauveur de l’autre, et un revenant qui repart avec le trophée après huit semaines d’absence. « Au final, c’était quand même un bon match. »' },
+    ],
+  },
   's19': {
     /* Debut de la fenetre de lecture de 4 h, pas forcement l'heure du commit :
        l'article a ete mis en ligne le 8 septembre a 10h36 Paris, mais l'horodatage a
