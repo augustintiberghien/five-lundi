@@ -784,7 +784,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s19 | 7 septembre 2026 | 9 – 8 (A) | ✅ |
+| s20 | 14 septembre 2026 | 9 – 10 (B) | ✅ |
+| s19 | 7 septembre 2026 | 9 – 8 (A) | |
 | s18 | 31 août 2026 | 10 – 9 (A) | |
 | s17 | 27 juillet 2026 | 15 – 10 (A) | |
 | s16 | 20 juillet 2026 | 14 – 8 (A) | |
@@ -865,6 +866,46 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s20 — 14 septembre 2026)
+Blanche ⚪ : Rémi, Ibrahima, Alex, Samba (Invité), Thibault
+Bleue 🔵 : Michael, Edouard, Khalid, Henri, Thomas D
+La Bleue l'emporte 10-9. Vingt et un inscrits, **onze désistements** : dix
+disponibles pile, personne au banc. Deux remplacements à la minute près — Samba entre
+le 11 septembre à 12h34, une minute après le désistement de Samy ; Thibault s'inscrit
+le 14 à 10h34, une minute après celui de Landry. **Première de Thibault** (1 match,
+0 victoire) et deuxième de Thomas D. Équilibrage 66,5 contre 67, et **troisième
+journée d'affilée à un but d'écart** (10-9, 9-8, 9-10) ; la Bleue met fin à cinq
+victoires blanches de rang, elle n'avait plus gagné depuis le 29 juin.
+
+Homme du match : **Khalid**, 7 voix sur 10, devant Henri, Samba et Ibrahima (1 chacun).
+**Son premier titre en championnat** — il avait figuré quatre fois au tableau sans
+gagner (2 le 11 mai, 1 le 25 mai, 2 le 8 juin, 3 le 20 juillet), son seul trophée
+étant celui du tournoi du 22 juin. Il n'avait plus joué depuis le **20 juillet**,
+huit semaines et trois journées manquées.
+
+Le match, d'après le débrief vocal de Rémi : la Blanche s'envole (Samba très fort
+d'entrée, prise de volée d'Alex, doublé de Rémi sorti de sa cage), jusqu'à **+4** —
+« un peu humiliant » — puis « énormément d'offrandes de buts à la Bleue, qui avait
+juste à pousser la balle ». Khalid trouve « un cinquième poumon », Thomas D remonte
+d'un cran, Michael plante le but décisif habituel, et Henri « sauve la baraque » dans
+les cages. Verdict de Rémi : « le plus gros vol de l'histoire ».
+
+⚠️ **Deux votes ont été émis depuis le mauvais profil**, et c'est dans l'article :
+Henri a voté pour lui-même depuis le profil de Khalid (ligne `voter:'Khalid',
+motm:'Henri'`), puis Khalid a fait de même depuis le profil d'Henri (ligne
+`voter:'Henri', motm:'Khalid'`, « Évident ! ») — non par erreur mais pour rétablir
+les comptes. Les deux s'annulent exactement, le total 7-1-1-1 est celui qu'aurait
+donné un scrutin propre. **Ne pas citer « Évident ! » comme un témoignage d'Henri sur
+Khalid** : c'est Khalid sur Khalid. La table `votes` reste telle quelle, on ne
+réécrit pas des bulletins.
+
+⚠️ **Le débrief est arrivé en note vocale** (m4a). Aucun outil de transcription n'est
+préinstallé : `pip install faster-whisper` puis modèle `large-v3` en `int8`, avec la
+**liste des joueurs en `initial_prompt`** — sans elle les prénoms sortent faux
+(« Bamba », « Raleigh », « Tiddy » pour Samba, Khalid et TD). Sur un prénom qui résiste,
+réextraire le clip de quelques secondes et le repasser seul avec le roster : c'est ce
+qui a tranché Khalid.
 
 ## Joueurs actifs (s19 — 7 septembre 2026)
 Blanche ⚪ : Spy, Alex, Cyril, Hugo, Gugu
