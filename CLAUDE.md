@@ -885,7 +885,7 @@ gagner (2 le 11 mai, 1 le 25 mai, 2 le 8 juin, 3 le 20 juillet), son seul troph�
 huit semaines et trois journées manquées.
 
 Le match, d'après le débrief vocal de Rémi : la Blanche s'envole (Samba très fort
-d'entrée, prise de volée d'Alex, doublé de Rémi sorti de sa cage), jusqu'à **+4** —
+d'entrée, reprise de volée d'Alex, doublé de Rémi sorti de sa cage), jusqu'à **+4** —
 « un peu humiliant » — puis « énormément d'offrandes de buts à la Bleue, qui avait
 juste à pousser la balle ». Khalid trouve « un cinquième poumon », Thomas D remonte
 d'un cran, Michael plante le but décisif habituel, et Henri « sauve la baraque » dans
