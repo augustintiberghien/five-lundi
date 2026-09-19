@@ -270,6 +270,12 @@ côtés à la fois, front **et** `lock_session.py`, sous peine de les faire dive
 ⚠️ **Ne pas « corriger » un retournement en éditant `players` dans `SESSIONS` après le
 lock** : c'est la compo figée, et la règle des 21h30 interdit d'y toucher.
 
+**Appliqué le 19 septembre 2026 sur `ins_sep_21`**, à la demande du groupe : la Blanche
+passe d'Alex/Ibrahima/Landry/Quentin/Spy à Edouard/Gugu/Johann/Khalid/Rémi (équilibrage
+67,5 – 67). Le lock du 21 a été simulé dans la foulée (copie du dépôt, `now` forcé au lundi
+21h35, écriture neutralisée) : ni « compo publiée absente ou périmée » ni « couleurs
+inversées » — il reprend bien la ligne retournée telle quelle, banc Henri, Dylan, Thibault.
+
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 
 ## Règle : mise à jour automatique après un score
