@@ -240,6 +240,36 @@ les places entre 47 et 53 %, et « même roster, même ordre → même compo » 
 que `lock_session.py` extrait pour rejouer l'algo dans node. Un helper posé ailleurs ferait
 planter le lock.
 
+### Inverser les couleurs d'un créneau à la demande (septembre 2026)
+
+Le groupe peut vouloir **les mêmes deux équipes, couleurs échangées**. Rien à changer dans
+`index.html` : la ligne `slot_sessions` est la référence, il suffit de la retourner
+(`flip_slot_colors.py <slot_id>`, `--dry-run` pour voir sans écrire). Le script bascule
+`teamA` **et** `y` (sinon une équipe bleue se retrouverait peinte en haut du terrain),
+échange `note_a`/`note_b`, et **laisse `roster_key` intact** — le modifier ferait croire au
+lock que la compo est périmée, et il regénérerait tout.
+
+Le retournement se propage tout seul : le site affiche la ligne telle quelle tant que
+`roster_key` correspond, et `lock_session.py` la reprend telle quelle à 21h30.
+
+⚠️ **Ce qui n'est pas garanti : la tenue du retournement après un désistement.** Le front
+régénère alors la compo et réancre les couleurs sur la référence via `_anchorColors`, qui
+tranche à la **majorité des rescapés** — et cette majorité peut être **à égalité**
+(`flip <= keep` → pas d'échange), auquel cas l'orientation retombe sur `_halfHash` et peut
+repasser à l'endroit. Mesuré sur le créneau du 21 septembre (banc Henri, Dylan, Thibault,
+énumération exhaustive des remplacements) : **100 % sans remplacement, ~90 % sur 1 à 3
+remplacements**.
+
+Ce n'est **pas un défaut introduit par le retournement** : c'est exactement le taux auquel
+la couleur *annoncée* peut déjà se retourner aujourd'hui quand quelqu'un se désiste. La
+règle « la couleur annoncée fait foi » est donc appliquée au mieux, pas absolument. Si on
+voulait la rendre stricte, ce serait en départageant les égalités de `_anchorColors`
+(aujourd'hui silencieusement résolues par `_halfHash`) — et il faudrait le faire des deux
+côtés à la fois, front **et** `lock_session.py`, sous peine de les faire diverger.
+
+⚠️ **Ne pas « corriger » un retournement en éditant `players` dans `SESSIONS` après le
+lock** : c'est la compo figée, et la règle des 21h30 interdit d'y toucher.
+
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 
 ## Règle : mise à jour automatique après un score
