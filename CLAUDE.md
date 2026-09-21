@@ -270,6 +270,38 @@ côtés à la fois, front **et** `lock_session.py`, sous peine de les faire dive
 ⚠️ **Ne pas « corriger » un retournement en éditant `players` dans `SESSIONS` après le
 lock** : c'est la compo figée, et la règle des 21h30 interdit d'y toucher.
 
+### ⚠️ Changer une règle ne recalcule rien : il faut republier (21 septembre 2026)
+
+`syncSharedTeams` **et** `lock_session.py` reprennent la ligne `slot_sessions` **telle
+quelle** dès que `roster_key` correspond aux dix titulaires effectifs. Ils ne regardent
+alors ni les notes, ni la contrainte `together` : plus personne ne recalcule.
+
+Conséquence contre-intuitive : **un changement qui ne touche pas le roster n'a aucun
+effet.** Le 21 septembre, ajouter `together:['Quentin','Invité']` au créneau et corriger
+la note de l'Invité n'a rien changé du tout — le dry-run du lock rendait la compo
+d'avant, Quentin et l'Invité toujours séparés. Le message « compo publiée absente ou
+périmée » **n'apparaît pas** dans ce cas : de son point de vue la compo est parfaitement
+à jour.
+
+`republish_compo.py <slot_id>` force la régénération et republie (`--dry-run` pour voir
+sans écrire). Il recalcule le roster exactement comme le lock, rejoue l'algo dans node
+depuis `index.html`, réancre les couleurs sur la compo annoncée, **refuse de publier si
+la contrainte `together` n'est pas respectée**, et relit la ligne après écriture.
+
+**À lancer avant 21h30**, et **après** que le changement d'`index.html` est mergé dans
+`main` : le script lit le fichier local, mais les navigateurs, eux, régénèrent à partir
+de la version déployée — republier avant le merge laisserait un visiteur avec l'ancien
+fichier réécrire la compo sans la contrainte.
+
+⚠️ **`Invité` est un nom générique partagé.** `PLAYER_NOTES['Invité']` valait `{note:17,
+sm:46}` — une copie exacte de la ligne de Raphaël, posée pour un invité précédent, pas
+pour celui du soir. `CRITERIA['Invité']` est **toujours** cette copie (radar d'un joueur
+à 17 sur une fiche à 14) : le corriger demanderait d'inventer sept notes sur quelqu'un
+qu'on n'a pas vu jouer. Plus gênant : `_getPlayerForm('Invité')` **accumule la forme de
+tous les invités successifs** (au 21 septembre, −0,5 hérité de la défaite du 14, jouée
+par Samba). Demander le niveau à l'utilisateur et remettre la note à jour **à chaque
+invité** ; la vraie correction serait un nom par invité, comme `Samba`.
+
 **Appliqué le 19 septembre 2026 sur `ins_sep_21`**, à la demande du groupe : la Blanche
 passe d'Alex/Ibrahima/Landry/Quentin/Spy à Edouard/Gugu/Johann/Khalid/Rémi (équilibrage
 67,5 – 67). Le lock du 21 a été simulé dans la foulée (copie du dépôt, `now` forcé au lundi
