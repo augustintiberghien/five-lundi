@@ -240,6 +240,90 @@ les places entre 47 et 53 %, et « même roster, même ordre → même compo » 
 que `lock_session.py` extrait pour rejouer l'algo dans node. Un helper posé ailleurs ferait
 planter le lock.
 
+### Inverser les couleurs d'un créneau à la demande (septembre 2026)
+
+Le groupe peut vouloir **les mêmes deux équipes, couleurs échangées**. Rien à changer dans
+`index.html` : la ligne `slot_sessions` est la référence, il suffit de la retourner
+(`flip_slot_colors.py <slot_id>`, `--dry-run` pour voir sans écrire). Le script bascule
+`teamA` **et** `y` (sinon une équipe bleue se retrouverait peinte en haut du terrain),
+échange `note_a`/`note_b`, et **laisse `roster_key` intact** — le modifier ferait croire au
+lock que la compo est périmée, et il regénérerait tout.
+
+Le retournement se propage tout seul : le site affiche la ligne telle quelle tant que
+`roster_key` correspond, et `lock_session.py` la reprend telle quelle à 21h30.
+
+⚠️ **Ce qui n'est pas garanti : la tenue du retournement après un désistement.** Le front
+régénère alors la compo et réancre les couleurs sur la référence via `_anchorColors`, qui
+tranche à la **majorité des rescapés** — et cette majorité peut être **à égalité**
+(`flip <= keep` → pas d'échange), auquel cas l'orientation retombe sur `_halfHash` et peut
+repasser à l'endroit. Mesuré sur le créneau du 21 septembre (banc Henri, Dylan, Thibault,
+énumération exhaustive des remplacements) : **100 % sans remplacement, ~90 % sur 1 à 3
+remplacements**.
+
+Ce n'est **pas un défaut introduit par le retournement** : c'est exactement le taux auquel
+la couleur *annoncée* peut déjà se retourner aujourd'hui quand quelqu'un se désiste. La
+règle « la couleur annoncée fait foi » est donc appliquée au mieux, pas absolument. Si on
+voulait la rendre stricte, ce serait en départageant les égalités de `_anchorColors`
+(aujourd'hui silencieusement résolues par `_halfHash`) — et il faudrait le faire des deux
+côtés à la fois, front **et** `lock_session.py`, sous peine de les faire diverger.
+
+⚠️ **Ne pas « corriger » un retournement en éditant `players` dans `SESSIONS` après le
+lock** : c'est la compo figée, et la règle des 21h30 interdit d'y toucher.
+
+### ⚠️ Changer une règle ne recalcule rien : il faut republier (21 septembre 2026)
+
+`syncSharedTeams` **et** `lock_session.py` reprennent la ligne `slot_sessions` **telle
+quelle** dès que `roster_key` correspond aux dix titulaires effectifs. Ils ne regardent
+alors ni les notes, ni la contrainte `together` : plus personne ne recalcule.
+
+Conséquence contre-intuitive : **un changement qui ne touche pas le roster n'a aucun
+effet.** Le 21 septembre, ajouter `together:['Quentin','Invité']` au créneau et corriger
+la note de l'Invité n'a rien changé du tout — le dry-run du lock rendait la compo
+d'avant, Quentin et l'Invité toujours séparés. Le message « compo publiée absente ou
+périmée » **n'apparaît pas** dans ce cas : de son point de vue la compo est parfaitement
+à jour.
+
+`republish_compo.py <slot_id>` force la régénération et republie (`--dry-run` pour voir
+sans écrire). Il recalcule le roster exactement comme le lock, rejoue l'algo dans node
+depuis `index.html`, réancre les couleurs sur la compo annoncée, **refuse de publier si
+la contrainte `together` n'est pas respectée**, et relit la ligne après écriture.
+
+`--blue <joueur>` impose en plus la couleur : l'équipe de ce joueur portera le bleu. La
+consigne est appliquée **après** `_anchorColors`, qu'elle prime — c'est une décision du
+groupe, pas une orientation calculée — et le script refuse de publier si elle n'est pas
+tenue. ⚠️ **Une couleur imposée n'est exprimable nulle part dans l'algo** :
+`_genBalancedTeams` ne connaît que `together`. Si le roster bouge après coup, la couleur
+ne tient plus que par `_anchorColors` (majorité des rescapés, ~90 %, cf. plus haut) —
+relancer le script si elle a sauté.
+
+**Fait le 21 septembre 2026** : compo republiée avec `together:['Quentin','Invité']` et
+`--blue Spy`, après arbitrage de l'utilisateur entre deux lectures de sa consigne. Les
+deux avaient été calculées : « les trois en bleu » donnait 68,5 – 69,5 et 13 d'écart de
+critères, « contraintes séparées » 69 – 69 et 3 — c'est celle-ci qui a été retenue, et
+Quentin et l'Invité se retrouvent donc en **blanc**. Quand une consigne de compo peut se
+lire de deux façons, **calculer les deux et faire trancher** : l'écart d'équilibre était
+le seul argument utile, et il n'était pas devinable.
+
+**À lancer avant 21h30**, et **après** que le changement d'`index.html` est mergé dans
+`main` : le script lit le fichier local, mais les navigateurs, eux, régénèrent à partir
+de la version déployée — republier avant le merge laisserait un visiteur avec l'ancien
+fichier réécrire la compo sans la contrainte.
+
+⚠️ **`Invité` est un nom générique partagé.** `PLAYER_NOTES['Invité']` valait `{note:17,
+sm:46}` — une copie exacte de la ligne de Raphaël, posée pour un invité précédent, pas
+pour celui du soir. `CRITERIA['Invité']` est **toujours** cette copie (radar d'un joueur
+à 17 sur une fiche à 14) : le corriger demanderait d'inventer sept notes sur quelqu'un
+qu'on n'a pas vu jouer. Plus gênant : `_getPlayerForm('Invité')` **accumule la forme de
+tous les invités successifs** (au 21 septembre, −0,5 hérité de la défaite du 14, jouée
+par Samba). Demander le niveau à l'utilisateur et remettre la note à jour **à chaque
+invité** ; la vraie correction serait un nom par invité, comme `Samba`.
+
+**Appliqué le 19 septembre 2026 sur `ins_sep_21`**, à la demande du groupe : la Blanche
+passe d'Alex/Ibrahima/Landry/Quentin/Spy à Edouard/Gugu/Johann/Khalid/Rémi (équilibrage
+67,5 – 67). Le lock du 21 a été simulé dans la foulée (copie du dépôt, `now` forcé au lundi
+21h35, écriture neutralisée) : ni « compo publiée absente ou périmée » ni « couleurs
+inversées » — il reprend bien la ligne retournée telle quelle, banc Henri, Dylan, Thibault.
+
 Avant de mettre à jour un score, **toujours demander** : "Quelle est la composition exacte des deux équipes ?" si elle n'a pas été confirmée explicitement dans la conversation.
 
 ## Règle : mise à jour automatique après un score
