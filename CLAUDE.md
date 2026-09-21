@@ -288,6 +288,22 @@ sans écrire). Il recalcule le roster exactement comme le lock, rejoue l'algo da
 depuis `index.html`, réancre les couleurs sur la compo annoncée, **refuse de publier si
 la contrainte `together` n'est pas respectée**, et relit la ligne après écriture.
 
+`--blue <joueur>` impose en plus la couleur : l'équipe de ce joueur portera le bleu. La
+consigne est appliquée **après** `_anchorColors`, qu'elle prime — c'est une décision du
+groupe, pas une orientation calculée — et le script refuse de publier si elle n'est pas
+tenue. ⚠️ **Une couleur imposée n'est exprimable nulle part dans l'algo** :
+`_genBalancedTeams` ne connaît que `together`. Si le roster bouge après coup, la couleur
+ne tient plus que par `_anchorColors` (majorité des rescapés, ~90 %, cf. plus haut) —
+relancer le script si elle a sauté.
+
+**Fait le 21 septembre 2026** : compo republiée avec `together:['Quentin','Invité']` et
+`--blue Spy`, après arbitrage de l'utilisateur entre deux lectures de sa consigne. Les
+deux avaient été calculées : « les trois en bleu » donnait 68,5 – 69,5 et 13 d'écart de
+critères, « contraintes séparées » 69 – 69 et 3 — c'est celle-ci qui a été retenue, et
+Quentin et l'Invité se retrouvent donc en **blanc**. Quand une consigne de compo peut se
+lire de deux façons, **calculer les deux et faire trancher** : l'écart d'équilibre était
+le seul argument utile, et il n'était pas devinable.
+
 **À lancer avant 21h30**, et **après** que le changement d'`index.html` est mergé dans
 `main` : le script lit le fichier local, mais les navigateurs, eux, régénèrent à partir
 de la version déployée — republier avant le merge laisserait un visiteur avec l'ancien

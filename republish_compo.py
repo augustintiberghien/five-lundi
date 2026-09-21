@@ -10,11 +10,18 @@ recalcule. Il faut republier explicitement, c'est ce que fait ce script.
 
     python3 republish_compo.py ins_sep_21 --dry-run
     python3 republish_compo.py ins_sep_21
+    python3 republish_compo.py ins_sep_21 --blue Spy
 
 Le roster est recalculé exactement comme le lock (inscrits dans l'ordre, banc trié par
 `benchPriority`, absents de la feuille de match retirés, dix premiers), l'algo du site est
 rejoué dans node à partir d'index.html, et les couleurs sont réancrées sur la compo
 annoncée (`_anchorColors`) pour ne retourner personne sans raison.
+
+`--blue <joueur>` impose la couleur de l'équipe de ce joueur. La consigne est
+appliquée **après** le réancrage, qu'elle prime : c'est une décision du groupe, pas
+une orientation calculée. ⚠️ Rien de tout ça n'est exprimable dans
+`_genBalancedTeams`, qui ne connaît que `together` — si le roster bouge ensuite, la
+couleur ne tient que par `_anchorColors`, à la majorité des rescapés.
 
 ⚠️ À lancer **avant 21h30**. Après le lock le créneau passe `open:false` et la compo est
 figée dans `SESSIONS` : republier ne servirait plus à rien.
@@ -53,6 +60,8 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('slot_id')
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--blue', metavar='JOUEUR',
+                    help="force l'équipe de ce joueur à porter le bleu 🔵")
     args = ap.parse_args()
 
     html = open('index.html', encoding='utf-8').read()
@@ -131,6 +140,19 @@ def main():
     gen = json.loads(out.stdout.strip().split('\n')[-1])
     players, note_a, note_b = gen['players'], gen['note_a'], gen['note_b']
 
+    # Couleur imposée. Vient APRÈS _anchorColors, qui sinon la contredirait : une
+    # consigne explicite du groupe prime sur le réancrage automatique.
+    if args.blue:
+        if args.blue not in effective:
+            print("❌ %s n'est pas dans les titulaires effectifs." % args.blue)
+            sys.exit(1)
+        if any(p['teamA'] for p in players if p['name'] == args.blue):
+            for p in players:
+                p['teamA'] = not p['teamA']
+                p['y'] = 100 - p['y']
+            note_a, note_b = note_b, note_a
+            print("↔️  Couleurs orientées pour mettre %s en bleu" % args.blue)
+
     _show('APRÈS ', players, note_a, note_b)
     if together:
         white = {p['name'] for p in players if p['teamA']}
@@ -141,6 +163,10 @@ def main():
         if not ok:
             print('⚠️ contrainte non respectée — on ne publie pas.')
             sys.exit(1)
+
+    if args.blue and any(p['teamA'] for p in players if p['name'] == args.blue):
+        print('⚠️ %s est toujours en blanc — on ne publie pas.' % args.blue)
+        sys.exit(1)
 
     roster_key = ','.join(sorted(effective))
     if args.dry_run:
