@@ -5297,6 +5297,21 @@ function mvpSelectCard(sid, name) {
   });
 }
 
+/* Le nom du votant est repris dans le libelle du bouton. C'est le dernier element
+   lu avant l'envoi : sur telephone, le select « Je suis » est sorti de l'ecran
+   depuis plusieurs scrolls au moment ou on appuie. Le 14 septembre, un vote est
+   parti sous le mauvais nom et son auteur ne s'en est apercu qu'apres coup, sur
+   l'ecran de confirmation — donc trop tard, `mvp_voted_<id>` ayant deja verrouille
+   le navigateur. Une deuxieme ligne fausse a ete ajoutee pour compenser.
+   « en tant que » n'est pas decoratif : sans ces mots, « Voter · Khalid » se lit
+   aussi bien comme « Khalid est mon homme du match ».
+   Largeur mesuree dans Chromium avec la vraie Saira Condensed : une ligne des
+   360 px, deux lignes a 320 px, aucun debordement meme avec un prenom tres long —
+   le CSS de .mvp-btn n'a donc pas eu besoin de bouger. */
+function _mvpBtnLabel(voter) {
+  return voter ? 'Voter en tant que ' + voter + ' 🏅' : 'Voter 🏅';
+}
+
 function mvpRefreshCards(sid) {
   var voterEl = document.getElementById('mvp-voter-' + sid);
   var voter = voterEl ? voterEl.value : '';
@@ -5310,6 +5325,8 @@ function mvpRefreshCards(sid) {
     c.style.pointerEvents = isSelf ? 'none' : '';
     c.classList.toggle('selected', c.dataset.name === _mvpSelected[sid]);
   });
+  var btn = document.getElementById('mvp-submit-' + sid);
+  if (btn) btn.textContent = _mvpBtnLabel(voter);
 }
 
 /* ── Rendu principal ── */
@@ -5435,7 +5452,7 @@ function _renderMvpInner(s, votes) {
     html += '<div class="mvp-comment-row"><textarea id="mvp-comment-' + s.id + '" placeholder="Pourquoi ? (optionnel)"></textarea></div>';
 
     // Bouton
-    html += '<div style="text-align:center"><button class="mvp-btn" id="mvp-submit-' + s.id + '" onclick="submitMvpVote(\'' + s.id + '\')">Voter 🏅</button></div>';
+    html += '<div style="text-align:center"><button class="mvp-btn" id="mvp-submit-' + s.id + '" onclick="submitMvpVote(\'' + s.id + '\')">' + _mvpBtnLabel('') + '</button></div>';
 
     // Deadline
     var dl = mvpDeadline(s.date, s.id);
@@ -5510,7 +5527,7 @@ async function submitMvpVote(sid) {
       }
     }
   } catch(e) {
-    if (btn) { btn.disabled = false; btn.textContent = 'Voter 🏅'; }
+    if (btn) { btn.disabled = false; btn.textContent = _mvpBtnLabel(voter); }
     if (e.message === 'already_voted') {
       localStorage.setItem(lsKey, voter); // stocker quand même
       alert('Tu as déjà voté pour cette session !');
@@ -5581,6 +5598,8 @@ function tmotmRefreshCards(sid) {
     c.style.pointerEvents = blocked ? 'none' : '';
     c.classList.toggle('selected', c.dataset.name === _tmotmSelected[sid]);
   });
+  var btn = document.getElementById('tmotm-submit-' + sid);
+  if (btn) btn.textContent = _mvpBtnLabel(voter);
 }
 
 function renderTournamentMvp(s) {
@@ -5686,7 +5705,7 @@ function _renderTmotmInner(s, votes) {
     });
     html += '</div>';
     html += '<div class="mvp-comment-row"><textarea id="tmotm-comment-' + s.id + '" placeholder="Pourquoi ? (optionnel)"></textarea></div>';
-    html += '<div style="text-align:center"><button class="mvp-btn" id="tmotm-submit-' + s.id + '" onclick="submitTmotmVote(&quot;' + s.id + '&quot;)">Voter 🏅</button></div>';
+    html += '<div style="text-align:center"><button class="mvp-btn" id="tmotm-submit-' + s.id + '" onclick="submitTmotmVote(&quot;' + s.id + '&quot;)">' + _mvpBtnLabel('') + '</button></div>';
     if (dl) {
       var diffMs = dl - new Date();
       if (diffMs > 0) {
@@ -5735,7 +5754,7 @@ async function submitTmotmVote(sid) {
       setTimeout(function(){ if (s) _renderTmotmInner(s, votes); }, 1800);
     }
   } catch(e) {
-    if (btn) { btn.disabled = false; btn.textContent = 'Voter 🏅'; }
+    if (btn) { btn.disabled = false; btn.textContent = _mvpBtnLabel(voter); }
     if (e.message === 'already_voted') { localStorage.setItem(lsKey, voter); alert('Tu as déjà voté pour le tournoi !'); }
     else { alert('Erreur lors du vote. Vérifie ta connexion.'); }
   }

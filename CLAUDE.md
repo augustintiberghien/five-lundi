@@ -379,6 +379,42 @@ curl -s -i -X OPTIONS "$SB_URL/functions/v1/submit-score" \
 - Timezone : toujours via `toLocaleString('en-US', {timeZone:'Europe/Paris'})`
 - **Résumé MVP** : le code d'appel direct à l'API Anthropic a été supprimé (juin 2026 — il partait sans clé et ne marchait pas). Le résumé/article est rédigé par Claude **au débrief après chaque match** et poussé manuellement dans le HTML (`ARTICLES`). À la clôture du vote, le site affiche les commentaires bruts des votants.
 
+### Le nom du votant est dans le bouton (septembre 2026)
+
+Le bouton d'envoi affiche **« Voter en tant que Khalid 🏅 »** dès qu'un nom est choisi,
+et retombe sur « Voter 🏅 » si le select est vidé. Un seul helper, `_mvpBtnLabel(voter)`,
+sert les **six** points de passage : rendu initial, `mvpRefreshCards`, `catch` de
+`submitMvpVote`, et les trois équivalents du vote de tournoi (`tmotmRefreshCards`,
+`submitTmotmVote`). Ne pas en refaire une copie locale — c'est le piège habituel.
+
+**Pourquoi.** Le select « Je suis » ne se pré-remplit pas : le votant choisit son nom à la
+main, en haut du formulaire. Sur téléphone il est sorti de l'écran depuis plusieurs scrolls
+au moment où on appuie sur « Voter ». Le 14 septembre, un vote est parti sous le mauvais
+nom et son auteur ne l'a vu qu'après coup, sur l'écran de confirmation (« merci Khalid ! »)
+— trop tard, `mvp_voted_<id>` ayant déjà verrouillé le navigateur. Une **deuxième ligne
+fausse** a alors été ajoutée pour rétablir les comptes. Le bouton met l'identité sous les
+yeux à l'instant de l'engagement.
+
+⚠️ **Garder « en tant que ».** Sans ces mots, « Voter · Khalid » se lit tout aussi bien
+comme « Khalid est mon homme du match » — le bouton deviendrait ambigu sur le sujet même
+qu'il doit lever.
+
+**Largeur mesurée** dans Chromium avec la vraie Saira Condensed (récupérée chez Google
+Fonts, joignable depuis le conteneur — la police de repli est plus large et fausserait la
+conclusion) : `.mvp-section` n'offre que **262 px** de contenu à 320 px de viewport et
+302 px à 360 px. Le libellé le plus long tient sur **une ligne dès 360 px** (272 px), passe
+sur **deux lignes à 320 px** sans jamais déborder — y compris avec un prénom inventé très
+long. **Le CSS de `.mvp-btn` n'a donc pas eu besoin de bouger**, et un `max-width:100%` de
+précaution s'est révélé sans effet à la mesure.
+
+⚠️ Ça ne traite que **l'erreur de bonne foi**. Rien n'empêche quelqu'un de voter sciemment
+sous un autre nom : seule l'authentification le ferait, et elle reste bloquée (cf.
+« Notifications push »). Deux idées étudiées et **non retenues pour l'instant** : comparer
+le nom choisi à `presence_name` (déjà en `localStorage`) pour afficher un avertissement, et
+surtout **rendre le vote corrigeable** tant que le scrutin est ouvert — c'est la seule qui
+aurait évité la deuxième ligne fausse du 14, mais elle demande un `update`/`delete` sur
+`votes`, donc de vérifier d'abord les règles RLS avec la clé anon.
+
 ### ⚠️ L'ouverture du vote ne doit jamais dépendre du score (corrigé le 4 septembre 2026)
 
 `mvpIsOpen` testait « on est le soir du match après 22h30 » (`mvpMatchNight`) **OU**
