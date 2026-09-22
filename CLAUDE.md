@@ -465,7 +465,7 @@ mois (`_MN[7] = août`) dans `_seasonOfDate(dateStr)`, qui accepte aussi bien
 nom générique `Invité`. `season` à `null` = depuis toujours.
 
 ⚠️ **Le garde-fou à ne pas perdre** : `_computeStats(null)` doit reproduire
-`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (24 joueurs, 157 paires au 24 août
+`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (25 joueurs, 170 paires au 22 septembre
 2026). C'est ce qui garantit qu'un onglet ne contredit pas l'autre. Toute modification
 du calcul doit être revérifiée contre les tables figées, qui restent la référence et
 continuent d'être maintenues par `update_stats.py`.
@@ -868,7 +868,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s20 | 14 septembre 2026 | 9 – 10 (B) | ✅ |
+| s21 | 21 septembre 2026 | 10 – 9 (A) | ✅ |
+| s20 | 14 septembre 2026 | 9 – 10 (B) | |
 | s19 | 7 septembre 2026 | 9 – 8 (A) | |
 | s18 | 31 août 2026 | 10 – 9 (A) | |
 | s17 | 27 juillet 2026 | 15 – 10 (A) | |
@@ -950,6 +951,57 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s21 — 21 septembre 2026)
+Blanche ⚪ : Hugo, Ibrahima, Landry, Quentin, Invité (Kylian, le +1 de Quentin)
+Bleue 🔵 : Dylan, Edouard, Gugu, Rémi, Spy
+La Blanche l'emporte 10-9. Dix-neuf inscrits, neuf désistements. Équilibrage **69 – 69**,
+écart nul, et **quatrième journée d'affilée décidée par un seul but** (10-9, 9-8, 9-10,
+10-9) — la Blanche gagne six des sept dernières. Déroulé : 1-1 longtemps, puis 3-2, 4-2,
+5-2, 6-3, **8-3** (+5), remontée bleue jusqu'à **8-8**, puis 9-8, 10-8, 10-9.
+
+Homme du match : **Landry**, 7 voix sur 10, devant Ibrahima, l'Invité et Hugo (1 chacun).
+**Son premier titre** — avant ce soir il n'avait reçu que **deux voix dans toute sa
+carrière** (le 15 juin, match gagné par Samy). Il passe de 6 matchs / 2 victoires à 7 / 3.
+Article poussé dans `ARTICLES['s21']`, `publishedAt` à l'heure réelle.
+
+**Le match s'est joué sur WhatsApp avant le coup d'envoi.** À 18h11 Hugo découvre la compo :
+« Est-ce que je pourrais jouer avec Dylan un jour ? ». Landry : « Non. Sujet suivant. »
+Hugo : « ça me fait chier de jouer avec l'invité, Quentin et Ibra. Mais je ne cible
+personne. » Il se justifie par « je connais Ibra par cœur, je joue avec lui 1 semaine sur
+2 » — **démenti par les archives** : trois matchs ensemble avant ce soir, et une première
+fois avec Quentin. Escalade jusqu'au GIF de Payet : « J'allume la mèche en conf de presse,
+le reste appartient à l'histoire. » Il gagne, marque beaucoup — et le trophée individuel
+qu'il réclamait part chez Landry, pour qui il a lui-même voté. Le vote referme la boucle :
+l'invité reçoit la voix de Spy (« le genre de joueur qu'on a envie d'avoir avec soi »),
+Ibra celle de Landry, et **Quentin vote pour Hugo**, seule voix de ce dernier.
+
+⚠️ **Le groupe appelle l'algorithme « Claude »** et s'en sert dans le chambrage (« Claude
+aime bien séparer les amitiés », « balance pas de fausses rumeurs sinon Claude t'allume
+dans la presse »). L'article l'assume sans se mettre en scène : il cite les archives pour
+démentir une affirmation, ce qui est le rôle du journal. **Ne pas en faire un règlement de
+comptes** — Hugo a gagné le match, l'article le dit, et c'est le vote qui fournit la chute.
+
+⚠️ **Les captures WhatsApp valent mieux que n'importe quel résumé.** Demander le film du
+match (règle posée après s19) **et** les échanges d'avant-match quand il y en a eu : ici,
+l'article était là.
+
+### ⚠️ Une branche de travail périme en une nuit — toujours rebaser avant d'écrire
+
+Le 22 septembre, l'article a d'abord été écrit dans l'`index.html` de la branche, restée
+au **commit d'avant le lock**. Ce fichier ne contenait **ni la session s21, ni le score,
+ni les stats à jour** : merger cette branche aurait **effacé de `main` le lock et le
+score** poussés automatiquement la veille au soir. Deux chiffres faux étaient déjà dans le
+texte (Landry annoncé à 6 matchs / 2 victoires, soit son bilan d'*avant* le match).
+
+Le lundi soir, `main` reçoit **deux commits automatiques** (lock 21h30, puis score). Toute
+branche ouverte avant est donc périmée dès le mardi matin. **Avant d'écrire l'article :
+`git fetch origin main && git reset --hard origin/main`** (ou rebaser), et vérifier
+`grep -c "id:'sNN'" index.html`.
+
+⚠️ Le garde-fou `_computeStats(null)` **ne détecte pas ça** : il compare le fichier à
+lui-même, donc il passe au vert sur un fichier périmé. Ce qui l'a révélé : un contrôle du
+drapeau `current`, qui annonçait s20 au lieu de s21.
 
 ## Joueurs actifs (s20 — 14 septembre 2026)
 Blanche ⚪ : Rémi, Ibrahima, Alex, Samba (Invité), Thibault
