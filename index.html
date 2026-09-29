@@ -926,12 +926,24 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   padding:.3rem .8rem;border:1px solid rgba(255,255,255,.15);border-radius:99px}
 .modal-close:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
-/* ── Fausses pubs (bas de page) ── */
-.fake-ad{width:min(340px,92vw);margin:2rem auto 0;padding:.7rem .9rem .8rem;border:1px dashed rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.03);text-align:center}
-.fake-ad-tag{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.35rem}
-.fake-ad-title{font-size:.95rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.85)}
-.fake-ad-body{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;line-height:1.35}
-.fake-ad-cta{display:inline-block;margin-top:.5rem;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:.3rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);background:none;font-family:inherit;cursor:pointer}
+/* ── Fausses pubs (bas de page) : carte façon post sponsorisé ── */
+.fake-ad{width:min(340px,92vw);margin:2rem auto 0;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
+.fa-head{display:flex;align-items:center;gap:.55rem;padding:.6rem .7rem}
+.fa-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none}
+.fa-brand{font-size:.82rem;font-weight:600;line-height:1.15}
+.fa-spons{font-size:.66rem;color:#8a8d91}
+.fa-dots{margin-left:auto;color:#8a8d91;letter-spacing:.1em;font-weight:700}
+.fa-text{padding:0 .7rem .6rem;font-size:.8rem;line-height:1.35}
+.fa-hero{position:relative;height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;text-align:center;padding:0 1rem}
+.fa-hero-emoji{font-size:3rem;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+.fa-hero-title{font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.45);line-height:1.1}
+.fa-badge{position:absolute;top:.5rem;right:.5rem;background:#e41e3f;color:#fff;font-size:.6rem;font-weight:800;padding:.15rem .4rem;border-radius:4px;transform:rotate(4deg)}
+.fa-bar{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:#242526}
+.fa-url{font-size:.62rem;color:#8a8d91;text-transform:uppercase}
+.fa-url b{display:block;font-size:.76rem;color:#e4e6eb;text-transform:none;font-weight:600}
+.fa-cta{margin-left:auto;background:#3a3b3c;color:#e4e6eb;border:0;border-radius:6px;padding:.4rem .7rem;font:600 .74rem system-ui,sans-serif;cursor:pointer}
+.fa-react{display:flex;justify-content:space-between;padding:.4rem .7rem;font-size:.7rem;color:#8a8d91;border-top:1px solid rgba(255,255,255,.06)}
+.fa-fake{text-align:center;font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin:.5rem 0 -.5rem}
 footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.6rem}
 
 /* ── ANIMATION SCORE ── */
@@ -7925,27 +7937,35 @@ function updateCountdown() {
   </div>
 </div>
 <script>
-/* Fausses pubs : une au hasard à chaque ouverture, aucune donnée, aucun tracking. */
+/* Fausses pubs : une au hasard à chaque ouverture, aucune donnée, aucun tracking.
+     [marque, emoji logo, dégradé, emoji héros, titre visuel, texte du post, site, bouton, badge] */
 (function(){
   var ADS=[
-    ['Cardio Plus™','Khalid a trouvé un cinquième poumon. Le vôtre est en option.','Demander mon poumon'],
-    ['Claude Équilibrage Pro','Séparer les amitiés depuis 2026. Résultats non garantis, plaintes non traitées.','Porter réclamation'],
-    ['Gardien.com','Vous en avez marre d’être dans les buts ? Nous non plus. Personne ne s’en soucie.','Me faire remplacer'],
-    ['Crampes Assurances','Tirage de mollet à la 40ᵉ minute ? Nous sommes déjà au courant.','Souscrire'],
-    ['Bar du Vestiaire','La bière de 23h, c’est la vraie mi-temps. Offre valable dès que le score est rentré.','J’ai soif'],
-    ['Invité Express','Un +1 de dernière minute, noté 17 sur 20. Aucune vérification.','Livraison en 5 min'],
-    ['Mutuelle Maudit','Trois défaites d’affilée ? Un badge 💀 offert avec votre contrat.','Me protéger'],
-    ['Chaussures Turbo','+3 en vitesse, −2 en technique. Le bilan reste à discuter.','Voir le catalogue']
+    ['Urban Five','🦵','linear-gradient(135deg,#7f1d1d,#ef4444)','🩹','13 € le lundi','Un genou neuf ? Une pubalgie qui s’accroche ? Chaque lundi, venez vous fabriquer la prochaine blessure. Ménisques, adducteurs, chevilles : tout doit disparaître.','urban.fr/blessures','S’inscrire','PROMO'],
+    ['Cardio Plus™','🫁','linear-gradient(135deg,#0c4a6e,#38bdf8)','🫁','Le 5ᵉ poumon','Khalid a trouvé un cinquième poumon. Et vous ? Résultats visibles dès la 40ᵉ minute, essoufflement inclus.','cardioplus.fr','Commander','-50%'],
+    ['Claude Équilibrage Pro','⚖️','linear-gradient(135deg,#312e81,#8b5cf6)','🤝❌','On sépare les amis','Vos potes jouent ensemble depuis 3 ans ? Claude s’en occupe. Résultats non garantis, réclamations non traitées.','claude-equilibre.fr','Porter réclamation','NOUVEAU'],
+    ['Gardien.com','🧤','linear-gradient(135deg,#14532d,#22c55e)','🧤','Marre des buts ?','Vous en avez marre d’être dans les buts ? Nous non plus. Personne ne s’en soucie, alors tournez.','gardien.com','Me faire remplacer','GRATUIT'],
+    ['Crampes Assurances','🩺','linear-gradient(135deg,#78350f,#f59e0b)','🦵⚡','Mollet ? Déjà vu.','Tirage à la 40ᵉ minute ? Nous sommes déjà au courant. Sans franchise, sans pitié.','crampes-assur.fr','Souscrire','-30%'],
+    ['Bar du Vestiaire','🍺','linear-gradient(135deg,#713f12,#eab308)','🍺','-50 % sur la Ciney','L’homme du match a mérité sa Ciney : -50 % pour lui ce soir. Les neuf autres paient plein pot. Présentez votre trophée au comptoir.','vestiaire-bar.fr','J’ai gagné','-50%'],
+    ['Invité Express','📦','linear-gradient(135deg,#134e4a,#14b8a6)','🎁','Noté 17/20','Un +1 de dernière minute, noté 17 sur 20. Livraison en 5 min, aucune vérification.','invite-express.fr','Livrer','EXPRESS'],
+    ['Académie Samy','🚀','linear-gradient(135deg,#7c2d12,#f97316)','💥⚽','Frappe lourde','Stage d’initiation à la frappe lourde, animé par Samy en personne. Casque conseillé pour le public, gardiens non remboursés.','academie-samy.fr','Réserver ma place','STAGE'],
+    ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT']
   ];
   var el=document.getElementById('fake-ad'); if(!el) return;
   var a=ADS[Math.floor(Math.random()*ADS.length)];
-  var d=document.createElement('div');
-  function add(c,t){var n=document.createElement('div');n.className=c;n.textContent=t;d.appendChild(n);}
-  add('fake-ad-tag','Publicité · pour de faux');
-  add('fake-ad-title',a[0]); add('fake-ad-body',a[1]);
-  var b=document.createElement('button');b.className='fake-ad-cta';b.textContent=a[2];
-  b.onclick=function(){b.textContent='Erreur 404 · c’est une fausse pub';b.disabled=true;};
-  d.appendChild(b); el.appendChild(d);
+  function h(c,t,tag){var n=document.createElement(tag||'div');n.className=c;if(t!=null)n.textContent=t;return n;}
+  var head=h('fa-head'), av=h('fa-av',a[1]); av.style.background=a[2];
+  var who=h('fa-who'); who.appendChild(h('fa-brand',a[0])); who.appendChild(h('fa-spons','Sponsorisé · 🌐'));
+  head.appendChild(av); head.appendChild(who); head.appendChild(h('fa-dots','···'));
+  var hero=h('fa-hero'); hero.style.background=a[2];
+  hero.appendChild(h('fa-hero-emoji',a[3])); hero.appendChild(h('fa-hero-title',a[4])); hero.appendChild(h('fa-badge',a[8]));
+  var bar=h('fa-bar'), url=h('fa-url',a[6].split('/')[0].toUpperCase()); url.appendChild(h('',a[4],'b'));
+  var cta=h('fa-cta',a[7],'button'); cta.onclick=function(){cta.textContent='404 · fausse pub';cta.disabled=true;};
+  bar.appendChild(url); bar.appendChild(cta);
+  var likes=1+Math.floor(Math.random()*40);
+  var react=h('fa-react'); react.appendChild(h('','👍❤️ '+likes,'span')); react.appendChild(h('',Math.ceil(likes/4)+' commentaires','span'));
+  el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
+  el.parentNode.insertBefore(h('fa-fake','Publicité · pour de faux'),el.nextSibling);
 })();
 </script>
 </body>
