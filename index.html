@@ -926,6 +926,12 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   padding:.3rem .8rem;border:1px solid rgba(255,255,255,.15);border-radius:99px}
 .modal-close:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
+/* ── Fausses pubs (bas de page) ── */
+.fake-ad{width:min(340px,92vw);margin:2rem auto 0;padding:.7rem .9rem .8rem;border:1px dashed rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.03);text-align:center}
+.fake-ad-tag{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.35rem}
+.fake-ad-title{font-size:.95rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.fake-ad-body{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;line-height:1.35}
+.fake-ad-cta{display:inline-block;margin-top:.5rem;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;padding:.3rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);background:none;font-family:inherit;cursor:pointer}
 footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.6rem}
 
 /* ── ANIMATION SCORE ── */
@@ -1290,6 +1296,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 <div class="article-section" id="article-section" style="display:none"></div>
 
 
+<div class="fake-ad" id="fake-ad" aria-label="Publicité"></div>
 <footer><img src="logo.svg" alt="vestiaire" style="height:4rem;opacity:.7;display:block"><span>vestiaire · Urban · By Claudio</span></footer>
 
 <div class="modal" id="modal">
@@ -7917,5 +7924,29 @@ function updateCountdown() {
     </div>
   </div>
 </div>
+<script>
+/* Fausses pubs : une au hasard à chaque ouverture, aucune donnée, aucun tracking. */
+(function(){
+  var ADS=[
+    ['Cardio Plus™','Khalid a trouvé un cinquième poumon. Le vôtre est en option.','Demander mon poumon'],
+    ['Claude Équilibrage Pro','Séparer les amitiés depuis 2026. Résultats non garantis, plaintes non traitées.','Porter réclamation'],
+    ['Gardien.com','Vous en avez marre d’être dans les buts ? Nous non plus. Personne ne s’en soucie.','Me faire remplacer'],
+    ['Crampes Assurances','Tirage de mollet à la 40ᵉ minute ? Nous sommes déjà au courant.','Souscrire'],
+    ['Bar du Vestiaire','La bière de 23h, c’est la vraie mi-temps. Offre valable dès que le score est rentré.','J’ai soif'],
+    ['Invité Express','Un +1 de dernière minute, noté 17 sur 20. Aucune vérification.','Livraison en 5 min'],
+    ['Mutuelle Maudit','Trois défaites d’affilée ? Un badge 💀 offert avec votre contrat.','Me protéger'],
+    ['Chaussures Turbo','+3 en vitesse, −2 en technique. Le bilan reste à discuter.','Voir le catalogue']
+  ];
+  var el=document.getElementById('fake-ad'); if(!el) return;
+  var a=ADS[Math.floor(Math.random()*ADS.length)];
+  var d=document.createElement('div');
+  function add(c,t){var n=document.createElement('div');n.className=c;n.textContent=t;d.appendChild(n);}
+  add('fake-ad-tag','Publicité · pour de faux');
+  add('fake-ad-title',a[0]); add('fake-ad-body',a[1]);
+  var b=document.createElement('button');b.className='fake-ad-cta';b.textContent=a[2];
+  b.onclick=function(){b.textContent='Erreur 404 · c’est une fausse pub';b.disabled=true;};
+  d.appendChild(b); el.appendChild(d);
+})();
+</script>
 </body>
 </html>
