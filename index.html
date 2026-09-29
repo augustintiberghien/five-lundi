@@ -5773,6 +5773,41 @@ async function submitTmotmVote(sid) {
    ARTICLES — DÉBRIEF SESSIONS
    ══════════════════════════════════════════ */
 var ARTICLES = {
+  's22': {
+    /* Heure reelle de publication (29 septembre, 12h17 Paris), non reculee ni avancee :
+       le vote s'est cloture a 10 voix le 29 a 09h25, l'article suit dans la foulee.
+       La fenetre de lecture de 4 h court donc jusqu'a 16h17, apres quoi le site ouvre
+       sur le creneau du 5 octobre. */
+    publishedAt: '2026-09-29T10:17:00Z',
+    kicker: 'Five Lundi · 28 septembre 2026',
+    headline: 'Quentin écoute Gugu, lâche enfin son ballon — et la Blanche déroule : 12-8',
+    sub: 'Un 7-7 tendu, une Bleue devant 8-7, puis cinq buts blancs sans réponse. Un homme du match élu à huit voix sur dix, dont quatre de l’équipe adverse, et un conseil de Gugu qui aura coûté cher à son auteur',
+    body: [
+      { type: 'p', text: 'La Blanche l’emporte <strong>12-8</strong>. La série s’arrête là : après quatre journées décidées par un seul but (10-9, 9-8, 9-10, 10-9), celle-ci se joue à <strong>quatre longueurs</strong>, et sur cinq buts sans réponse. C’est la <strong>septième victoire blanche sur les huit dernières</strong>. L’algorithme avait annoncé <strong>70,5 contre 70</strong>, une demi-note d’écart. Le match, lui, a été <strong>robuste, nerveux, tendu</strong> — et c’est l’équipe la plus constante qui l’a emporté. Ce qui, dit comme ça, ressemble à une explication. C’est surtout le portrait d’un joueur.' },
+
+      { type: 'h3', text: 'Le conseil' },
+      { type: 'p', text: 'Reprenons nos archives. Le 21 septembre, ce journal reprochait à <strong>Quentin</strong> l’unique défaut qu’on lui trouvait : <strong>garder le ballon trop longtemps</strong>, ce qui cassait le rythme des siens. Une semaine plus tard, il le lâche plus vite. La faute, ou le mérite, revient à <strong>Gugu</strong> — le « coach Gugu », dans la bouche du débrief — dont Quentin a <strong>écouté les conseils</strong>. Gugu, qui joue pourtant dans l’autre camp, en constate les effets toute la soirée et l’avoue dans son bulletin de vote : « <strong>Fais chier il a écouté mes conseils sur la pause du midi.</strong> » Gugu a voté Quentin.' },
+
+      { type: 'h3', text: '7-7, puis 8-7, puis plus rien' },
+      { type: 'p', text: 'La Blanche a mené jusqu’à <strong>7-7</strong>. Puis la Bleue a pris l’avantage : <strong>8-7</strong>. C’était le moment où le match pouvait basculer, et où il a basculé — de l’autre côté. Ce qui a suivi ressemble à un déroulé : la Blanche a marqué <strong>cinq buts de rang</strong> et la Bleue n’a plus touché le filet. <strong>12-8</strong>.' },
+
+      { type: 'h3', text: 'Quentin, partout' },
+      { type: 'p', text: 'Il est <strong>bien placé, vif, audacieux</strong>, et il lâche son ballon : le résultat est une pluie de <strong>passes décisives</strong> et, selon le débrief, <strong>quatre ou cinq buts</strong> pour son équipe. Ses adversaires en parlent mieux que quiconque. <strong>Samy</strong>, dans son bulletin : « <strong>Chirurgical sur ses frappes extérieur de surface, ça nous a fait mal.</strong> » <strong>Cyril</strong> : « <strong>Un pied droit qui nous a fait mal..</strong> » <strong>Khalid</strong>, côté blanc : « <strong>Il a envoyé des missiles hier, sans pitié et décisif !</strong> »' },
+
+      { type: 'h3', text: 'Ce qu’il y avait autour' },
+      { type: 'p', text: '<strong>Landry</strong> a joué des épaules et mis <strong>le but qu’il fallait</strong> pour garder son équipe dans le match. <strong>Ibrahima</strong> a joué des épaules lui aussi, pour gagner du temps, et <strong>filou</strong> ce soir : ce temps gagné, c’est <strong>Michael</strong> qui l’a employé, à soigner ses <strong>sorties de balle</strong>, le jeu serré dans les coins du 5, ballon collé au pied. Et <strong>Khalid</strong> a sorti « ses <strong>trois poumons</strong> » pour un très bon match, <strong>malgré une fin de rhume</strong>.' },
+
+      { type: 'h3', text: 'Une Bleue à trois vitesses' },
+      { type: 'p', text: 'En face, on a été <strong>inconstants</strong> — le mot revient tout seul. <strong>Samy, Cyril et Spy</strong> ont bien combiné devant. <strong>Cyril</strong> a eu son <strong>beau quart d’heure</strong>, puis des <strong>douleurs aux genoux</strong> l’ont empêché de développer son football. <strong>Spy</strong> met un but important et délivre quelques passes, « mais qui n’ont pas toutes été au but, malheureusement ». <strong>Samy</strong> aura parcouru <strong>13 km</strong> pour contenir l’équipe adverse et planté <strong>deux pointards monstrueux sous la barre transversale</strong> — ce qui ne suffit pas quand on croise Quentin dans un soir pareil.' },
+      { type: 'p', text: '<strong>Alex</strong> a fait un moins bon match que son début de saison, <strong>inconstant comme son équipe</strong>. Quant à <strong>Gugu</strong>, dans les buts comme chacun à son tour : <strong>trop de pertes de balle</strong>, quelques gestes à côté du ballon, déséquilibré par lui-même, et trop de buts encaissés. D’ordinaire, il y est bon. Pas ce soir.' },
+
+      { type: 'h3', text: 'Huit voix sur dix' },
+      { type: 'p', text: '<strong>Quentin est l’homme du match avec huit voix sur dix.</strong> C’est son <strong>deuxième titre</strong>, après celui du 1ᵉʳ juin (quatre voix). Il passe de dix matchs et six victoires à <strong>onze matchs et sept victoires</strong>. Sur les huit voix, <strong>quatre viennent de l’équipe adverse</strong> : Gugu, Cyril, Spy et Samy. Les deux autres voix vont à <strong>Khalid</strong>, voté par Quentin lui-même, sans commentaire, et à <strong>Samy</strong>, voté par Alex, sans commentaire non plus.' },
+      { type: 'p', text: 'Les commentaires se chargent du reste. <strong>Michael</strong> : « Tout simplement excellent. Il a porté les blancs tout le long du match, tant en défense, qu’en buteur ou passeur. <strong>Masterclass ce soir !!</strong> » <strong>Ibrahima</strong> : « Quentin a porté l’équipe ce soir. <strong>Combatif et décisif.</strong> » <strong>Landry</strong>, plus économe : « <strong>Attaquant, défense, Matuidi Charo.</strong> » Et <strong>Spy</strong>, pour le mot de la fin : « À la distribution, à la finition, en défense. <strong>Il justifie enfin le prix de son transfert.</strong> »' },
+
+      { type: 'p', text: 'Gugu aura donc donné un conseil, encaissé les conséquences dans ses propres cages, et voté pour celui qui l’avait suivi. Seul le dernier geste est à son crédit.' },
+    ],
+  },
   's21': {
     /* Heure reelle de publication (22 septembre, 12h30 Paris), non reculee ni avancee :
        le vote s'est cloture a 10 voix le 22 a 10h06, l'article suit dans la foulee.
