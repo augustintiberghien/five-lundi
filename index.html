@@ -927,7 +927,8 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .modal-close:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
 /* ── Fausses pubs (bas de page) : carte façon post sponsorisé ── */
-.fake-ad{width:min(340px,92vw);margin:2rem auto 0;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
+.fake-ad{width:min(340px,92vw);margin:2rem auto 0;display:flex;flex-direction:column;gap:1rem}
+.fake-ad-card{border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
 .fa-head{display:flex;align-items:center;gap:.55rem;padding:.6rem .7rem}
 .fa-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none}
 .fa-brand{font-size:.82rem;font-weight:600;line-height:1.15}
@@ -7937,7 +7938,7 @@ function updateCountdown() {
   </div>
 </div>
 <script>
-/* Fausses pubs : une au hasard à chaque ouverture, aucune donnée, aucun tracking.
+/* Fausses pubs : toutes, en ordre aléatoire à chaque ouverture, aucune donnée, aucun tracking.
      [marque, emoji logo, dégradé, emoji héros, titre visuel, texte du post, site, bouton, badge] */
 (function(){
   var ADS=[
@@ -7951,21 +7952,27 @@ function updateCountdown() {
     ['Académie Samy','🚀','linear-gradient(135deg,#7c2d12,#f97316)','💥⚽','Frappe lourde','Stage d’initiation à la frappe lourde, animé par Samy en personne. Casque conseillé pour le public, gardiens non remboursés.','academie-samy.fr','Réserver ma place','STAGE'],
     ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT']
   ];
-  var el=document.getElementById('fake-ad'); if(!el) return;
-  var a=ADS[Math.floor(Math.random()*ADS.length)];
+  var box=document.getElementById('fake-ad'); if(!box) return;
   function h(c,t,tag){var n=document.createElement(tag||'div');n.className=c;if(t!=null)n.textContent=t;return n;}
-  var head=h('fa-head'), av=h('fa-av',a[1]); av.style.background=a[2];
-  var who=h('fa-who'); who.appendChild(h('fa-brand',a[0])); who.appendChild(h('fa-spons','Sponsorisé · 🌐'));
-  head.appendChild(av); head.appendChild(who); head.appendChild(h('fa-dots','···'));
-  var hero=h('fa-hero'); hero.style.background=a[2];
-  hero.appendChild(h('fa-hero-emoji',a[3])); hero.appendChild(h('fa-hero-title',a[4])); hero.appendChild(h('fa-badge',a[8]));
-  var bar=h('fa-bar'), url=h('fa-url',a[6].split('/')[0].toUpperCase()); url.appendChild(h('',a[4],'b'));
-  var cta=h('fa-cta',a[7],'button'); cta.onclick=function(){cta.textContent='404 · fausse pub';cta.disabled=true;};
-  bar.appendChild(url); bar.appendChild(cta);
-  var likes=1+Math.floor(Math.random()*40);
-  var react=h('fa-react'); react.appendChild(h('','👍❤️ '+likes,'span')); react.appendChild(h('',Math.ceil(likes/4)+' commentaires','span'));
-  el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
-  el.parentNode.insertBefore(h('fa-fake','Publicité · pour de faux'),el.nextSibling);
+  function card(a){
+    var el=h('fake-ad-card');
+    var head=h('fa-head'), av=h('fa-av',a[1]); av.style.background=a[2];
+    var who=h('fa-who'); who.appendChild(h('fa-brand',a[0])); who.appendChild(h('fa-spons','Sponsorisé · 🌐'));
+    head.appendChild(av); head.appendChild(who); head.appendChild(h('fa-dots','···'));
+    var hero=h('fa-hero'); hero.style.background=a[2];
+    hero.appendChild(h('fa-hero-emoji',a[3])); hero.appendChild(h('fa-hero-title',a[4])); hero.appendChild(h('fa-badge',a[8]));
+    var bar=h('fa-bar'), url=h('fa-url',a[6].split('/')[0].toUpperCase()); url.appendChild(h('',a[4],'b'));
+    var cta=h('fa-cta',a[7],'button'); cta.onclick=function(){cta.textContent='404 · fausse pub';cta.disabled=true;};
+    bar.appendChild(url); bar.appendChild(cta);
+    var likes=1+Math.floor(Math.random()*40);
+    var react=h('fa-react'); react.appendChild(h('','👍❤️ '+likes,'span')); react.appendChild(h('',Math.ceil(likes/4)+' commentaires','span'));
+    el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
+    return el;
+  }
+  /* toutes les pubs, dans un ordre différent à chaque ouverture */
+  ADS.map(function(a){return [Math.random(),a];}).sort(function(x,y){return x[0]-y[0];})
+     .forEach(function(x){box.appendChild(card(x[1]));});
+  box.parentNode.insertBefore(h('fa-fake','Publicité · pour de faux'),box.nextSibling);
 })();
 </script>
 </body>
