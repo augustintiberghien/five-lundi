@@ -927,8 +927,12 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .modal-close:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
 /* ── Fausses pubs (bas de page) : carte façon post sponsorisé ── */
-.fake-ad{width:min(340px,92vw);margin:2rem auto 0;display:flex;flex-direction:column;gap:1rem}
-.fake-ad-card{border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
+.fake-ad{width:min(340px,92vw);margin:2rem auto 0;display:grid}
+.fake-ad-card{grid-area:1/1;opacity:0;pointer-events:none;transition:opacity .45s;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
+.fake-ad-card.on{opacity:1;pointer-events:auto}
+.fa-dotsrow{display:flex;justify-content:center;gap:.4rem;margin-top:.6rem}
+.fa-dotsrow i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:background .3s}
+.fa-dotsrow i.on{background:rgba(255,255,255,.7)}
 .fa-head{display:flex;align-items:center;gap:.55rem;padding:.6rem .7rem}
 .fa-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none}
 .fa-brand{font-size:.82rem;font-weight:600;line-height:1.15}
@@ -7938,7 +7942,7 @@ function updateCountdown() {
   </div>
 </div>
 <script>
-/* Fausses pubs : toutes, en ordre aléatoire à chaque ouverture, aucune donnée, aucun tracking.
+/* Fausses pubs : carrousel, ordre aléatoire à chaque ouverture, aucune donnée, aucun tracking.
      [marque, emoji logo, dégradé, emoji héros, titre visuel, texte du post, site, bouton, badge] */
 (function(){
   var ADS=[
@@ -7969,10 +7973,16 @@ function updateCountdown() {
     el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
     return el;
   }
-  /* toutes les pubs, dans un ordre différent à chaque ouverture */
-  ADS.map(function(a){return [Math.random(),a];}).sort(function(x,y){return x[0]-y[0];})
-     .forEach(function(x){box.appendChild(card(x[1]));});
-  box.parentNode.insertBefore(h('fa-fake','Publicité · pour de faux'),box.nextSibling);
+  /* carrousel : une pub à la fois, ordre aléatoire à chaque ouverture, change toutes les 6 s */
+  var cards=ADS.map(function(a){return [Math.random(),a];}).sort(function(x,y){return x[0]-y[0];})
+     .map(function(x){var c=card(x[1]);box.appendChild(c);return c;});
+  var dots=h('fa-dotsrow'), cur=0, timer;
+  var dotEls=cards.map(function(_,i){var d=h('','','i');d.onclick=function(){show(i);start();};dots.appendChild(d);return d;});
+  function show(i){cur=i;cards.forEach(function(c,k){c.classList.toggle('on',k===i);dotEls[k].classList.toggle('on',k===i);});}
+  function start(){clearInterval(timer);timer=setInterval(function(){show((cur+1)%cards.length);},6000);}
+  show(0); start();
+  box.parentNode.insertBefore(dots,box.nextSibling);
+  dots.parentNode.insertBefore(h('fa-fake','Publicité · pour de faux'),dots.nextSibling);
 })();
 </script>
 </body>
