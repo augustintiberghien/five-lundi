@@ -962,11 +962,11 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fake-ad-inline{margin:1.2rem 0 1.4rem;display:flex;flex-direction:column;align-items:center}
 .fake-ad-inline .fa-fake{margin:0 0 .4rem}
 .fake-ad-inline .fake-ad-card{position:relative;width:100%;line-height:1.35;font-size:1rem}
-.fa-premium{width:min(340px,92vw);box-sizing:border-box;margin:.9rem auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem .7rem;padding:.65rem .8rem;border:1px solid rgba(255,214,102,.45);border-radius:12px;background:linear-gradient(135deg,rgba(255,214,102,.14),rgba(255,214,102,.04));font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-align:left}
-.fa-premium-t{font-size:.78rem;line-height:1.3;color:rgba(255,255,255,.8)}
-.fa-premium-t b{display:block;font-size:.84rem;color:#ffd666;white-space:nowrap}
-.fa-premium-b{flex:none;background:#ffd666;color:#1a1400;border:0;border-radius:20px;padding:.45rem .8rem;font:700 .72rem system-ui,sans-serif;cursor:pointer}
-.fa-premium-b:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);cursor:default}
+.fa-premium{width:min(340px,92vw);box-sizing:border-box;margin:.8rem auto 0;display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.5rem .75rem;border:1px solid rgba(255,214,102,.22);border-radius:10px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-align:left}
+.fa-premium-t{flex:1 1 auto;min-width:0;font-size:.68rem;line-height:1.3;color:rgba(255,255,255,.5)}
+.fa-premium-t b{display:block;font-size:.72rem;color:rgba(255,214,102,.85);font-weight:600;white-space:nowrap}
+.fa-premium-b{flex:none;background:none;color:rgba(255,214,102,.85);border:1px solid rgba(255,214,102,.4);border-radius:20px;padding:.3rem .7rem;font:600 .66rem system-ui,sans-serif;cursor:pointer}
+.fa-premium.sent .fa-premium-t{color:rgba(255,255,255,.65)}
 .fa-toast{position:fixed;left:50%;bottom:14px;z-index:60;transform:translate(-50%,140%);width:min(340px,92vw);display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;border-radius:12px;background:#242526;border:1px solid rgba(255,255,255,.1);box-shadow:0 6px 24px rgba(0,0,0,.45);color:#e4e6eb;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:.76rem;line-height:1.3;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;opacity:0;cursor:pointer}
 .fa-toast.show{transform:translate(-50%,0);opacity:1}
 .fa-toast .fa-liker{margin-left:0;width:38px;height:38px;flex:none;border:0;font-size:.9rem}
@@ -8110,9 +8110,9 @@ function updateCountdown() {
   var lab=h('fa-fake','Publicité · pour de faux');
   dots.parentNode.insertBefore(lab,dots.nextSibling);
   /* Vestiaire Premium : encart discret, sous le carrousel */
-  var prem=h('fa-premium'), pbtn=h('fa-premium-b','Passer Premium','button');
+  var prem=h('fa-premium'), pbtn=h('fa-premium-b','S’abonner','button');
   var pt=h('fa-premium-t'); pt.appendChild(h('','⭐ Vestiaire Premium','b')); pt.appendChild(document.createTextNode('Sans\u00a0pub\u00a0·\u00a05\u00a0€/mois')); prem.appendChild(pt); prem.appendChild(pbtn);
-  pbtn.onclick=function(){pbtn.textContent='Gugu a déjà payé pour vous';pbtn.disabled=true;};
+  pbtn.onclick=function(){pt.textContent='✓ Demande envoyée — en attendant, on vous laisse les pubs.';pbtn.remove();prem.classList.add('sent');};
   lab.parentNode.insertBefore(prem,lab.nextSibling);
 })();
 </script>
