@@ -18,6 +18,7 @@ git push -u origin claude/setup-html-project-wSe4F
 - **App** : single-file HTML (`index.html`, ~0,8 Mo) — tout est dedans : CSS, JS, photos joueurs en base64
 - **Backend votes MVP** : Supabase
 - **Hébergement** : GitHub Pages via le repo
+- **Racine du dépôt** (rangée le 30 septembre 2026) : seulement le site (`index.html`, `sw.js`, `logo.svg`, `logo.png`) et les deux outils en service (`republish_compo.py`, `flip_slot_colors.py`). Les ~50 scripts de retouche ponctuelle et les images sources sont dans `archive/` (cf. son README) — ne pas les relancer.
 - **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (le fichier reste trop long pour un Read en une fois : ~7 000 lignes, dont des lignes de plusieurs centaines de Ko)
 
 ### ⚠️ Toute photo ajoutée doit être réduite avant d'être collée (depuis septembre 2026)
