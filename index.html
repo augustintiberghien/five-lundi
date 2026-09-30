@@ -951,7 +951,13 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fa-url{font-size:.62rem;color:#8a8d91;text-transform:uppercase}
 .fa-url b{display:block;font-size:.76rem;color:#e4e6eb;text-transform:none;font-weight:600}
 .fa-cta{margin-left:auto;background:#3a3b3c;color:#e4e6eb;border:0;border-radius:6px;padding:.4rem .7rem;font:600 .74rem system-ui,sans-serif;cursor:pointer}
-.fa-react{display:flex;justify-content:space-between;padding:.4rem .7rem;font-size:.7rem;color:#8a8d91;border-top:1px solid rgba(255,255,255,.06)}
+.fa-react{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.4rem .7rem;font-size:.7rem;color:#8a8d91;border-top:1px solid rgba(255,255,255,.06)}
+.fa-likes{display:flex;align-items:center;gap:.4rem;min-width:0}
+.fa-likes-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fa-com{flex:none}
+.fa-avs{display:flex;flex:none}
+.fa-liker{width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #18191c;margin-left:-7px;background:#3a3b3c;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#e4e6eb}
+.fa-liker:first-child{margin-left:0}
 .fa-fake{text-align:center;font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin:.5rem 0 -.5rem}
 footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,255,255,.1);letter-spacing:.2em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.6rem}
 
@@ -7971,6 +7977,8 @@ function updateCountdown() {
     ['Banc Confort','🪑','linear-gradient(135deg,#7f1d1d,#f97316)','🔥🪑','Le banc chauffant','Coussin chauffant pour le banc. Déjà adopté par tous les remplaçants qui attendent un désistement.','banc-confort.fr','M’asseoir','CHAUFFANT'],
     ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT']
   ];
+  var LIKERS={'Urban Five':['Landry','Dylan'],'Cardio Plus™':['Khalid'],'Claude Équilibrage Pro':['Hugo','Gugu'],'Gardien.com':['Rémi','Henri'],'Michael Coaching':['Michael','Spy'],'Scouting Zizou':['Landry','Dylan'],'Stats Illimitées':['Jack','Spy'],'Bar du Vestiaire':['Gugu','Michael'],'Invité Express':['Quentin'],'Académie Samy':['Samy'],'Mutuelle Maudit':['Jack','Tim'],'Place Garantie VIP':['Hugo','Tim'],'Avis de recherche':['Marc','Tim'],'Pari Sportif Jack':['Jack','Spy'],'Claude Presse':['Gugu'],'Vote Express':['Henri','Khalid'],'Désistements Plus':['Alex','Cyril'],'Rémi Taxi':['Rémi','Ibrahima'],'Réclamations Pro':['Hugo'],'Banc Confort':['Dylan','Henri']};
+  /* « aimé par » : qui a liké la pub (quand ça le concerne) ; photo de PLAYER_PHOTOS, initiale sinon */
   var box=document.getElementById('fake-ad'); if(!box) return;
   function h(c,t,tag){var n=document.createElement(tag||'div');n.className=c;if(t!=null)n.textContent=t;return n;}
   function card(a){
@@ -7983,8 +7991,16 @@ function updateCountdown() {
     var bar=h('fa-bar'), url=h('fa-url',a[6].split('/')[0].toUpperCase()); url.appendChild(h('',a[4],'b'));
     var cta=h('fa-cta',a[7],'button'); cta.onclick=function(){cta.textContent='404 · fausse pub';cta.disabled=true;};
     bar.appendChild(url); bar.appendChild(cta);
-    var likes=1+Math.floor(Math.random()*40);
-    var react=h('fa-react'); react.appendChild(h('','👍❤️ '+likes,'span')); react.appendChild(h('',Math.ceil(likes/4)+' commentaires','span'));
+    var who2=LIKERS[a[0]]||[], others=2+Math.floor(Math.random()*30);
+    var react=h('fa-react'), left=h('fa-likes'), av2=h('fa-avs');
+    who2.forEach(function(n){
+      var src=(typeof _getPhotoSrc==='function')?_getPhotoSrc(n):null, f;
+      if(src){f=document.createElement('img');f.src=src;f.alt=n;}else{f=h('',n.slice(0,1).toUpperCase());}
+      f.className='fa-liker'; av2.appendChild(f);
+    });
+    left.appendChild(av2);
+    left.appendChild(h('fa-likes-t',(who2.length?who2.join(', ')+' et ':'')+others+' autres','span'));
+    react.appendChild(left); react.appendChild(h('fa-com',Math.ceil(others/4)+' com.','span'));
     el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
     return el;
   }
