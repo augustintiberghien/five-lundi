@@ -947,6 +947,9 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fa-hero-emoji{font-size:3rem;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
 .fa-hero-title{font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.45);line-height:1.1}
 .fa-badge{position:absolute;top:.5rem;right:.5rem;background:#e41e3f;color:#fff;font-size:.6rem;font-weight:800;padding:.15rem .4rem;border-radius:4px;transform:rotate(4deg)}
+.fa-order{display:flex;align-items:center;gap:.4rem;padding:.4rem .7rem;background:#1f2123;font-size:.72rem;color:#b0b3b8;border-top:1px solid rgba(255,255,255,.05)}
+.fa-order .fa-liker{margin-left:0}
+.fa-order-n{color:#e4e6eb;font-weight:700}
 .fa-bar{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:#242526}
 .fa-url{font-size:.62rem;color:#8a8d91;text-transform:uppercase}
 .fa-url b{display:block;font-size:.76rem;color:#e4e6eb;text-transform:none;font-weight:600}
@@ -7977,8 +7980,13 @@ function updateCountdown() {
     ['Banc Confort','🪑','linear-gradient(135deg,#7f1d1d,#f97316)','🔥🪑','Le banc chauffant','Coussin chauffant pour le banc. Déjà adopté par tous les remplaçants qui attendent un désistement.','banc-confort.fr','M’asseoir','CHAUFFANT'],
     ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT']
   ];
-  var LIKERS={'Urban Five':['Landry','Dylan'],'Cardio Plus™':['Khalid'],'Claude Équilibrage Pro':['Hugo','Gugu'],'Gardien.com':['Rémi','Henri'],'Michael Coaching':['Michael','Spy'],'Scouting Zizou':['Landry','Dylan'],'Stats Illimitées':['Jack','Spy'],'Bar du Vestiaire':['Gugu','Michael'],'Invité Express':['Quentin'],'Académie Samy':['Samy'],'Mutuelle Maudit':['Jack','Tim'],'Place Garantie VIP':['Hugo','Tim'],'Avis de recherche':['Marc','Tim'],'Pari Sportif Jack':['Jack','Spy'],'Claude Presse':['Gugu'],'Vote Express':['Henri','Khalid'],'Désistements Plus':['Alex','Cyril'],'Rémi Taxi':['Rémi','Ibrahima'],'Réclamations Pro':['Hugo'],'Banc Confort':['Dylan','Henri']};
+  var LIKERS={'Urban Five':['Landry','Dylan'],'Cardio Plus™':['Henri','Alex'],'Claude Équilibrage Pro':['Gugu','Michael'],'Gardien.com':['Rémi','Henri'],'Michael Coaching':['Michael','Spy'],'Scouting Zizou':['Landry','Dylan'],'Stats Illimitées':['Jack','Tim'],'Bar du Vestiaire':['Gugu','Michael'],'Invité Express':['Quentin'],'Académie Samy':['Samy','Edouard'],'Mutuelle Maudit':['Jack','Tim'],'Place Garantie VIP':['Hugo','Tim'],'Avis de recherche':['Marc','Tim'],'Pari Sportif Jack':['Spy','Gugu'],'Claude Presse':['Gugu'],'Vote Express':['Henri','Khalid'],'Désistements Plus':['Alex','Cyril'],'Rémi Taxi':['Rémi','Ibrahima'],'Réclamations Pro':['Hugo'],'Banc Confort':['Dylan','Henri']};
   /* « aimé par » : qui a liké la pub (quand ça le concerne) ; photo de PLAYER_PHOTOS, initiale sinon */
+  /* « Déjà commandé par » : pubs vraiment ciblées, façon site marchand. [libellé, joueur] */
+  var ORDERS={'Claude Équilibrage Pro':['Déjà commandé 1 fois par','Hugo'],'Pari Sportif Jack':['Déjà commandé 3 fois par','Jack'],'Stats Illimitées':['Déjà commandé 2 fois par','Spy'],'Académie Samy':['Stage déjà suivi par','Gugu'],'Cardio Plus™':['Déjà commandé par','Khalid']};
+  function face(n){var src=(typeof _getPhotoSrc==='function')?_getPhotoSrc(n):null,f;
+    if(src){f=document.createElement('img');f.src=src;f.alt=n;}else{f=document.createElement('div');f.textContent=n.slice(0,1).toUpperCase();}
+    f.className='fa-liker';return f;}
   var box=document.getElementById('fake-ad'); if(!box) return;
   function h(c,t,tag){var n=document.createElement(tag||'div');n.className=c;if(t!=null)n.textContent=t;return n;}
   function card(a){
@@ -7994,14 +8002,15 @@ function updateCountdown() {
     var who2=LIKERS[a[0]]||[], others=2+Math.floor(Math.random()*30);
     var react=h('fa-react'), left=h('fa-likes'), av2=h('fa-avs');
     who2.forEach(function(n){
-      var src=(typeof _getPhotoSrc==='function')?_getPhotoSrc(n):null, f;
-      if(src){f=document.createElement('img');f.src=src;f.alt=n;}else{f=h('',n.slice(0,1).toUpperCase());}
-      f.className='fa-liker'; av2.appendChild(f);
+      av2.appendChild(face(n));
     });
     left.appendChild(av2);
     left.appendChild(h('fa-likes-t',(who2.length?who2.join(', ')+' et ':'')+others+' autres','span'));
     react.appendChild(left); react.appendChild(h('fa-com',Math.ceil(others/4)+' com.','span'));
-    el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero); el.appendChild(bar); el.appendChild(react);
+    el.appendChild(head); el.appendChild(h('fa-text',a[5])); el.appendChild(hero);
+    var o=ORDERS[a[0]];
+    if(o){var ord=h('fa-order'); ord.appendChild(h('','🛒','span')); ord.appendChild(h('fa-order-t',o[0],'span')); ord.appendChild(face(o[1])); ord.appendChild(h('fa-order-n',o[1],'b')); el.appendChild(ord);}
+    el.appendChild(bar); el.appendChild(react);
     return el;
   }
   /* carrousel : une pub à la fois, ordre aléatoire à chaque ouverture, change toutes les 6 s */
