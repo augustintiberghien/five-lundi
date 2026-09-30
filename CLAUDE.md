@@ -833,6 +833,12 @@ lui ajoutait 2,4 rem de marge. `.article-section.journal` fixe sa largeur à
 (`100vw - 1rem`) décalait la zone de 8 px vers la droite, invisible sur fond
 transparent, flagrant sur une feuille de papier.
 
+**Coin corné en bas à droite** (`.jr-paper::after`, CSS pur) : le pli laisse voir le
+fond du site, `#060D09` en dur — à changer avec lui si le fond bouge. Le papier garde
+2,5 rem de marge basse pour que le pli ne recouvre jamais la ligne de score. Le carré
+de fin est un **caractère** ■ précédé d'une espace insécable, pas un `inline-block` :
+un navigateur peut couper juste avant un `inline-block`, et le carré partait seul à la ligne.
+
 Vérifié dans Chromium avec les vraies polices, à 320, 360, 390 et 1280 px : les 22
 articles, page de session et Presse, sans débordement ni guillemet orphelin, recherche
 Presse toujours surlignée.
