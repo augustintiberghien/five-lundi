@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#060D09">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>vestiaire - your team locker room</title>
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700&family=Saira:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#060D09 !important}
@@ -1071,6 +1071,64 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .article-body strong{color:#fff;font-weight:700}
 .article-body em{color:rgba(255,228,155,.8);font-style:normal;font-weight:600}
 .article-footer{font-size:.68rem;color:rgba(255,255,255,.25);margin-top:1rem;text-align:right;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── ARTICLE FAÇON JOURNAL ──
+   Papier crème, encre noire, un seul accent rouge. Playfair Display pour les titres,
+   Source Serif 4 pour le texte (police de lecture). Tout est déduit d'ARTICLES :
+   aucun champ nouveau n'est requis, `quote` est optionnel. */
+.article-section.journal{border-top:0;padding:.4rem 0 1.5rem;width:min(calc(100vw - 2rem),520px)}
+.jr-paper{position:relative;box-sizing:border-box;width:100%;padding:1.25rem 1.2rem 1.15rem;color:#1a1612;border-radius:2px;text-align:left;
+  background-color:#f3eee2;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .05 0 0 0 .07 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+    radial-gradient(130% 55% at 50% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 65%),linear-gradient(#f4efe4,#e9e1d0);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 34px rgba(0,0,0,.5)}
+.jr-mast{text-align:center}
+.jr-mast-t{font-family:'Playfair Display',Georgia,serif;font-weight:900;font-size:1.7rem;letter-spacing:.2em;padding-left:.2em;line-height:1}
+.jr-mast-s{margin-top:.3rem;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:.72rem;color:#5b5247}
+.jr-rule{margin-top:.55rem;border-top:3px solid #1a1612;border-bottom:1px solid #1a1612;height:2px}
+.jr-date{display:flex;justify-content:space-between;gap:.5rem;margin-top:.35rem;padding-bottom:.35rem;border-bottom:1px solid rgba(26,22,18,.35);font-family:'Saira Condensed',sans-serif;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#4a4238;white-space:nowrap}
+.journal .article-kicker{margin:1.2rem 0 .35rem;font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:.64rem;letter-spacing:.3em;color:#a3241b}
+.journal .article-headline{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:1.55rem;line-height:1.12;letter-spacing:-.01em;color:#1a1612;margin:0 0 .65rem}
+.journal .article-sub{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:.98rem;line-height:1.45;color:#4a4238;margin:0 0 .75rem}
+.jr-byline{font-family:'Saira Condensed',sans-serif;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:#6b6155;margin-bottom:.8rem}
+.jr-byline b{color:#1a1612;font-weight:700}
+.journal .article-divider{width:100%;height:0;border:0;border-top:1px solid rgba(26,22,18,.3);background:none;margin:0 0 1.05rem}
+.journal .article-body{font-family:'Source Serif 4',Georgia,serif;font-size:1rem;line-height:1.62;color:#221d18;hyphens:auto;-webkit-hyphens:auto}
+.journal .article-body p{margin:0 0 .85rem}
+.journal .article-body > p:first-child::first-letter{float:left;font-family:'Playfair Display',Georgia,serif;font-weight:900;font-size:3.35rem;line-height:.8;padding:.3rem .42rem 0 0;color:#a3241b}
+.journal .article-body strong{color:#1a1612;font-weight:700}
+.journal .article-body em{color:#a3241b;font-style:italic;font-weight:400}
+.journal .article-body h3{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:700;font-size:1.25rem;line-height:1.2;text-transform:none;letter-spacing:0;color:#1a1612;border:0;padding:0;margin:1.45rem 0 .5rem}
+.journal .article-body h3::before{content:'';display:block;width:2.2rem;height:2px;background:#a3241b;margin-bottom:.55rem}
+.jr-end{display:inline-block;width:.5em;height:.5em;margin-left:.3em;background:#a3241b;vertical-align:.05em}
+.journal .article-footer{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:.92rem;line-height:1.45;color:#4a4238;text-align:left;letter-spacing:0;text-transform:none;margin-top:1rem;padding-top:.75rem;border-top:3px double rgba(26,22,18,.45)}
+.jr-q{position:relative;margin:1.4rem 0 1.3rem;padding:.9rem 0 .9rem 2.1rem;border-top:1px solid rgba(26,22,18,.25);border-bottom:1px solid rgba(26,22,18,.25)}
+.jr-q::before{content:'«';position:absolute;left:0;top:.6rem;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:2.6rem;line-height:1;color:#a3241b}
+.jr-q-t{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:1.45rem;line-height:1.15;color:#1a1612}
+.jr-by{display:flex;align-items:center;gap:.55rem;margin-top:.6rem}
+.jr-av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex:none;background:#cfc7b8}
+.jr-av img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;filter:grayscale(1) contrast(1.15);display:block}
+.jr-by-t{font-family:'Saira Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#5b5247;line-height:1.35}
+.jr-by-t b{display:block;color:#1a1612;letter-spacing:.24em}
+.journal .fake-ad-inline{margin:1.35rem 0 1.5rem;padding:.6rem 0 .3rem;border-top:1px solid rgba(26,22,18,.22);border-bottom:1px solid rgba(26,22,18,.22)}
+.journal .fake-ad-inline .fa-fake{color:#8a8175}
+.jr-score{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;padding-top:.5rem;border-top:1px solid rgba(26,22,18,.3);font-family:'Saira Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#5b5247}
+.jr-score b{font-family:'Playfair Display',Georgia,serif;font-size:1.02rem;letter-spacing:.03em;color:#1a1612}
+.pr-body.journal{padding:.6rem .5rem .8rem;border-top:0}
+.pr-body.journal .jr-paper{padding:1rem 1rem .95rem}
+.journal .pr-mk{background:rgba(163,36,27,.16);color:#1a1612}
+@media (min-width:700px){
+  .article-section.journal{width:600px}
+  .jr-paper{padding:1.8rem 2.2rem 1.6rem}
+  .jr-mast-t{font-size:2.3rem}
+  .journal .article-headline{font-size:2.1rem}
+  .journal .article-sub{font-size:1.08rem}
+  .journal .article-body{font-size:1.06rem}
+  .jr-mast-s{font-size:.85rem}
+  .jr-date,.jr-byline,.jr-score,.jr-by-t{font-size:.7rem}
+  .journal .article-kicker{font-size:.74rem}
+  .jr-q-t{font-size:1.75rem}
+}
 .bench-section{width:min(calc(100vw - 2rem),480px);margin:.6rem auto 0;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.9rem 1.1rem;font-family:'Saira',sans-serif}
 .bench-title{font-family:'Saira Condensed',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.4);margin-bottom:.7rem}
 .bench-list{display:flex;gap:.7rem;align-items:flex-end;flex-wrap:wrap}
@@ -5872,6 +5930,7 @@ var ARTICLES = {
        l'article reste a un clic dans l'onglet Presse. */
     publishedAt: '2026-09-22T10:30:00Z',
     kicker: 'Five Lundi · 21 septembre 2026',
+    quote: { text: 'Non. Sujet suivant.', by: 'Landry', ctx: 'à Hugo, sur WhatsApp, 18h11' },
     headline: 'Hugo allume la mèche, gagne avec l’équipe dont il ne voulait pas — et regarde Landry rafler le trophée',
     sub: 'Vexé par le tirage, l’attaquant de la Blanche avait promis d’allumer la mèche en conférence de presse. Cinq buts d’avance, un 8-8 qui a tout remis en cause, la victoire 10-9 — et un homme du match élu à sept voix sur dix, qui lui avait répondu « Non. Sujet suivant »',
     body: [
@@ -6302,26 +6361,73 @@ function _fillAdSlots(root){
   Array.prototype.forEach.call(root.querySelectorAll('.fake-ad-inline'), function(el){ window._fakeAdInline(el, el.getAttribute('data-sid')); });
 }
 
+/* Typographie française : espaces insécables à l'intérieur des guillemets et avant
+   : ; ? ! — sans elles un « se retrouve seul en bout de ligne. Trait d'union
+   insécable dans les scores (« 9-10 ») pour qu'ils ne se coupent pas en fin de ligne. Les textes d'ARTICLES
+   contiennent du HTML (<strong>) : les motifs ne touchent jamais une balise. */
+function _frTypo(t){
+  return String(t == null ? '' : t)
+    .replace(/« /g, '«\u00a0').replace(/ »/g, '\u00a0»')
+    .replace(/ ([:;?!])(?=[\s<]|$)/g, '\u00a0$1')
+    .replace(/(\d)-(\d)/g, '$1\u2011$2');
+}
+function _jrMast(s){
+  var n = String(s.id || '').replace(/^s/, '');
+  return '<div class="jr-mast"><div class="jr-mast-t">VESTIAIRE</div>'
+    + '<div class="jr-mast-s">L’hebdo du five du lundi</div><div class="jr-rule"></div>'
+    + '<div class="jr-date"><span>N°' + n + '</span><span>Lundi ' + s.date + '</span><span>Prix : une Ciney</span></div></div>';
+}
+function _jrByline(){ return '<div class="jr-byline">Par <b>Claude</b>, envoyé spécial à l’Urban</div>'; }
+function _jrScore(s){
+  var sc = (s.score || '').replace(/\s*\([AB]\)\s*$/, '');
+  if (!sc) return '';
+  var nA = (s.nameA || 'Blanche').split(' ')[0], nB = (s.nameB || 'Bleue').split(' ')[0];
+  return '<div class="jr-score"><span>Score final</span><span>' + nA + ' <b>' + sc + '</b> ' + nB + '</span></div>';
+}
+/* Corps de l'article, partagé par la page de session et l'onglet Presse. `fmt` reçoit
+   chaque texte déjà typographié (la Presse s'en sert pour surligner la recherche). */
+function _jrBody(art, sid, fmt){
+  fmt = fmt || function(t){ return t; };
+  var body = art.body || [], adAt = _adSlotIndex(body), lastP = -1, h3s = [];
+  body.forEach(function(b, i){ if (b.type === 'p') lastP = i; if (b.type === 'h3') h3s.push(i); });
+  var qAt = art.quote ? (h3s.length > 1 ? h3s[1] : (h3s[0] != null ? h3s[0] : -1)) : -1;
+  var html = '<div class="article-body">', closed = false;
+  body.forEach(function(b, i){
+    if (i === qAt) html += _jrQuote(art.quote);
+    if (b.type === 'p')  html += '<p>' + fmt(_frTypo(b.text)) + (i === lastP ? '<span class="jr-end" aria-hidden="true"></span>' : '') + '</p>';
+    if (b.type === 'h3') html += '<h3>' + fmt(_frTypo(b.text)) + '</h3>';
+    if (b.type === 'footer') { html += '</div><div class="article-footer">' + fmt(_frTypo(b.text)) + '</div>'; closed = true; }
+    if (i === adAt) html += _adSlotHtml(sid);
+  });
+  if (art.quote && qAt < 0 && !closed) html += _jrQuote(art.quote);
+  if (!closed) html += '</div>';
+  return html;
+}
+function _jrQuote(q){
+  if (!q || !q.text) return '';
+  var src = q.by && typeof _getPhotoSrc === 'function' ? _getPhotoSrc(q.by) : null;
+  return '<div class="jr-q"><div class="jr-q-t">' + _frTypo(q.text) + '</div>'
+    + (q.by ? '<div class="jr-by">' + (src ? '<div class="jr-av"><img src="' + src + '" alt=""></div>' : '')
+      + '<div class="jr-by-t"><b>' + q.by + '</b>' + (q.ctx || '') + '</div></div>' : '')
+    + '</div>';
+}
+
 function renderArticle(s) {
   var wrap = document.getElementById('article-section');
   if (!wrap) return;
   var art = ARTICLES[s.id];
   if (!art) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
+  wrap.classList.add('journal');
 
-  var html = '<div class="article-kicker">' + art.kicker + '</div>';
-  html += '<div class="article-headline">' + art.headline + '</div>';
-  html += '<div class="article-sub">' + art.sub + '</div>';
+  var html = '<article class="jr-paper">' + _jrMast(s);
+  html += '<div class="article-kicker">Compte rendu</div>';
+  html += '<div class="article-headline">' + _frTypo(art.headline) + '</div>';
+  html += '<div class="article-sub">' + _frTypo(art.sub) + '</div>';
+  html += _jrByline();
   html += '<hr class="article-divider">';
-  html += '<div class="article-body">';
-  var adAt = _adSlotIndex(art.body);
-  art.body.forEach(function(block, bi) {
-    if (block.type === 'p')      html += '<p>' + block.text + '</p>';
-    if (block.type === 'h3')     html += '<h3>' + block.text + '</h3>';
-    if (block.type === 'footer') html += '</div><div class="article-footer">' + block.text + '</div>';
-    if (bi === adAt) html += _adSlotHtml(s.id);
-  });
-  if (!art.body.some(function(b){ return b.type === 'footer'; })) html += '</div>';
+  html += _jrBody(art, s.id);
+  html += _jrScore(s) + '</article>';
   wrap.innerHTML = html;
   _fillAdSlots(wrap);
 }
@@ -6527,19 +6633,10 @@ function _prRenderList(){
     h += '</div>';
 
     if(open){
-      var body = '<div class="article-kicker">' + _prEsc(art.kicker) + '</div>';
-      body += '<hr class="article-divider">';
-      body += '<div class="article-body">';
-      var closed = false;
-      var adAt = _adSlotIndex(art.body || []);
-      (art.body || []).forEach(function(b, bi){
-        if(b.type === 'p')  body += '<p>' + _prMark(b.text, re) + '</p>';
-        if(b.type === 'h3') body += '<h3>' + _prMark(b.text, re) + '</h3>';
-        if(b.type === 'footer'){ body += '</div><div class="article-footer">' + _prMark(b.text, re) + '</div>'; closed = true; }
-        if(bi === adAt) body += _adSlotHtml(it.id);
-      });
-      if(!closed) body += '</div>';
-      h += '<div class="pr-body">' + body + '</div>';
+      var body = '<div class="jr-paper">' + _jrByline()
+        + _jrBody(art, it.id, function(t){ return _prMark(t, re); })
+        + _jrScore(s) + '</div>';
+      h += '<div class="pr-body journal">' + body + '</div>';
     }
     h += '</article>';
   });

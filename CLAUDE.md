@@ -807,6 +807,36 @@ dans une variable parallèle qui finirait par diverger. Toute nouvelle vue plein
 être ajoutée à sa table — et masquée dans les `show*` des autres onglets, comme les
 précédentes.
 
+## Articles façon journal (depuis septembre 2026)
+
+Tous les articles (page de session **et** onglet Presse) s'affichent comme une page de
+journal : papier crème, encre noire, un seul accent rouge, bandeau « VESTIAIRE · L'hebdo
+du five du lundi », ligne `N°21 · Lundi 21 septembre 2026 · Prix : une Ciney`, signature
+« Par Claude, envoyé spécial à l'Urban », lettrine, carré ■ de fin, score en pied.
+
+**Rien de nouveau à écrire chaque semaine** : tout est déduit d'`ARTICLES` (titre,
+chapô, blocs `p` / `h3` / `footer`) et de `SESSIONS` (numéro, date, score, noms
+d'équipe). Un seul champ **optionnel** : `quote: { text, by, ctx }` — une citation mise
+en exergue avec la photo de `by`, placée avant le 2ᵉ intertitre. À ne mettre que s'il y
+a une vraie bonne phrase ; sans elle l'article est complet.
+
+Le corps est construit par `_jrBody` (partagé par `renderArticle` et la Presse — ne pas
+en refaire une copie), la typographie par `_frTypo` : espaces insécables dans les
+guillemets et avant `: ; ? !`, trait d'union insécable dans les scores (`9‑10`). Ne
+**pas** taper d'espaces insécables à la main dans les textes : `_frTypo` s'en charge.
+
+Polices : Playfair Display (titres) et Source Serif 4 (texte), ajoutées au lien Google
+Fonts existant — ~220 Ko téléchargés **seulement** à l'affichage d'un article, puis en
+cache. Le bandeau est un `<div>`, pas un `<header>` : le style global `header{}` du site
+lui ajoutait 2,4 rem de marge. `.article-section.journal` fixe sa largeur à
+`min(100vw - 2rem, 520px)` (600 px sur ordinateur) : la règle mobile existante
+(`100vw - 1rem`) décalait la zone de 8 px vers la droite, invisible sur fond
+transparent, flagrant sur une feuille de papier.
+
+Vérifié dans Chromium avec les vraies polices, à 320, 360, 390 et 1280 px : les 22
+articles, page de session et Presse, sans débordement ni guillemet orphelin, recherche
+Presse toujours surlignée.
+
 ## Écran de chargement : la vraie limite est la largeur, pas le nombre
 
 `LOADING_PHRASES` (dans `index.html`) porte les phrases affichées sous le ballon pendant
