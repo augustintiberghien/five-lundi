@@ -927,8 +927,8 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .modal-close:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
 /* ── Fausses pubs (bas de page) : carte façon post sponsorisé ── */
-.fake-ad{width:min(340px,92vw);margin:2rem auto 0;display:grid}
-.fake-ad-card{grid-area:1/1;opacity:0;pointer-events:none;transition:opacity .45s;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
+.fake-ad{width:min(340px,92vw);margin:2rem auto 0;position:relative;transition:height .35s}
+.fake-ad-card{position:absolute;top:0;left:0;right:0;opacity:0;pointer-events:none;transition:opacity .45s;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
 .fake-ad-card.on{opacity:1;pointer-events:auto}
 .fa-dotsrow{display:flex;justify-content:center;align-items:center;gap:.4rem;margin-top:.6rem}
 .fake-ad{touch-action:pan-y}
@@ -961,10 +961,16 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fa-cmt-n{display:block;font-size:.7rem;font-weight:700}
 .fake-ad-inline{margin:1.2rem 0 1.4rem;display:flex;flex-direction:column;align-items:center}
 .fake-ad-inline .fa-fake{margin:0 0 .4rem}
-.fake-ad-inline .fake-ad-card{width:100%;line-height:1.35;font-size:1rem}
+.fake-ad-inline .fake-ad-card{position:relative;width:100%;line-height:1.35;font-size:1rem}
 .fa-premium{width:min(340px,92vw);margin:.7rem auto 0;display:flex;align-items:center;justify-content:center;gap:.6rem;flex-wrap:wrap;font-size:.62rem;color:rgba(255,255,255,.4);letter-spacing:.04em;text-align:center}
 .fa-premium-b{background:none;border:0;padding:0;font:inherit;color:rgba(255,228,155,.65);text-decoration:underline;cursor:pointer}
 .fa-premium-b:disabled{text-decoration:none;cursor:default}
+.fa-toast{position:fixed;left:50%;bottom:14px;z-index:60;transform:translate(-50%,140%);width:min(340px,92vw);display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;border-radius:12px;background:#242526;border:1px solid rgba(255,255,255,.1);box-shadow:0 6px 24px rgba(0,0,0,.45);color:#e4e6eb;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:.76rem;line-height:1.3;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;opacity:0;cursor:pointer}
+.fa-toast.show{transform:translate(-50%,0);opacity:1}
+.fa-toast .fa-liker{margin-left:0;width:38px;height:38px;flex:none;border:0;font-size:.9rem}
+.fa-toast-t b{font-weight:700}
+.fa-toast-s{display:block;margin-top:.15rem;font-size:.62rem;color:#8a8d91}
+@media (prefers-reduced-motion:reduce){.fa-toast{transition:none}}
 .fa-likes{display:flex;align-items:center;gap:.4rem;min-width:0}
 .fa-likes-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fa-com{flex:none}
@@ -8053,6 +8059,29 @@ function updateCountdown() {
     var c=card(ADS[n%ADS.length]); c.className+=' on';
     slot.appendChild(h('fa-fake','Publicité · pour de faux')); slot.appendChild(c);
   };
+  /* Notification éphémère façon « preuve sociale » : 4 s, toutes les 20 à 40 s, 4 fois max par visite, aucune donnée */
+  (function(){
+    var CUSTOM=[['Hugo','Claude Équilibrage Pro','vient de porter réclamation sur'],['Jack','Pari Sportif Jack','vient de miser sur lui-même dans'],['Khalid','Cardio Plus™','vient de commander'],['Rémi','Gardien.com','vient de se faire remplacer via'],['Michael','Michael Coaching','vient de prendre l’abonnement premium annuel de'],['Gugu','Claude Presse','vient de se faire offrir une Ciney par'],['Tim','Désistements Plus','vient de se désister discrètement via'],['Samy','Académie Samy','vient de s’inscrire à'],['Henri','Banc Confort','vient de s’asseoir sur'],['Dylan','Scouting Zizou','vient de recevoir un like de']];
+    var VERBS=['vient de commander','a réservé','vient de s’inscrire à','a cliqué sur'];
+    var shown=0, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function pick(a){return a[Math.floor(Math.random()*a.length)];}
+    function fire(){
+      if(shown>=4||document.hidden){return later();}
+      var t=document.createElement('div'); t.className='fa-toast'; t.setAttribute('role','status'); t.setAttribute('aria-live','polite');
+      var who,brand,verb;
+      if(Math.random()<.65){var c=pick(CUSTOM);who=c[0];brand=c[1];verb=c[2];}
+      else{var a=pick(ADS);brand=a[0];var L=LIKERS[brand]||['Gugu'];who=pick(L);verb=pick(VERBS);}
+      var txt=h('fa-toast-t'); txt.appendChild(h('',who,'b')); txt.appendChild(document.createTextNode(' '+verb+' ')); txt.appendChild(h('',brand,'b'));
+      txt.appendChild(h('fa-toast-s','il y a '+(1+Math.floor(Math.random()*58))+' min · pour de faux','span'));
+      t.appendChild(face(who)); t.appendChild(txt); document.body.appendChild(t);
+      function close(){t.classList.remove('show');setTimeout(function(){t.remove();},reduce?0:500);}
+      t.onclick=close;
+      requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('show');});});
+      shown++; setTimeout(close,4200); later();
+    }
+    function later(){if(shown<4)setTimeout(fire,20000+Math.random()*20000);}
+    setTimeout(fire,9000+Math.random()*6000);
+  })();
   if(!box) return;
   /* carrousel : une pub à la fois, ordre aléatoire à chaque ouverture, change toutes les 6 s */
   var cards=ADS.map(function(a){return [Math.random(),a];}).sort(function(x,y){return x[0]-y[0];})
@@ -8069,7 +8098,10 @@ function updateCountdown() {
   box.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
   box.addEventListener('touchend',function(e){var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
     if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.5) step(dx<0?1:-1);},{passive:true});
-  function show(i){cur=i;cards.forEach(function(c,k){c.classList.toggle('on',k===i);dotEls[k].classList.toggle('on',k===i);});}
+  /* la hauteur suit la carte affichée (avec ou sans commentaire) */
+  function fit(){box.style.height=cards[cur].offsetHeight+'px';}
+  function show(i){cur=i;cards.forEach(function(c,k){c.classList.toggle('on',k===i);dotEls[k].classList.toggle('on',k===i);});fit();}
+  window.addEventListener('resize',fit); window.addEventListener('load',function(){fit();setTimeout(fit,400);});
   function start(){clearInterval(timer);timer=setInterval(function(){show((cur+1)%cards.length);},6000);}
   show(0); start();
   box.parentNode.insertBefore(dots,box.nextSibling);
