@@ -501,7 +501,7 @@ mois (`_MN[7] = août`) dans `_seasonOfDate(dateStr)`, qui accepte aussi bien
 nom générique `Invité`. `season` à `null` = depuis toujours.
 
 ⚠️ **Le garde-fou à ne pas perdre** : `_computeStats(null)` doit reproduire
-`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (25 joueurs, 170 paires au 22 septembre
+`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (25 joueurs, 175 paires au 30 septembre
 2026). C'est ce qui garantit qu'un onglet ne contredit pas l'autre. Toute modification
 du calcul doit être revérifiée contre les tables figées, qui restent la référence et
 continuent d'être maintenues par `update_stats.py`.
@@ -807,6 +807,33 @@ dans une variable parallèle qui finirait par diverger. Toute nouvelle vue plein
 être ajoutée à sa table — et masquée dans les `show*` des autres onglets, comme les
 précédentes.
 
+## Fausses pubs (depuis septembre 2026)
+
+Tout vit dans le dernier `<script>` d'`index.html` (« Fausses pubs : carrousel… »), sans
+aucun appel réseau ni donnée envoyée. Pour ajouter ou retoucher une pub, **il n'y a que
+des tableaux à éditer** :
+
+- `ADS` — une ligne par pub : `[marque, emoji logo, dégradé, emoji visuel, titre visuel,
+  texte, site, bouton, badge]`. 20 pubs au 30 septembre 2026.
+- `LIKERS` (marque → joueurs qui « aiment »), `ORDERS` (marque → `[libellé, joueur]`,
+  la ligne « 🛒 Déjà commandé par… » des pubs ciblées), `COMMENTS` (marque →
+  `[joueur, phrase]`). Les photos viennent de `_getPhotoSrc`, initiale en repli.
+- `NOTIFS` — les 30 notifications éphémères, `[joueur, texte]`, `*gras*` entre étoiles.
+
+Affichages : un **carrousel** en bas de page (une carte à la fois, 6 s, glisser sur
+mobile, flèches sur ordinateur, hauteur qui suit la carte), une **carte fixe au milieu de
+chaque article** (`_fakeAdInline`, choisie par l'id de session — même pub à chaque
+lecture), l'encart discret **Vestiaire Premium** et les **notifications** (5 par visite,
+tirées sans remise ; `localStorage` `fa_notif_seen` retient celles déjà vues).
+
+⚠️ **Mesurer à 320 px après chaque ajout de pub** : la rangée de points grandit avec
+`ADS`. À 20 pubs, points + flèches faisaient 326 px et créaient un défilement horizontal
+sur **toutes** les pages ; ils tiennent aujourd'hui en ~282 px. Au-delà d'environ
+25 pubs, il faudra réduire encore l'écart ou passer à un compteur « 3 / 20 ».
+
+⚠️ Les commentaires et « déjà commandé » sont des **propos fictifs prêtés à de vrais
+joueurs** : toujours les faire valider par l'utilisateur avant publication.
+
 ## Articles façon journal (depuis septembre 2026)
 
 Tous les articles (page de session **et** onglet Presse) s'affichent comme une page de
@@ -841,7 +868,8 @@ un navigateur peut couper juste avant un `inline-block`, et le carré partait se
 
 Vérifié dans Chromium avec les vraies polices, à 320, 360, 390 et 1280 px : les 22
 articles, page de session et Presse, sans débordement ni guillemet orphelin, recherche
-Presse toujours surlignée.
+Presse toujours surlignée. Le champ `kicker` d'`ARTICLES` n'est plus affiché (la
+rubrique est « Compte rendu ») mais reste lu par la recherche de la Presse : le garder.
 
 ## Écran de chargement : la vraie limite est la largeur, pas le nombre
 
@@ -940,7 +968,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s21 | 21 septembre 2026 | 10 – 9 (A) | ✅ |
+| s22 | 28 septembre 2026 | 12 – 8 (A) | ✅ |
+| s21 | 21 septembre 2026 | 10 – 9 (A) | |
 | s20 | 14 septembre 2026 | 9 – 10 (B) | |
 | s19 | 7 septembre 2026 | 9 – 8 (A) | |
 | s18 | 31 août 2026 | 10 – 9 (A) | |

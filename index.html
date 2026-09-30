@@ -812,7 +812,6 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .pr-more{font-family:'Saira Condensed',sans-serif;font-size:.6rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-top:.5rem}
 .pr-body{padding:0 .8rem 1rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.2rem}
-.pr-body .article-kicker{padding-top:.9rem}
 .pr-mk{background:rgba(255,228,155,.22);color:#fff;border-radius:3px;padding:0 .12em}
 .pr-recap{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.05);cursor:pointer}
 .pr-recap .pr-meta span{color:#4ade80}
@@ -930,9 +929,10 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fake-ad{width:min(340px,92vw);margin:2rem auto 0;position:relative;transition:height .35s}
 .fake-ad-card{position:absolute;top:0;left:0;right:0;opacity:0;pointer-events:none;transition:opacity .45s;border-radius:12px;overflow:hidden;background:#18191c;border:1px solid rgba(255,255,255,.08);text-align:left;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#e4e6eb}
 .fake-ad-card.on{opacity:1;pointer-events:auto}
-.fa-dotsrow{display:flex;justify-content:center;align-items:center;gap:.4rem;margin-top:.6rem}
+.fa-dotsrow{display:flex;justify-content:center;align-items:center;gap:.28rem;width:min(340px,92vw);margin:.6rem auto 0}
+.fa-dotsrow i{flex:none}
 .fake-ad{touch-action:pan-y}
-.fa-arrow{display:none;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);width:26px;height:26px;border-radius:50%;font-size:1rem;line-height:1;cursor:pointer;padding:0;margin:0 .4rem}
+.fa-arrow{display:none;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);width:26px;height:26px;border-radius:50%;font-size:1rem;line-height:1;cursor:pointer;padding:0;margin:0 .25rem;flex:none}
 .fa-arrow:hover{background:rgba(255,255,255,.1)}
 @media (hover:hover) and (pointer:fine){.fa-arrow{display:inline-flex;align-items:center;justify-content:center}}
 .fa-dotsrow i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:background .3s}
@@ -8266,7 +8266,7 @@ function updateCountdown() {
   function fit(){box.style.height=cards[cur].offsetHeight+'px';}
   function show(i){cur=i;cards.forEach(function(c,k){c.classList.toggle('on',k===i);dotEls[k].classList.toggle('on',k===i);});fit();}
   window.addEventListener('resize',fit); window.addEventListener('load',function(){fit();setTimeout(fit,400);});
-  function start(){clearInterval(timer);timer=setInterval(function(){show((cur+1)%cards.length);},6000);}
+  function start(){clearInterval(timer);timer=setInterval(function(){if(!document.hidden)show((cur+1)%cards.length);},6000);}
   show(0); start();
   box.parentNode.insertBefore(dots,box.nextSibling);
   var lab=h('fa-fake','Publicité · pour de faux');
