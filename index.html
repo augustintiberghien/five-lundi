@@ -8183,27 +8183,67 @@ function updateCountdown() {
     var c=card(ADS[n%ADS.length]); c.className+=' on';
     slot.appendChild(h('fa-fake','Publicité · pour de faux')); slot.appendChild(c);
   };
-  /* Notification éphémère façon « preuve sociale » : 4 s, toutes les 20 à 40 s, 5 fois max par visite, aucune donnée */
+  /* Notification éphémère façon « preuve sociale » : 4 s, toutes les 20 à 40 s, 5 fois max par visite, aucune donnée.
+     30 phrases écrites à la main, tirées comme un paquet de cartes : jamais deux fois la même dans une visite,
+     et le navigateur retient celles déjà vues (localStorage, rien n'est envoyé) pour ne les resservir qu'une fois
+     le paquet épuisé. Le texte entre *étoiles* passe en gras. */
   (function(){
-    var CUSTOM=[['Hugo','Claude Équilibrage Pro','vient de porter réclamation sur'],['Jack','Pari Sportif Jack','vient de miser sur lui-même dans'],['Khalid','Cardio Plus™','vient de commander'],['Rémi','Gardien.com','vient de se faire remplacer via'],['Michael','Michael Coaching','vient de prendre l’abonnement premium annuel de'],['Gugu','Claude Presse','vient de se faire offrir une Ciney par'],['Tim','Désistements Plus','vient de se désister discrètement via'],['Samy','Académie Samy','vient de s’inscrire à'],['Henri','Banc Confort','vient de s’asseoir sur'],['Dylan','Scouting Zizou','vient de recevoir un like de']];
-    var VERBS=['vient de commander','a réservé','vient de s’inscrire à','a cliqué sur'];
-    var shown=0, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
-    function pick(a){return a[Math.floor(Math.random()*a.length)];}
+    var NOTIFS=[
+      ['Hugo','vient de porter réclamation sur *Claude Équilibrage Pro*'],
+      ['Jack','vient de miser sur lui-même dans *Pari Sportif Jack*'],
+      ['Khalid','vient de commander *Cardio Plus™*'],
+      ['Rémi','vient de se faire remplacer via *Gardien.com*'],
+      ['Michael','vient de prendre l’abonnement premium annuel de *Michael Coaching*'],
+      ['Gugu','vient de se faire offrir une Ciney par *Claude Presse*'],
+      ['Tim','vient de se désister discrètement via *Désistements Plus*'],
+      ['Samy','vient de s’inscrire à *Académie Samy*'],
+      ['Henri','vient de s’asseoir sur *Banc Confort*'],
+      ['Dylan','vient de recevoir un like de *Scouting Zizou*'],
+      ['Hugo','vient de payer l’option «\u00a0choisir un pote\u00a0» (15\u00a0€) : *Dylan*'],
+      ['Quentin','vient de commander un *Invité Express*, noté 17/20'],
+      ['Spy','vient de renouveler *Stats Illimitées* pour 12 mois'],
+      ['Landry','vient de scouter Dylan pour *Scouting Zizou*'],
+      ['Ibrahima','vient d’appeler *Rémi Taxi*'],
+      ['Rémi','vient de booker l’offre *«\u00a0Brosse-moi dans le sens du poil\u00a0»* pour le prochain article'],
+      ['Gugu','est *déjà inscrit* pour lundi prochain'],
+      ['Edouard','vient d’acheter une coquille à l’*Académie Samy*'],
+      ['Cyril','vient de se désister… *puis de se réinscrire*'],
+      ['Khalid','vient de trouver un *sixième poumon*'],
+      ['Michael','vient de passer une porte *de côté*'],
+      ['Jack','vient d’être élu homme du match sur *Pari Sportif Jack*'],
+      ['Alex','vient de demander *Vestiaire Premium*. Demande envoyée'],
+      ['Thibault','vient de réserver une place sur le *Banc Confort*'],
+      ['Flo','vient de commander le coussin chauffant du *Banc Confort*'],
+      ['Johann','vient de voter pour lui-même via *Vote Express*'],
+      ['Samy','vient de casser une vitre pendant son *stage de frappe lourde*'],
+      ['Guilhem','a été aperçu près de l’Urban *(fausse alerte)*'],
+      ['Tim','vient de prendre la *Place Garantie VIP*… et de se désister'],
+      ['Henri','vient de laisser 5 étoiles à *Gardien.com*']
+    ];
+    var KEY='fa_notif_seen', MAX=5, shown=0, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function loadSeen(){try{var v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}}
+    function saveSeen(v){try{localStorage.setItem(KEY,JSON.stringify(v));}catch(e){}}
+    function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+    /* paquet de la visite : d'abord celles jamais vues, puis (si le paquet est épuisé) on repart de zéro */
+    var seen=loadSeen().filter(function(i){return i>=0&&i<NOTIFS.length;});
+    var fresh=NOTIFS.map(function(_,i){return i;}).filter(function(i){return seen.indexOf(i)<0;});
+    if(fresh.length<MAX){seen=[];fresh=NOTIFS.map(function(_,i){return i;});}
+    var deck=shuffle(fresh).slice(0,MAX);
+    function rich(el,s){if(typeof _frTypo==='function')s=_frTypo(s);s.split('*').forEach(function(part,k){if(!part)return;el.appendChild(k%2?h('',part,'b'):document.createTextNode(part));});}
     function fire(){
-      if(shown>=5||document.hidden){return later();}
+      if(shown>=deck.length||document.hidden){return later();}
+      var idx=deck[shown], n=NOTIFS[idx];
       var t=document.createElement('div'); t.className='fa-toast'; t.setAttribute('role','status'); t.setAttribute('aria-live','polite');
-      var who,brand,verb;
-      if(Math.random()<.65){var c=pick(CUSTOM);who=c[0];brand=c[1];verb=c[2];}
-      else{var a=pick(ADS);brand=a[0];var L=LIKERS[brand]||['Gugu'];who=pick(L);verb=pick(VERBS);}
-      var txt=h('fa-toast-t'); txt.appendChild(h('',who,'b')); txt.appendChild(document.createTextNode(' '+verb+' ')); txt.appendChild(h('',brand,'b'));
+      var txt=h('fa-toast-t'); txt.appendChild(h('',n[0],'b')); txt.appendChild(document.createTextNode(' ')); rich(txt,n[1]);
       txt.appendChild(h('fa-toast-s','il y a '+(1+Math.floor(Math.random()*58))+' min · pour de faux','span'));
-      t.appendChild(face(who)); t.appendChild(txt); document.body.appendChild(t);
+      t.appendChild(face(n[0])); t.appendChild(txt); document.body.appendChild(t);
       function close(){t.classList.remove('show');setTimeout(function(){t.remove();},reduce?0:500);}
       t.onclick=close;
       requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('show');});});
-      shown++; setTimeout(close,4200); later();
+      shown++; seen.push(idx); saveSeen(seen);
+      setTimeout(close,4200); later();
     }
-    function later(){if(shown<5)setTimeout(fire,20000+Math.random()*20000);}
+    function later(){if(shown<deck.length)setTimeout(fire,20000+Math.random()*20000);}
     setTimeout(fire,9000+Math.random()*6000);
   })();
   if(!box) return;
