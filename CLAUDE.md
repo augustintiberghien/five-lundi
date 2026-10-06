@@ -969,7 +969,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s22 | 28 septembre 2026 | 12 – 8 (A) | ✅ |
+| s23 | 5 octobre 2026 | 11 – 5 (A) | ✅ |
+| s22 | 28 septembre 2026 | 12 – 8 (A) | |
 | s21 | 21 septembre 2026 | 10 – 9 (A) | |
 | s20 | 14 septembre 2026 | 9 – 10 (B) | |
 | s19 | 7 septembre 2026 | 9 – 8 (A) | |
@@ -1053,6 +1054,23 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s23 — 5 octobre 2026)
+Blanche ⚪ : Rémi, Michael, Ibrahima, Tim, Jack
+Bleue 🔵 : Gugu, Cyril, Spy, Thomas D, Quentin
+La Blanche l'emporte 11-5 (banc : Khalid). Équilibrage **70 – 68,5**, avec `together:['Spy','Gugu','Cyril']`
+sur le créneau. 5-5 après une demi-heure, puis six buts blancs sans réponse : plus gros écart de la
+saison 26-27, huitième victoire blanche sur les dix dernières.
+
+Homme du match : **Ibrahima**, 8 voix sur 10, devant Tim et Jack (1 chacun). **Son premier titre** —
+il n'avait eu qu'une voix par soir, trois fois (s7, s20, s21). Les cinq joueurs de la Bleue ont voté pour
+lui. Il passe à 21 matchs / 11 victoires. Vote clos à 10 voix le 6 octobre à 09h29, article publié à
+09h40 (`publishedAt` à l'heure réelle). Débrief reçu en note vocale, transcrit par l'utilisateur.
+
+⚠️ **Le lock du 5 octobre est parti avec 2h de retard** : aucun run `schedule` ce soir-là, et les deux
+`workflow_dispatch` (22h52, 22h55 Paris) sont restés `queued` ~10 min avant de partir. Le déploiement
+Pages a pris 11 min de plus. Même cause que le 31 août : l'engorgement de GitHub Actions. Le filet du
+site (`_maybeTriggerLock`) n'a pas suffi seul — personne n'avait ouvert la page après 21h30.
 
 ## Joueurs actifs (s21 — 21 septembre 2026)
 Blanche ⚪ : Hugo, Ibrahima, Landry, Quentin, Invité (Kylian, le +1 de Quentin)
