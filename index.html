@@ -5928,12 +5928,11 @@ async function submitTmotmVote(sid) {
    ══════════════════════════════════════════ */
 var ARTICLES = {
   's23': {
-    /* Heure reelle de publication (6 octobre, 09h40 Paris), non reculee ni avancee :
-       le vote s'est cloture a 10 voix le 6 a 09h29, l'article suit dans la foulee.
-       La fenetre de lecture de 4 h court donc jusqu'a 13h40, apres quoi le site ouvre
-       sur le creneau du 12 octobre. Article remanie le 6 octobre (portrait d'Ibrahima
-       remonte avant les quatre autres blancs) sans toucher a cet horodatage. */
-    publishedAt: '2026-10-06T07:40:00Z',
+    /* Debut de la fenetre de lecture de 4 h, pas l'heure du commit : l'article est en
+       ligne le 6 octobre a 09h40 Paris, mais l'horodatage est recule a 06h00 Paris
+       (04h00Z) sur demande, pour que le site ouvre tout de suite sur le creneau du
+       12 octobre au lieu d'attendre 13h40. */
+    publishedAt: '2026-10-06T04:00:00Z',
     kicker: 'Five Lundi · 5 octobre 2026',
     quote: { text: 'Il a clairement cassé la dynamique de notre équipe. Il nous a eu au mental.', by: 'Cyril', ctx: 'vote pour Ibrahima' },
     headline: 'Ibrahima fête son anniversaire, la Blanche déroule : 11-5',
