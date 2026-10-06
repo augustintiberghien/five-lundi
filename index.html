@@ -1312,6 +1312,20 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .forming-sep{font-family:'Saira Condensed',sans-serif;font-size:.58rem;font-weight:700;color:rgba(239,68,68,.5);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:.5rem;padding:.7rem .2rem .2rem}
 .forming-sep::after{content:'';flex:1;height:1px;background:rgba(239,68,68,.16)}
 .forming-out{opacity:.42;text-decoration:line-through}
+.forming-meter{display:flex;gap:3px;width:min(220px,70%);margin:.9rem auto 0}
+.forming-meter i{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08)}
+.forming-meter i.on{background:#FFE49B;box-shadow:0 0 6px rgba(255,228,155,.35)}
+.forming-missing{margin-top:.7rem;font-family:Saira Condensed,sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.forming-missing b{color:#FFE49B;font-weight:700}
+.forming-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;width:min(340px,92%);margin:1.1rem auto 0;text-align:left}
+.forming-slot{display:flex;align-items:center;gap:.5rem;min-width:0;height:2.7rem;padding:0 .55rem 0 .4rem;border-radius:10px;box-sizing:border-box;font-family:Saira,sans-serif;font-size:.82rem}
+.forming-slot.fs-on{background:rgba(255,255,255,.05);border:1px solid rgba(255,228,155,.12);color:rgba(255,255,255,.85)}
+.forming-slot.fs-on .fs-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.forming-slot.fs-off{border:1px dashed rgba(255,255,255,.12);color:rgba(255,255,255,.18);justify-content:center;font-family:Saira Condensed,sans-serif;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase}
+.fs-av{position:relative;flex:none;width:1.9rem;height:1.9rem;border-radius:50%;background:#16241c;border:1.5px solid rgba(255,228,155,.55);display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:Saira Condensed,sans-serif;font-weight:700;font-size:.85rem;color:#FFE49B}
+.fs-av img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.fs-rk{flex:none;font-family:Saira Condensed,sans-serif;font-size:.62rem;color:rgba(255,255,255,.3);margin-left:auto}
+.forming-bench-sep{font-family:'Saira Condensed',sans-serif;font-size:.58rem;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:.9rem 0 0}
 /* Effectif incomplet : trop de desistements pour aligner dix joueurs. */
 .roster-alert{width:min(340px,92vw);margin:0 auto 1.1rem;box-sizing:border-box;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:.85rem .9rem;text-align:center}
 .roster-alert-title{font-family:'Saira Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#f08b8b}
@@ -1823,17 +1837,25 @@ function _buildFormingBannerHtml(s, regs, matchRegs, byStatus){
   });
   var n=avail.length;
 
-  var rows=avail.map(function(r){
-    var nameSpan=slot&&slot.open
-      ?'<span class="forming-name-tap" data-confirm-slot="'+s.id+'" data-confirm-name="'+r.name+'" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px">'+r.name+'</span>'
-      :'<span>'+r.name+'</span>';
-    return '<div class="forming-player-row"><span class="forming-rank">'+r.rank+'</span>'+nameSpan+'</div>';
-  }).join('');
+  function _slotHtml(r){
+    var src=_getPhotoSrc(r.name);
+    var av='<span class="fs-av">'+(src?'<img src="'+src+'" alt="">':r.name.charAt(0).toUpperCase())+'</span>';
+    var tap=slot&&slot.open?' data-confirm-slot="'+s.id+'" data-confirm-name="'+r.name+'" style="cursor:pointer"':'';
+    return '<div class="forming-slot fs-on"'+tap+'>'+av+'<span class="fs-name">'+r.name+'</span><span class="fs-rk">'+r.rank+'</span></div>';
+  }
+  var cells='';
+  for(var i=0;i<10;i++){
+    cells+=avail[i]?_slotHtml(avail[i]):'<div class="forming-slot fs-off">Libre</div>';
+  }
+  var rows='<div class="forming-grid">'+cells+'</div>';
+  if(avail.length>10){
+    rows+='<div class="forming-bench-sep">Banc</div><div class="forming-grid" style="margin-top:.4rem">'+avail.slice(10).map(_slotHtml).join('')+'</div>';
+  }
   if(out.length){
-    rows+='<div class="forming-sep">❌ '+out.length+' désistement'+(out.length>1?'s':'')+'</div>';
+    rows+='<div class="forming-players" style="margin-top:.6rem"><div class="forming-sep">❌ '+out.length+' désistement'+(out.length>1?'s':'')+'</div>';
     rows+=out.map(function(r){
       return '<div class="forming-player-row forming-out"><span class="forming-rank">'+r.rank+'</span><span>'+r.name+'</span></div>';
-    }).join('');
+    }).join('')+'</div>';
   }
 
   var matchSection='';
@@ -1847,7 +1869,11 @@ function _buildFormingBannerHtml(s, regs, matchRegs, byStatus){
   }
 
   var countLabel=out.length?'joueurs disponibles':'joueurs inscrits';
-  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">'+countLabel+'</div><div class="forming-players">'+rows+'</div>'+matchSection+'</div>';
+  var meter='';
+  for(var k=0;k<10;k++) meter+='<i'+(k<n?' class="on"':'')+'></i>';
+  var miss=Math.max(0,10-n);
+  var missTxt=miss>0?'Plus que <b>'+miss+'</b> pour lancer la compo':'Compo en route';
+  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">'+countLabel+'</div><div class="forming-meter">'+meter+'</div><div class="forming-missing">'+missTxt+'</div>'+rows+matchSection+'</div>'+"\n";
 }
 
 function renderInFormation(s){
