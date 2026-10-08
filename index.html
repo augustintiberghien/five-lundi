@@ -359,9 +359,15 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   animation: fire-flicker-1 0.18s ease-in-out infinite;
 }
 
-/* Discret : les trois blobs animés sont masqués (le balisage reste, injectTrophies
-   les crée toujours) ; il ne reste qu'un liseré braise et une lueur lente. */
-.fire-layer, .fire-outline { display: none !important; }
+/* Discret : une seule flamme, douce et lente (les deux autres couches sont masquées,
+   le balisage reste : injectTrophies les crée toujours), plus un liseré braise. */
+.fire-layer-2, .fire-layer-3, .fire-outline { display: none !important; }
+.fire-layer-1 {
+  width: 84px; height: 112px;
+  opacity: .4;
+  filter: blur(7px);
+  animation: fire-flicker-1 1.3s ease-in-out infinite;
+}
 @keyframes ember-glow {
   0%,100% { box-shadow: 0 0 6px 1px #ff8a2a66, 0 0 14px 2px #ff5a1a22; }
   50%     { box-shadow: 0 0 9px 2px #ffa04a88, 0 0 20px 4px #ff5a1a33; }
