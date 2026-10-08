@@ -872,6 +872,19 @@ articles, page de session et Presse, sans débordement ni guillemet orphelin, re
 Presse toujours surlignée. Le champ `kicker` d'`ARTICLES` n'est plus affiché (la
 rubrique est « Compte rendu ») mais reste lu par la recherche de la Presse : le garder.
 
+### ⚠️ Langage des articles : le vocabulaire du sport, jamais « la Blanche / la Bleue » (octobre 2026)
+
+Dans le **texte des articles** (`ARTICLES`, débriefs, chapôs, citations d'ambiance), on parle
+comme un journal de sport : **l'équipe blanche**, **l'équipe bleue**, **les hommes en blanc**,
+**les Bleus**, **les Blancs**, « le onze blanc », « les Bleus s'imposent ». Pas de
+« la Blanche l'emporte » ni « la Bleue égalise », qui sonnent comme un jargon d'initiés
+(demande de l'utilisateur, 8 octobre 2026).
+
+- Varier les formules d'un paragraphe à l'autre plutôt que de répéter « l'équipe blanche ».
+- Ne concerne **pas** les données ni l'interface (`nameA` / `nameB`, libellés des onglets) :
+  seul le texte rédigé change. Les notes de ce fichier gardent leur forme abrégée.
+- Les 23 articles déjà publiés n'ont pas été réécrits ; ne les retoucher que sur demande.
+
 ## Écran de chargement : la vraie limite est la largeur, pas le nombre
 
 `LOADING_PHRASES` (dans `index.html`) porte les phrases affichées sous le ballon pendant
