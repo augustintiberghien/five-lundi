@@ -886,6 +886,21 @@ comme un journal de sport : **l'équipe blanche**, **l'équipe bleue**, **les ho
   buts à zéro, du jargon espagnol). Ne l'utiliser **que si le score est réellement 5-0** — aucun
   match de la saison n'y a encore ressemblé — et ne jamais l'appliquer à un autre écart.
 - Varier les formules d'un paragraphe à l'autre plutôt que de répéter « l'équipe blanche ».
+- **Boîte à mots, carte blanche à la plume** (« éclate-toi », 8 octobre 2026) — puiser dedans, sans
+  recopier la liste, et en inventer d'autres :
+  - *les équipes* : le cinq blanc, le cinq bleu, les hommes en blanc, les Bleus, les Blancs, le onze
+    (même à cinq), la tunique blanche, les ciel-et-blanc, la bande à X, la défense bleue ;
+  - *les victoires* : s'impose, l'emporte, tient bon, fait la différence, plie l'affaire, s'offre le
+    match, signe le succès, repart avec les trois points, **la manita** (5-0 exactement), la
+    correction (écart ≥ 5), la remontada, le hold-up (victoire contre le cours du jeu) ;
+  - *les scores serrés* : un petit but d'écart, au courage, à l'arraché, dans les arrêts de jeu,
+    sur le fil, au bout du suspense, tout se joue sur un poteau ;
+  - *les moments* : l'ouverture du score, la parenthèse enchantée, le trou d'air, la séquence
+    décisive, le coup de collier, la mi-temps du match, le money time, le chrono qui s'affole ;
+  - *les joueurs* : le métronome, le renard des surfaces, le dernier rempart, l'homme du match,
+    le facteur X, le coup de patte, la patte gauche, le poumon, le sociétaire de la défense.
+  Rester **drôle sans être cruel** : le chambrage vise le jeu, jamais la personne, et toute
+  formule imagée sur un joueur réel se relit comme les pubs (cf. « Fausses pubs »).
 - Ne concerne **pas** les données ni l'interface (`nameA` / `nameB`, libellés des onglets) :
   seul le texte rédigé change. Les notes de ce fichier gardent leur forme abrégée.
 - Les 23 articles déjà publiés n'ont pas été réécrits ; ne les retoucher que sur demande.
