@@ -880,6 +880,11 @@ comme un journal de sport : **l'équipe blanche**, **l'équipe bleue**, **les ho
 « la Blanche l'emporte » ni « la Bleue égalise », qui sonnent comme un jargon d'initiés
 (demande de l'utilisateur, 8 octobre 2026).
 
+- **« Le cinq blanc »** / **« le cinq bleu »** : formule préférée de l'utilisateur (8 octobre 2026),
+  à employer largement — c'est l'équipe, vue comme un cinq de départ.
+- Le vocabulaire du foot passe aussi pour les scores : **« la manita »** désigne un 5-0 (cinq
+  buts à zéro, du jargon espagnol). Ne l'utiliser **que si le score est réellement 5-0** — aucun
+  match de la saison n'y a encore ressemblé — et ne jamais l'appliquer à un autre écart.
 - Varier les formules d'un paragraphe à l'autre plutôt que de répéter « l'équipe blanche ».
 - Ne concerne **pas** les données ni l'interface (`nameA` / `nameB`, libellés des onglets) :
   seul le texte rédigé change. Les notes de ce fichier gardent leur forme abrégée.
