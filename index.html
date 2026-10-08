@@ -359,8 +359,16 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
   animation: fire-flicker-1 0.18s ease-in-out infinite;
 }
 
+/* Discret : les trois blobs animés sont masqués (le balisage reste, injectTrophies
+   les crée toujours) ; il ne reste qu'un liseré braise et une lueur lente. */
+.fire-layer, .fire-outline { display: none !important; }
+@keyframes ember-glow {
+  0%,100% { box-shadow: 0 0 6px 1px #ff8a2a66, 0 0 14px 2px #ff5a1a22; }
+  50%     { box-shadow: 0 0 9px 2px #ffa04a88, 0 0 20px 4px #ff5a1a33; }
+}
 .badge-fire .card {
-  box-shadow: 0 0 18px 6px #ff6600, 0 0 40px 12px #ff330055 !important;
+  border-color: #ff9a3c !important;
+  animation: ember-glow 2.6s ease-in-out infinite;
 }
 
 /* 🛡️ INVINCIBLE — contour or qui tourne */
@@ -7902,7 +7910,7 @@ function injectTrophies() {
       var lbl = document.createElement('div');
       lbl.className = 'badge-label';
       lbl.style.cssText = 'font-size:8px;font-weight:700;font-family:Saira,sans-serif;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.95);';
-      if(badge.cls==='badge-fire')       lbl.style.color='#ff6a00';
+      if(badge.cls==='badge-fire')       lbl.style.color='#ffa04a';
       if(badge.cls==='badge-invincible') lbl.style.color='#FFE49B';
       if(badge.cls==='badge-curse')      lbl.style.color='#b44fff';
       if(badge.cls==='badge-up')         lbl.style.color='#4ade80';
