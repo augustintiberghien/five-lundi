@@ -1331,6 +1331,8 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .roster-alert-title{font-family:'Saira Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#f08b8b}
 .roster-alert-sub{font-family:Saira,sans-serif;font-size:.67rem;color:rgba(255,255,255,.42);margin-top:.32rem;line-height:1.5}
 .roster-alert-holes{font-family:Saira,sans-serif;font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.55rem;line-height:1.45}
+.ins-cta{text-align:center;margin:.6rem 0 0}
+.ins-cta-btn{display:inline-block;font-family:'Saira Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#4ade80;background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.35);border-radius:20px;padding:.45rem 1.1rem;cursor:pointer}
 .roster-alert-cta{display:inline-block;margin-top:.7rem;font-family:'Saira Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#FFE49B;background:rgba(255,228,155,.09);border:1px solid rgba(255,228,155,.28);border-radius:20px;padding:.34rem .95rem;cursor:pointer}
 .ins-match-section{margin-top:1rem;border-top:1px solid rgba(255,255,255,.07);padding-top:.8rem}
 .ins-match-header{font-family:Saira Condensed,sans-serif;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;text-align:center}
@@ -1372,7 +1374,7 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 
 <div class="mvp-section" id="mvp-section" style="display:none;margin-bottom:1.6rem"></div>
 
-<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack te met un petit pont…</span><span>Spy te la met sur la tête…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid chauffe ses mains…</span></div><div class="loading-pair"><span>Henri cherche une excuse…</span><span>Quentin bosse la tactique…</span></div><div class="loading-pair"><span>Alex tricote et pas un pull…</span><span>Hugo consulte une IA…</span></div><div class="loading-pair"><span>Johann fait des squats…</span><span>Edouard boit du bon vin…</span></div><div class="loading-pair"><span>Flo voit avec sa femme…</span><span>Cyril se rachète un genou…</span></div><div class="loading-pair"><span>Théo place les plots…</span><span>Landry est sur le banc…</span></div><div class="loading-pair"><span>Marc n’est toujours pas revenu…</span><span>Claude raconte n’imp…</span></div></div></div></div>  <div id="roster-alert" style="display:none"></div>
+<div id="view-pitch"><div id="forming-banner"><div class="loading-banner"><div class="loading-ball">⚽</div><div class="loading-phrases"><div class="loading-pair"><span>Vérification des pubalgies…</span><span>Rémi enfile ses gants…</span></div><div class="loading-pair"><span>Ibrahima cherche le terrain…</span><span>Gugu s’entraîne à viser au but…</span></div><div class="loading-pair"><span>Jack te met un petit pont…</span><span>Spy te la met sur la tête…</span></div><div class="loading-pair"><span>Michael muscle les épaules…</span><span>Khalid chauffe ses mains…</span></div><div class="loading-pair"><span>Henri cherche une excuse…</span><span>Quentin bosse la tactique…</span></div><div class="loading-pair"><span>Alex tricote et pas un pull…</span><span>Hugo consulte une IA…</span></div><div class="loading-pair"><span>Johann fait des squats…</span><span>Edouard boit du bon vin…</span></div><div class="loading-pair"><span>Flo voit avec sa femme…</span><span>Cyril se rachète un genou…</span></div><div class="loading-pair"><span>Théo place les plots…</span><span>Landry est sur le banc…</span></div><div class="loading-pair"><span>Marc n’est toujours pas revenu…</span><span>Claude raconte n’imp…</span></div></div></div></div>  <div id="roster-alert" style="display:none"></div><div id="ins-cta" class="ins-cta" style="display:none"></div>
   <div class="pitch-wrap" style="display:none">
     <div class="pitch" id="pitch">
       <div class="pitch-bg">
@@ -1873,7 +1875,7 @@ function _buildFormingBannerHtml(s, regs, matchRegs, byStatus){
   for(var k=0;k<10;k++) meter+='<i'+(k<n?' class="on"':'')+'></i>';
   var miss=Math.max(0,10-n);
   var missTxt=miss>0?'Plus que <b>'+miss+'</b> pour lancer la compo':'Compo en route';
-  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">'+countLabel+'</div><div class="forming-meter">'+meter+'</div><div class="forming-missing">'+missTxt+'</div>'+rows+matchSection+'</div>'+"\n";
+  return '<div class="forming-banner"><div class="forming-count">'+n+'<span style="font-size:1.2rem;color:rgba(255,255,255,.3)">/10</span></div><div class="forming-label">'+countLabel+'</div><div class="forming-meter">'+meter+'</div><div class="forming-missing">'+missTxt+'</div>'+_insCtaHtml(s,regs)+rows+matchSection+'</div>'+"\n";
 }
 
 function renderInFormation(s){
@@ -1909,6 +1911,7 @@ function renderInFormation(s){
      le décompte de la bannière « en formation » porte déjà la même information. */
   var rosterAlertEl=document.getElementById('roster-alert');
   if(rosterAlertEl){ rosterAlertEl.style.display='none'; rosterAlertEl.innerHTML=''; }
+  renderInsCta(null);   /* la bannière « en formation » porte son propre bouton */
 
   var viewPitch=document.getElementById('view-pitch');
   var _ts2=document.getElementById('tournament-section');
@@ -2016,6 +2019,7 @@ function renderTournament(s) {
   /* Le workflow de lock ne gère pas les tournois, la règle des dix non plus. */
   var _ra = document.getElementById('roster-alert');
   if (_ra) { _ra.style.display = 'none'; _ra.innerHTML = ''; }
+  renderInsCta(null);
   var layer = document.getElementById('players');
   if (layer) layer.innerHTML = '';
   var pitchWrap = document.querySelector('.pitch-wrap');
@@ -4971,6 +4975,28 @@ function presenceRowHtml(sid, name, status, isMe, faded, tag) {
    La bannière vit dans #view-pitch : chaque onglet plein écran masque ce conteneur
    entier, il n'y a donc pas un septième endroit où penser à la cacher (Stats, Joueurs,
    Presse, Inscriptions et Récap listent déjà chacun les sections à masquer). */
+/* Bouton « S'inscrire » des feuilles de match encore ouvertes : renvoie vers l'onglet
+   Inscriptions, sur la carte du créneau. Libellé « sur le banc » dès 10 inscrits (le
+   10ᵉ titulaire est déjà pris : l'inscription suivante va au banc, dans l'ordre).
+   Une seule définition du test et du libellé, partagée par la bannière « en formation »
+   et la feuille de match. */
+function _insCtaHtml(s, regs){
+  var slot = INSCRIPTION_SLOTS.find(function(sl){ return sl.id === s.id; });
+  if (!slot || !slot.open || slot.tournament || _slotLocked(slot)) return '';
+  regs = regs || s.regs || [];
+  var myName = localStorage.getItem('presence_name') || '';
+  if (myName && regs.some(function(r){ return r.player_name === myName; })) return '';
+  var label = regs.length >= 10 ? '🪑 S\'inscrire sur le banc' : '✍️ S\'inscrire';
+  return '<div class="ins-cta"><span class="ins-cta-btn" onclick="showInscriptions(\'' + s.id + '\')">' + label + '</span></div>';
+}
+function renderInsCta(s) {
+  var el = document.getElementById('ins-cta');
+  if (!el) return;
+  var h = (s && s.fromInscription) ? _insCtaHtml(s) : '';
+  el.innerHTML = h ? h.replace('<div class="ins-cta">','').replace(/<\/div>$/,'') : '';
+  el.style.display = h ? 'block' : 'none';
+}
+
 function renderRosterAlert(s, missing, holes, absentCount, regCount) {
   var el = document.getElementById('roster-alert');
   if (!el) return;
@@ -4985,7 +5011,7 @@ function renderRosterAlert(s, missing, holes, absentCount, regCount) {
     h += '<div class="roster-alert-holes">Personne au banc pour remplacer <strong style="color:#f08b8b;font-weight:600">'
        + holes.join('</strong>, <strong style="color:#f08b8b;font-weight:600">') + '</strong></div>';
   }
-  h += '<div class="roster-alert-cta" onclick="showInscriptions()">➕ Inscrire un remplaçant</div>';
+  h += '<div class="roster-alert-cta" onclick="showInscriptions(\'' + s.id + '\')">➕ Inscrire un remplaçant</div>';
   h += '</div>';
   el.innerHTML = h;
   el.style.display = 'block';
@@ -4994,6 +5020,7 @@ function renderRosterAlert(s, missing, holes, absentCount, regCount) {
 function renderPresence(s) {
   var wrap = document.getElementById('presence-section');
   if (!wrap) return;
+  renderInsCta(s);
 
   if (!isPresenceVisible(s)) {
     wrap.style.display = 'none';
@@ -6799,7 +6826,7 @@ function showPresse(){
 }
 
 
-function showInscriptions(){
+function showInscriptions(slotId){
   var _vr=document.getElementById('view-recap'); if(_vr) _vr.style.display='none';
   var _vj=document.getElementById('view-joueurs'); if(_vj) _vj.style.display='none';
   var _vp=document.getElementById('view-presse'); if(_vp) _vp.style.display='none';
@@ -6815,6 +6842,10 @@ function showInscriptions(){
   document.getElementById('balance-explain').style.display='none';
   renderInscriptions();
   setActiveTab('ins');
+  if(typeof slotId==='string'){
+    var _c=document.getElementById('ins-card-'+slotId);
+    if(_c){ _c.scrollIntoView({block:'start'}); }
+  }
 }
 
 function renderInscriptions(){
