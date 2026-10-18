@@ -41,6 +41,11 @@ Deux garde-fous à garder dans le script : ne **jamais agrandir** une image déj
 que la cible, et **ne pas ré-encoder** quand ça ne fait pas gagner d'octets — sept photos
 sources (80×100) grossissaient en repassant par le canvas, elles ont été laissées intactes.
 
+## Contexte du groupe (avant d'écrire un article)
+`docs/contexte_groupe.md` : surnoms des joueurs, rôles d'organisation, ton et limites. **À relire avant
+chaque article.** Le dépôt est public : n'y mettre que des surnoms (ni anecdotes, ni santé, ni famille,
+ni lien, ni numéro) ; le détail du chat privé se redemande à l'utilisateur.
+
 ## Architecture du fichier index.html
 - `SESSIONS` array (newest first : s11 → s1) — chaque session a `id`, `date`, `score`, `scoreWinner`, `current`, `bench`, `nameA`, `nameB`, `players`
 - `PLAYER_STATS` — stats agrégées par joueur (played, wins)
