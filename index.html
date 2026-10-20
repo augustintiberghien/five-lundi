@@ -5975,6 +5975,37 @@ async function submitTmotmVote(sid) {
    ARTICLES — DÉBRIEF SESSIONS
    ══════════════════════════════════════════ */
 var ARTICLES = {
+  's25': {
+    publishedAt: '2026-10-20T08:48:48Z',
+    kicker: 'Five Lundi · 19 octobre 2026',
+    quote: { text: 'Maillot dégueulasse mais match ok.', by: 'Landry', ctx: 'vote pour Hugo' },
+    headline: 'Hugo plante trois buts en trois minutes, les Blancs plient l’affaire : 11-9',
+    sub: 'Une constellation de stars, des pauses techniques qui sentent le recours, un but en lucarne que les Bleus attendent toujours de voir reconnu. Au bout du compte, le cinq blanc a eu raison du cinq bleu, malgré un plan de jeu étudié depuis la voiture',
+    body: [
+      { type: 'p', text: 'Le match du lundi pouvait ressembler à un PSG-Barça avant l’heure. Il l’a été : <strong>11-9</strong> pour le cinq blanc, au bout d’une soirée où <strong>Hugo</strong> a signé <strong>trois buts en trois minutes</strong>. Cela a suffi à plier l’affaire. Les Bleus de <strong>Dylan</strong> n’ont jamais été loin ; ils n’ont jamais été devant au moment qui comptait, et c’est ce qui a fait toute la différence.' },
+
+      { type: 'h3', text: 'Le plan était parfait, sur le papier' },
+      { type: 'p', text: 'Tout commence par une note vocale envoyée depuis la voiture, à quelques minutes du coup d’envoi. <strong>Rémi</strong>, notre envoyé spécial côté bleu, a étudié le plan : avec <strong>Landry</strong>, <strong>Raphaël</strong>, <strong>Dylan</strong> et <strong>Khalid</strong>, c’est « très très très très très costaud ». Il faut que Raphaël cadre, Dylan sera exceptionnel, Khalid est « le poumon ». En face, il note « les deux Marseillais », <strong>Théo</strong> et <strong>Hugo</strong>, <strong>Jack</strong>, « un peu la terreur », et le duel de titans que se livrent <strong>Michael</strong> et <strong>Edouard</strong>. Il ne prétend pas au titre d’homme du match ; ses ambitions à lui, c’est de briller au but.' },
+      { type: 'p', text: 'L’algorithme, lui, disait <strong>74,5 contre 75</strong>, un avantage microscopique aux Bleus. Il faut croire que le papier ne marque pas.' },
+
+      { type: 'h3', text: 'Le chat et la souris' },
+      { type: 'p', text: 'Les Bleus ouvrent le score, <strong>1-0</strong>. Puis vient ce but contre son camp de <strong>Raphaël</strong> : il fallait qu’il cadre, il a cadré, dans la mauvaise cage. <strong>1-1</strong>. Le match se joue ensuite au chat et à la souris, <strong>2-1, 2-2, 3-2, 3-3</strong>, sans que personne ne lâche. À <strong>5-3</strong> pour les Blancs, les Bleus reviennent à <strong>5-4</strong> ; la suite appartient à Hugo.' },
+
+      { type: 'h3', text: 'Le scandale de l’année, selon Rémi (et Landry)' },
+      { type: 'p', text: 'Le match a eu son affaire, et elle tient en deux mots : <strong>pauses techniques</strong>. <strong>Michael</strong> a quitté le terrain à deux reprises, à chaque fois au moment où les Bleus poussaient. À 5-3 pour les Blancs, puis de nouveau juste avant que Hugo ne plante son triplé.' },
+      { type: 'p', text: '<strong>Landry</strong> y voit un plan de jeu. Selon lui, le cinq blanc faisait tout pour refuser le jeu : couper le rythme dès que les Bleus s’installaient, et priver la partie de son tempo. Pièce à conviction : <strong>un but en lucarne refusé à tort</strong>, que les Bleus attendent toujours de voir reconnu. Il a déposé un recours dans les formes, promis de saisir les instances fédérales, et évoqué une plainte à la police, tant le sentiment d’injustice était grand. Le journal, qui n’a pas de ralenti, laisse la commission d’enquête trancher. Pour l’instant, le score reste 11-9.' },
+
+      { type: 'h3', text: 'Un festival bleu, une accélération blanche' },
+      { type: 'p', text: 'Côté bleu, <strong>Dylan</strong> a fait son festival, <strong>Khalid</strong> des raids intempestifs, <strong>Landry</strong> a mis ses petits buts pointus. <strong>Raphaël</strong> a livré un match discret, un peu comme ses dernières prestations. Côté blanc, <strong>Jack la Terreur</strong> a mis du temps à se mettre en jambes, puis il a accéléré tel Pogacar dans l’Alpe d’Huez. <strong>Edouard</strong> a tenu sa place derrière, <strong>Théo</strong> a été très remuant, très actif, à croire qu’il y a bien un club de football à Marseille.' },
+      { type: 'p', text: 'Et puis il y a <strong>Hugo</strong>, solide, qui a cueilli ses buts en fin de partie. Rémi y voit les derniers instants d’une épopée : une moyenne de douze kilomètres par joueur et 180 pulsations. Le journal n’a pas vérifié.' },
+
+      { type: 'h3', text: 'Hugo, six voix sur dix' },
+      { type: 'p', text: '<strong>Hugo est l’homme du match avec six voix sur dix</strong>, devant Théo, Edouard, Landry et Jack (une chacun). C’est son <strong>deuxième titre de la saison 26-27</strong>, après celui de la reprise du 31 août. Il l’emporte avec quatre voix blanches (<strong>Michael</strong>, <strong>Théo</strong>, <strong>Jack</strong> et <strong>Edouard</strong>) et deux voix bleues, celles de <strong>Rémi</strong> et de <strong>Landry</strong>, le même qui plaide au tribunal pour un but refusé.' },
+      { type: 'p', text: '<strong>Michael</strong> : « Énorme perf d’Hugo ce soir, auteur, entre autres, d’un hat trick en l’espace de 3 mn, pour sceller la victoire blanche. » <strong>Jack</strong> : « Il a planté un hat trick en 5 min qui a fait la diff. » <strong>Edouard</strong> : « Il claque son triplé à un moment clé et permet aux Blancs de prendre le large. Ils ne seront plus jamais rejoints. » <strong>Théo</strong> : « Un triple sur un moment clé qui fait du bien à l’équipe ! Mention spéciale à Édouard, gros match. »' },
+      { type: 'p', text: '<strong>Rémi</strong>, pourtant côté bleu, ne ménage pas non plus le vainqueur : « Match après match, le tank marseillais y va de son quadruplé alliant chatte et audace, vice et réussite. Le digne successeur de Mitroglou. » Trois buts en trois minutes, quatre dans la bouche de Rémi : il y en avait peut-être un de plus plus tôt dans la soirée. Le journal ne confirme que le triplé.' },
+      { type: 'p', text: 'Hugo, lui, a voté pour <strong>Théo</strong> : « Difficile de choisir, on a tous notre période. Mais mon vote va à celui qui attaque une reprise des Five le Lundi après une belle petite trêve. » <strong>Dylan</strong> a offert sa voix à <strong>Edouard</strong> : « Eduardo Camavinga n’a qu’à bien se tenir. » <strong>Khalid</strong> a voté pour son coéquipier <strong>Landry</strong>, sans un mot. <strong>Raphaël</strong>, auteur du but contre son camp, a choisi <strong>Jack</strong>, lui aussi sans commentaire. Et <strong>Landry</strong>, enfin, qui a voté Hugo, résume le tout : « Maillot dégueulasse mais match ok. »' },
+    ],
+  },
   's24': {
     publishedAt: '2026-10-13T07:18:20Z',
     kicker: 'Five Lundi · 12 octobre 2026',
