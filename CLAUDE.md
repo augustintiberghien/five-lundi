@@ -1007,7 +1007,9 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s23 | 5 octobre 2026 | 11 – 5 (A) | ✅ |
+| s25 | 19 octobre 2026 | 11 – 9 (A) | ✅ |
+| s24 | 12 octobre 2026 | 4 – 12 (B) | |
+| s23 | 5 octobre 2026 | 11 – 5 (A) | |
 | s22 | 28 septembre 2026 | 12 – 8 (A) | |
 | s21 | 21 septembre 2026 | 10 – 9 (A) | |
 | s20 | 14 septembre 2026 | 9 – 10 (B) | |
@@ -1092,6 +1094,19 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s25 — 19 octobre 2026)
+Blanche ⚪ : Michael, Edouard, Hugo, Théo, Jack
+Bleue 🔵 : Rémi, Khalid, Dylan, Landry, Raphaël
+La Blanche l'emporte 11-9. Équilibrage **74,5 – 75**. Déroulé : 1-0 bleu, but contre son camp de Raphaël (1-1),
+puis 2-1, 2-2, 3-2, 3-3, 5-3, 5-4 et un triplé de Hugo en trois minutes pour conclure.
+
+Homme du match : **Hugo**, 6 voix sur 10, devant Théo, Edouard, Landry et Jack (1 chacun). Son deuxième titre
+de la saison 26-27. Vote clos à 10 voix le 20 octobre. Débrief reçu en **deux notes vocales de Rémi** (avant-match
+et débrief), transcrites avec faster-whisper : `av.open` plante avec la version de PyAV installée (argument
+`metadata_errors`), donc décoder soi-même avec ffmpeg (`-f f32le -ac 1 -ar 16000`) et passer le tableau numpy.
+Anecdote centrale : les « pauses techniques » de Michael, présentées comme un plan de jeu par Landry (recours, but
+en lucarne refusé). Article publié dans `ARTICLES['s25']`.
 
 ## Joueurs actifs (s23 — 5 octobre 2026)
 Blanche ⚪ : Rémi, Michael, Ibrahima, Tim, Jack
