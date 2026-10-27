@@ -1007,7 +1007,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s25 | 19 octobre 2026 | 11 – 9 (A) | ✅ |
+| s26 | 26 octobre 2026 | 12 – 11 (A) | ✅ |
+| s25 | 19 octobre 2026 | 11 – 9 (A) | |
 | s24 | 12 octobre 2026 | 4 – 12 (B) | |
 | s23 | 5 octobre 2026 | 11 – 5 (A) | |
 | s22 | 28 septembre 2026 | 12 – 8 (A) | |
@@ -1094,6 +1095,13 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s26 — 26 octobre 2026)
+Blanche ⚪ : Spy, Théo, Jack, Henri, Invité (Samba)
+Bleue 🔵 : Michael, Ibrahima, Dylan, Hugo, Quentin
+La Blanche l'emporte 12-11. Équilibrage **75 – 75**. Débrief en deux notes vocales (Michael, reporter côté bleu ; Spy, côté blanc),
+transcrites avec faster-whisper (même méthode que s25). Homme du match : **égalité 4-4 entre Jack et Samba (Invité)**, Théo et Dylan 1 voix.
+Article dans `ARTICLES['s26']`. ⚠️ `Invité` est un nom générique : le titre de Samba s'inscrit sous « Invité ».
 
 ## Joueurs actifs (s25 — 19 octobre 2026)
 Blanche ⚪ : Michael, Edouard, Hugo, Théo, Jack
