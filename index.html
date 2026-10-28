@@ -1301,6 +1301,9 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .tab-ins-session{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.75);font-weight:500}
 .tab-ins-session.active{background:#FFE49B;border-color:#FFE49B;color:#000;font-weight:700}
 .tab-forming{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.ins-indoor{display:flex;gap:.7rem;align-items:flex-start;margin:.8rem auto 1rem;width:min(520px,100%);box-sizing:border-box;background:rgba(255,228,155,.08);border:1px solid rgba(255,228,155,.3);border-radius:10px;padding:.7rem .9rem;font-family:Saira,sans-serif;font-size:.8rem;line-height:1.4;color:rgba(255,255,255,.75)}
+.ins-indoor b{color:#FFE49B;font-family:Saira Condensed,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.ins-indoor-ico{font-size:1.4rem;line-height:1}
 .forming-banner{text-align:center;padding:2rem 1rem;color:rgba(255,255,255,.5)}
 .forming-count{font-family:Saira Condensed,sans-serif;font-size:2.5rem;font-weight:700;color:#FFE49B;line-height:1}
 .forming-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem;color:rgba(255,255,255,.35)}
@@ -4318,6 +4321,8 @@ var INSCRIPTION_SLOTS = [
   { id:'ins_oct_12', label:'Lundi 12 octobre 2026',   open:false, together:['Johann','Dylan'] },
   { id:'ins_oct_19', label:'Lundi 19 octobre 2026',   open:false },
   { id:'ins_oct_26', label:'Lundi 26 octobre 2026',   open:false },
+  { id:'ins_nov_02', label:'Lundi 2 novembre 2026',   open:true },
+  { id:'ins_nov_09', label:'Lundi 9 novembre 2026',   open:true },
 ];
 var SONDAGE_JUILLET = {
   dates: [
@@ -6967,6 +6972,7 @@ function renderInscriptions(){
 
   var html='<div class="ins-title">📅 Inscriptions</div>';
   html+='<div class="ins-subtitle">Rentrée 2026 · Lundis soir · Urban Five</div>';
+  html+='<div class="ins-indoor"><span class="ins-indoor-ico">🏠</span><div><b>Matchs en intérieur</b><br>Les prochains matchs se jouent en intérieur, pour protéger les corps de chacun.</div></div>';
 
   INSCRIPTION_SLOTS.filter(function(slot){ return slot.open; }).forEach(function(slot){
     html+='<div class="ins-card" id="ins-card-'+slot.id+'">';
