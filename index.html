@@ -4119,6 +4119,11 @@ function applyAutoTeams(s, playing10) {
   var key = playing10.slice().sort().join(',');
   if (s._autoTeamKey === key) return;
   s._autoTeamKey = key;
+  /* La compo affichee vient de slot_sessions (syncSharedTeams) : si elle porte deja
+     exactement ces dix joueurs, c'est la compo annoncee au groupe, y compris quand elle
+     a ete retouchee a la main. La regenerer ici la remplacait, sur l'ecran seulement,
+     par le meilleur split de l'algo des que le 10e confirmait sa presence. */
+  if ((s.players||[]).length === 10 && s.players.every(function(p){ return playing10.indexOf(p.name) !== -1; })) return;
   var _slotT = INSCRIPTION_SLOTS.find(function(sl){ return sl.id === s.id; });
   var result = _genBalancedTeams(playing10, _slotT && _slotT.together);
   if (!result) return;
