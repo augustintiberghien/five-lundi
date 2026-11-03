@@ -1066,6 +1066,8 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .mvp-tie-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem 1.8rem}
 .mvp-tie-card{display:flex;flex-direction:column;align-items:center;gap:.4rem;min-width:84px;text-align:center}
 .mvp-tie-card .mvp-winner-photo{width:54px;height:54px}
+.mvp-tie-card .mvp-photo-none{width:54px;height:54px;border-radius:50%;box-sizing:border-box;border:2px solid rgba(255,228,155,.35);background:#2b2e2c;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.mvp-tie-card .mvp-photo-none svg{width:78%;height:78%;fill:#8a8d8b}
 .mvp-bars{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.5rem}
 .mvp-bar-row{display:flex;align-items:center;gap:.5rem;font-size:.7rem}
 .mvp-bar-name{min-width:60px;color:rgba(255,255,255,.7);font-weight:600}
@@ -5600,7 +5602,10 @@ function _renderMvpInner(s, votes) {
       winners.forEach(function(w) {
         var wp = mvpGetPhoto(w, s.players);
         html += '<div class="mvp-tie-card">';
-        if (wp) html += '<img class="mvp-winner-photo" src="' + wp + '" alt="' + w + '">';
+        // Sans photo (l'Invité du soir, un nouveau) : silhouette grise de même taille, pour que
+        // les noms restent alignés sur la même ligne que ceux des autres ex æquo.
+        html += wp ? '<img class="mvp-winner-photo" src="' + wp + '" alt="' + w + '">'
+                   : '<span class="mvp-photo-none" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.6"/><path d="M2.5 24c0-5.6 4.2-9.4 9.5-9.4s9.5 3.8 9.5 9.4z"/></svg></span>';
         html += '<div class="mvp-winner-name">⭐ ' + w + '</div></div>';
       });
       html += '</div></div>';
