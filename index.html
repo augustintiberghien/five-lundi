@@ -1060,6 +1060,12 @@ footer{margin-top:2.5rem;margin-bottom:1.5rem;font-size:.58rem;color:rgba(255,25
 .mvp-winner-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #FFE49B}
 .mvp-winner-name{font-family:'Saira Condensed',sans-serif;font-size:1.1rem;font-weight:700;color:#FFE49B;letter-spacing:.06em;line-height:1}
 .mvp-winner-sub{font-size:.68rem;color:rgba(255,255,255,.4);margin-top:.2rem}
+.mvp-tie{margin-bottom:.9rem}
+.mvp-tie-label{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem;font-family:'Saira Condensed',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,228,155,.65);white-space:nowrap}
+.mvp-tie-label::before,.mvp-tie-label::after{content:'';flex:1;height:1px;background:rgba(255,228,155,.22)}
+.mvp-tie-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem 1.8rem}
+.mvp-tie-card{display:flex;flex-direction:column;align-items:center;gap:.4rem;min-width:84px;text-align:center}
+.mvp-tie-card .mvp-winner-photo{width:54px;height:54px}
 .mvp-bars{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.5rem}
 .mvp-bar-row{display:flex;align-items:center;gap:.5rem;font-size:.7rem}
 .mvp-bar-name{min-width:60px;color:rgba(255,255,255,.7);font-weight:600}
@@ -5590,16 +5596,14 @@ function _renderMvpInner(s, votes) {
     var total = votes.length;
 
     if (winners.length > 1) {
-      html += '<div class="mvp-winner-block" style="flex-direction:column;align-items:flex-start;gap:.6rem">';
+      html += '<div class="mvp-tie"><div class="mvp-tie-label">Égalité · ' + maxVotes + ' votes chacun sur ' + total + '</div><div class="mvp-tie-row">';
       winners.forEach(function(w) {
         var wp = mvpGetPhoto(w, s.players);
-        html += '<div style="display:flex;align-items:center;gap:.8rem">';
+        html += '<div class="mvp-tie-card">';
         if (wp) html += '<img class="mvp-winner-photo" src="' + wp + '" alt="' + w + '">';
-        html += '<div><div class="mvp-winner-name">⭐ ' + w + '</div>';
-        html += '<div class="mvp-winner-sub">' + counts[w] + ' votes sur ' + total + ' · Égalité</div></div>';
-        html += '</div>';
+        html += '<div class="mvp-winner-name">⭐ ' + w + '</div></div>';
       });
-      html += '</div>';
+      html += '</div></div>';
     } else {
       var winnerPhoto = mvpGetPhoto(winner, s.players);
       html += '<div class="mvp-winner-block">';
