@@ -960,6 +960,24 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fa-hero{position:relative;height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;text-align:center;padding:0 1rem}
 .fa-hero-emoji{font-size:3rem;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
 .fa-hero-title{font-size:1.15rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.45);line-height:1.1}
+/* Inscription Express : visuel anime (liste qui se remplit + chrono), 10e champ de la ligne d'ADS */
+.fa-hero-ie{height:196px;overflow:hidden;gap:.5rem}
+.fa-hero-ie::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 30%,rgba(255,255,255,.28),transparent 55%),repeating-linear-gradient(115deg,rgba(255,255,255,.06) 0 10px,transparent 10px 22px)}
+.fa-ie{position:relative;display:flex;align-items:center;justify-content:center;gap:.9rem}
+.fa-ie-list{display:flex;flex-direction:column;gap:.22rem;width:138px;padding:.45rem;border-radius:12px;background:rgba(15,10,10,.55);box-shadow:0 8px 20px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18)}
+.fa-ie-row{display:flex;align-items:center;gap:.4rem;height:17px;padding:0 .4rem;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;opacity:0;animation:fa-ie-row 4.2s infinite;animation-delay:calc(var(--i)*.3s)}
+.fa-ie-row i{font-style:normal;flex:none;width:12px;height:12px;border-radius:50%;background:#22c55e;color:#fff;font-size:.5rem;line-height:12px;text-align:center}
+.fa-ie-row em{font-style:normal;margin-left:auto;opacity:.6;font-size:.55rem}
+@keyframes fa-ie-row{0%{opacity:0;transform:translateX(-14px) scale(.96)}6%,80%{opacity:1;transform:none}92%,100%{opacity:0;transform:none}}
+.fa-ie-clock{position:relative;width:74px;height:74px;flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.fa-ie-clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+.fa-ie-clock circle{fill:rgba(15,10,10,.6);stroke-width:6}
+.fa-ie-clock .t{stroke:rgba(255,255,255,.2)}
+.fa-ie-clock .p{fill:none;stroke:#fde047;stroke-linecap:round;stroke-dasharray:201;animation:fa-ie-ring 4.2s linear infinite}
+@keyframes fa-ie-ring{0%{stroke-dashoffset:201}80%,100%{stroke-dashoffset:0}}
+.fa-ie-clock b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;font-weight:900;line-height:1}
+.fa-ie-clock b small{font-size:.5rem;font-weight:700;letter-spacing:.12em;opacity:.8;margin-top:.1rem}
+@media (prefers-reduced-motion:reduce){.fa-ie-row{animation:none;opacity:1}.fa-ie-clock .p{animation:none;stroke-dashoffset:0}}
 .fa-badge{position:absolute;top:.5rem;right:.5rem;background:#e41e3f;color:#fff;font-size:.6rem;font-weight:800;padding:.15rem .4rem;border-radius:4px;transform:rotate(4deg)}
 .fa-order{display:flex;align-items:center;gap:.4rem;padding:.4rem .7rem;background:#1f2123;font-size:.72rem;color:#b0b3b8;border-top:1px solid rgba(255,255,255,.05)}
 .fa-order .fa-liker{margin-left:0}
@@ -8424,7 +8442,8 @@ function updateCountdown() {
     ['Rémi Taxi','🚕','linear-gradient(135deg,#713f12,#facc15)','🚕⚽','Rémi passe vous chercher','Besoin de vous faire accompagner lundi soir ? Rémi passe vous chercher, à condition de le prendre dans votre équipe.','remi-taxi.fr','Appeler Rémi','DISPO'],
     ['Réclamations Pro','✉️','linear-gradient(135deg,#334155,#94a3b8)','😢✉️','Triste sans votre ami ?','Vous ne jouez pas avec votre meilleur ami ? Ça vous rend triste ? Écrivez une lettre de réclamation.','reclamations-pro.fr','Écrire ma lettre','RÉPONSE : JAMAIS'],
     ['Banc Confort','🪑','linear-gradient(135deg,#7f1d1d,#f97316)','🔥🪑','Le banc chauffant','Coussin chauffant pour le banc. Déjà adopté par tous les remplaçants qui attendent un désistement.','banc-confort.fr','M’asseoir','CHAUFFANT'],
-    ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT']
+    ['Mutuelle Maudit','💀','linear-gradient(135deg,#1c1917,#78716c)','💀','3 défaites d’affilée','Un badge 💀 offert avec votre contrat. Rejoignez déjà 2 joueurs en galère.','mutuelle-maudit.fr','Me protéger','OFFERT'],
+    ['Inscription Express™','⚡','linear-gradient(135deg,#7c2d12,#f97316 55%,#db2777)','⚡','Toute la bande en 45 s','Plus besoin que vos amis s’inscrivent eux-mêmes : entrez leurs prénoms, on s’occupe du reste. Sans leur demander leur avis, et sans les prévenir avant la compo.','inscription-express.fr','Inscrire mes potes','NOUVEAU','<div class="fa-ie-list"><span class="fa-ie-row" style="--i:0"><i>✓</i>Pote n°1<em>+1</em></span><span class="fa-ie-row" style="--i:1"><i>✓</i>Pote n°2<em>+1</em></span><span class="fa-ie-row" style="--i:2"><i>✓</i>Pote n°3<em>+1</em></span><span class="fa-ie-row" style="--i:3"><i>✓</i>Pote n°4<em>+1</em></span><span class="fa-ie-row" style="--i:4"><i>✓</i>Pote n°5<em>+1</em></span><span class="fa-ie-row" style="--i:5"><i>✓</i>Pote n°6<em>+1</em></span></div><div class="fa-ie-clock"><svg viewBox="0 0 74 74"><circle class="t" cx="37" cy="37" r="32"/><circle class="p" cx="37" cy="37" r="32"/></svg><b>45<small>SEC</small></b></div>']
   ];
   var LIKERS={'Urban Five':['Landry','Dylan'],'Cardio Plus™':['Henri','Alex'],'Claude Équilibrage Pro':['Gugu','Michael'],'Gardien.com':['Henri','Tim'],'Michael Coaching':['Spy','Edouard'],'Scouting Zizou':['Landry','Dylan'],'Stats Illimitées':['Jack','Tim'],'Bar du Vestiaire':['Gugu','Michael'],'Invité Express':['Quentin'],'Académie Samy':['Samy','Edouard'],'Mutuelle Maudit':['Jack','Tim'],'Place Garantie VIP':['Hugo','Tim'],'Avis de recherche':['Marc','Tim'],'Pari Sportif Jack':['Spy','Gugu'],'Claude Presse':['Gugu'],'Vote Express':['Henri','Khalid'],'Désistements Plus':['Alex','Cyril'],'Rémi Taxi':['Rémi','Ibrahima'],'Réclamations Pro':['Hugo'],'Banc Confort':['Dylan','Henri']};
   /* « aimé par » : qui a liké la pub (quand ça le concerne) ; photo de PLAYER_PHOTOS, initiale sinon */
@@ -8442,7 +8461,9 @@ function updateCountdown() {
     var who=h('fa-who'); who.appendChild(h('fa-brand',a[0])); who.appendChild(h('fa-spons','Sponsorisé · 🌐'));
     head.appendChild(av); head.appendChild(who); head.appendChild(h('fa-dots','···'));
     var hero=h('fa-hero'); hero.style.background=a[2];
-    hero.appendChild(h('fa-hero-emoji',a[3])); hero.appendChild(h('fa-hero-title',a[4])); hero.appendChild(h('fa-badge',a[8]));
+    if(a[9]){ hero.className+=' fa-hero-ie'; var _v=h('fa-ie'); _v.innerHTML=a[9]; hero.appendChild(_v); }
+    else hero.appendChild(h('fa-hero-emoji',a[3]));
+    hero.appendChild(h('fa-hero-title',a[4])); hero.appendChild(h('fa-badge',a[8]));
     var bar=h('fa-bar'), url=h('fa-url',a[6].split('/')[0].toUpperCase()); url.appendChild(h('',a[4],'b'));
     var cta=h('fa-cta',a[7],'button'); cta.onclick=function(){cta.textContent='404 · fausse pub';cta.disabled=true;};
     bar.appendChild(url); bar.appendChild(cta);
