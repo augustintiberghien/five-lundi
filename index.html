@@ -7192,7 +7192,29 @@ function doRegister(slotId){
   if(!input) return;
   var name=input.value.trim();
   if(!name){ return; }
+  /* Une inscription par navigateur et par creneau : le nom pose ici est memorise
+     (ins_reg_<creneau>). Un autre nom est refuse tant que le premier figure encore
+     sur la feuille — verifie cote serveur, donc se desinscrire (d'ici ou d'ailleurs)
+     libere le navigateur. 'Invite' (le +1) est exempte dans les deux sens.
+     Garde-fou contre l'erreur de bonne foi, pas contre la mauvaise foi : navigation
+     privee ou autre appareil le contournent (seule une authentification l'empeche). */
+  var _regKey='ins_reg_'+slotId, _mine='';
+  try{ _mine=localStorage.getItem(_regKey)||''; }catch(e){}
+  if(name!=='Invité' && _mine && _mine!==name){
+    sbGetRegistrations(slotId).then(function(regs){
+      var still=regs.some(function(r){return r.player_name===_mine;});
+      if(still){
+        alert('Tu es déjà inscrit comme '+_mine+' sur ce créneau.\nDésinscris-toi d\'abord (touche ton nom dans la liste) si tu veux changer.');
+        input.value='';
+      } else {
+        try{ localStorage.removeItem(_regKey); }catch(e){}
+        doRegister(slotId);
+      }
+    }).catch(function(e){ console.error(e); });
+    return;
+  }
   localStorage.setItem('presence_name', name);
+  if(name!=='Invité'){ try{ localStorage.setItem(_regKey, name); }catch(e){} }
   input.disabled=true;
   var btn=input.parentElement.querySelector('.ins-btn');
   if(btn) btn.disabled=true;
