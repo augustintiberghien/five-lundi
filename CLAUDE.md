@@ -15,11 +15,11 @@ git push -u origin claude/setup-html-project-wSe4F
 ```
 
 ## Stack
-- **App** : single-file HTML (`index.html`, ~0,8 Mo) — tout est dedans : CSS, JS, photos joueurs en base64
+- **App** : single-file HTML (`index.html`, ~1 Mo) — tout est dedans : CSS, JS, photos joueurs en base64
 - **Backend votes MVP** : Supabase
 - **Hébergement** : GitHub Pages via le repo
 - **Racine du dépôt** (rangée le 30 septembre 2026) : seulement le site (`index.html`, `sw.js`, `logo.svg`, `logo.png`) et les deux outils en service (`republish_compo.py`, `flip_slot_colors.py`). Les ~50 scripts de retouche ponctuelle et les images sources sont dans `archive/` (cf. son README) — ne pas les relancer.
-- **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (le fichier reste trop long pour un Read en une fois : ~7 000 lignes, dont des lignes de plusieurs centaines de Ko)
+- **Pas de build, pas de bundler** — édition directe du fichier HTML via scripts Python (le fichier reste trop long pour un Read en une fois : ~8 600 lignes, dont des lignes de plusieurs centaines de Ko)
 
 ### ⚠️ Toute photo ajoutée doit être réduite avant d'être collée (depuis septembre 2026)
 
@@ -507,7 +507,7 @@ mois (`_MN[7] = août`) dans `_seasonOfDate(dateStr)`, qui accepte aussi bien
 nom générique `Invité`. `season` à `null` = depuis toujours.
 
 ⚠️ **Le garde-fou à ne pas perdre** : `_computeStats(null)` doit reproduire
-`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (25 joueurs, 175 paires au 30 septembre
+`PLAYER_STATS` et `PAIR_STATS` **à l'identique** (25 joueurs, 189 paires au 8 novembre
 2026). C'est ce qui garantit qu'un onglet ne contredit pas l'autre. Toute modification
 du calcul doit être revérifiée contre les tables figées, qui restent la référence et
 continuent d'être maintenues par `update_stats.py`.
@@ -908,7 +908,7 @@ comme un journal de sport : **l'équipe blanche**, **l'équipe bleue**, **les ho
   formule imagée sur un joueur réel se relit comme les pubs (cf. « Fausses pubs »).
 - Ne concerne **pas** les données ni l'interface (`nameA` / `nameB`, libellés des onglets) :
   seul le texte rédigé change. Les notes de ce fichier gardent leur forme abrégée.
-- Les 23 articles déjà publiés n'ont pas été réécrits ; ne les retoucher que sur demande.
+- Les 27 articles déjà publiés n'ont pas été réécrits ; ne les retoucher que sur demande.
 
 ## Écran de chargement : la vraie limite est la largeur, pas le nombre
 
@@ -1007,7 +1007,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s26 | 26 octobre 2026 | 12 – 11 (A) | ✅ |
+| s27 | 2 novembre 2026 | 10 – 7 (A) | ✅ |
+| s26 | 26 octobre 2026 | 12 – 11 (A) | |
 | s25 | 19 octobre 2026 | 11 – 9 (A) | |
 | s24 | 12 octobre 2026 | 4 – 12 (B) | |
 | s23 | 5 octobre 2026 | 11 – 5 (A) | |
@@ -1095,6 +1096,12 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s27 — 2 novembre 2026)
+Blanche ⚪ : Michael, Gugu, Spy, Johann, Théo
+Bleue 🔵 : Ibrahima, Khalid, Cyril, Landry, Jack
+La Blanche l'emporte 10-7 (banc : Thomas D, Edouard). Équilibrage **72,5 – 73**. Homme du match : **égalité Gugu, Spy et Johann**
+(vote présenté côte à côte sous un bandeau « Égalité · N votes chacun »). Article dans `ARTICLES['s27']`.
 
 ## Joueurs actifs (s26 — 26 octobre 2026)
 Blanche ⚪ : Spy, Théo, Jack, Henri, Invité (Samba)
