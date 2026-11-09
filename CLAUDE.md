@@ -1007,7 +1007,8 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s27 | 2 novembre 2026 | 10 – 7 (A) | ✅ |
+| s28 | 9 novembre 2026 | 5 – 4 (A) | ✅ |
+| s27 | 2 novembre 2026 | 10 – 7 (A) | |
 | s26 | 26 octobre 2026 | 12 – 11 (A) | |
 | s25 | 19 octobre 2026 | 11 – 9 (A) | |
 | s24 | 12 octobre 2026 | 4 – 12 (B) | |
@@ -1096,6 +1097,14 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s28 — 9 novembre 2026)
+Blanche ⚪ : Michael, Gugu, Spy, Landry, Raphaël
+Bleue 🔵 : Rémi, Flo, Henri, Jack, Alex
+La Blanche l'emporte 5-4 (banc : Khalid, Thomas D). Équilibrage **70 – 69,5**. Premier but à la 22ᵉ minute, 5-1 puis remontée bleue
+trop tardive. Spy signe 3 des 5 buts blancs (le 1-0 est un but contre son camp de Rémi). Buteurs bleus flous (Jack peut-être 3, Alex 1) : article vague.
+Homme du match : **Spy**, 7 voix sur 10, devant Michael, Jack et Rémi (1 chacun). Vote clos à 10 voix le 10 novembre à 00h44 Paris,
+article publié à 00h50 (`publishedAt` réel). Débrief reçu par Gugu en texte. Article dans `ARTICLES['s28']`.
 
 ## Joueurs actifs (s27 — 2 novembre 2026)
 Blanche ⚪ : Michael, Gugu, Spy, Johann, Théo
