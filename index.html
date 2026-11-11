@@ -761,7 +761,13 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 #view-joueurs{display:none}
 
 /* == CARTES FUT (onglet Joueurs) == */
-.fut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+.jr-chev{align-self:center;color:rgba(255,228,155,.55);font-size:1.4rem;line-height:1;padding-left:.2rem}
+.fut-modal{position:fixed;inset:0;z-index:9999;background:rgba(3,8,5,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;
+  animation:futIn .25s ease-out both}
+.fut-modal .fut{width:min(76vw,300px)}
+.fut-x{position:absolute;top:.8rem;right:.9rem;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:50%;width:2.2rem;height:2.2rem;font-size:1rem;cursor:pointer}
+.fut-hint{font-family:'Saira Condensed',sans-serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+@keyframes futIn{from{opacity:0}to{opacity:1}}
 .fut{container-type:inline-size;aspect-ratio:5/7.4;perspective:900px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fut-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.22,1,.36,1);transform-style:preserve-3d}
 .fut.flip .fut-in{transform:rotateY(180deg)}
@@ -798,9 +804,6 @@ header{text-align:center;margin-bottom:0;width:100%;padding-top:2.4rem;padding-b
 .fut-fm{display:flex;justify-content:center;gap:2cqw;margin-top:3cqw}
 .fut-fm i{width:6cqw;height:6cqw;border-radius:50%;background:var(--fl)}
 .fut-fm i.w{background:#1e8f4e}.fut-fm i.l{background:#b3261e}
-.fut-art{position:absolute;left:-5cqw;bottom:0;font-size:8cqw;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:.5cqw 2.5cqw;font-weight:700}
-.fut-st{display:grid;grid-template-columns:1fr 1fr;gap:0 6cqw;margin-top:2cqw;font-size:8cqw;line-height:1.2;font-weight:700}
-.fut-st div{display:flex;gap:1.6cqw;align-items:baseline}.fut-st b{font-weight:800}.fut-st span{opacity:.75;letter-spacing:.04em}
 .fut-ft{margin-top:auto;text-align:center;font-size:6.6cqw;letter-spacing:.1em;text-transform:uppercase;opacity:.8;padding-bottom:1cqw}
 .fut-b .rd{width:62cqw;height:62cqw}
 .fut-b .fm{display:flex;gap:1.2cqw}.fut-b .fm i{width:8cqw;height:8cqw;border-radius:2cqw;font-style:normal;font-size:5cqw;font-weight:700;
@@ -3492,6 +3495,51 @@ function showJoueurs(){
   window.scrollTo(0,0);
 }
 
+/* == Carte FUT : ouverte en grand au tap sur une ligne de l'onglet Joueurs == */
+var _futCtx = null;
+function _futHtml(n, st, nb, scope){
+  var wr = st.played ? Math.round(st.wins/st.played*100) : 0;
+  var photo = (typeof _getPhotoSrc==='function') ? _getPhotoSrc(n) : null;
+  var role = (typeof PLAYER_ROLES!=='undefined' && PLAYER_ROLES[n]) ? PLAYER_ROLES[n] : null;
+  var club = _clubOf(n);
+  var form = (typeof getPlayerForm==='function') ? getPlayerForm(n, scope).slice(-5) : [];
+  /* Grade : suit le winrate du perimetre affiche (jamais la note interne, affichee nulle part).
+     Moins de 3 matchs = recrue ; 2 titres d'homme du match = icone. */
+  var tier = st.played < 3 ? 'rk' : nb >= 2 ? 'icon' : wr >= 60 ? 'gold' : wr >= 45 ? 'silver' : 'bronze';
+  var nq = n.replace(/'/g,"\\'");
+  var nbArt = (typeof _prCountFor === 'function') ? _prCountFor(n, scope) : 0;
+  var press = nbArt ? '<button class="jr-press" onclick="event.stopPropagation();_closeFut();_prOpenFor(\''+nq+'\','
+      + (scope ? '\''+scope+'\'' : 'null') + ')">\u{1F4F0} '+nbArt+' article'+(nbArt>1?'s':'')+' ›</button>' : '';
+  var h = '<div class="fut t-'+tier+'" onclick="this.classList.toggle(\'flip\')"><div class="fut-in">';
+  h += '<div class="fut-f"><div class="fut-top"><div class="fut-ovr"><b>'+(st.played?wr:'–')+'</b><span>WIN</span></div>';
+  if(role) h += '<div class="fut-pos">'+role.slice(0,3).toUpperCase()+'</div>';
+  h += '</div>';
+  if(club) h += '<div class="fut-crest">'+_clubBadge(club,20)+'</div>';
+  h += '<div class="fut-ph">'+(photo ? '<img src="'+photo+'" alt="'+n+'">' : '<div class="ini">'+n.slice(0,2).toUpperCase()+'</div>');
+  if(nb>0) h += '<span class="fut-tro">\u{1F3C6} '+nb+'</span>';
+  h += '</div><div class="fut-name">'+n+'</div>';
+  if(form.length){ h += '<div class="fut-fm">'; form.forEach(function(r){ h += '<i class="'+(r==='W'?'w':'l')+'"></i>'; }); h += '</div>'; }
+  h += '<div class="fut-ft">'+st.played+' match'+(st.played>1?'s':'')+' · '+st.wins+' V</div></div>';
+  h += '<div class="fut-b"><div class="rd">'+makeHexOverlaySvg(n,true)+'</div>';
+  var sub=[]; if(role) sub.push(role); if(club) sub.push(CLUBS[club].nom);
+  if(sub.length) h += '<div class="bn">'+sub.join(' · ')+'</div>';
+  h += press+'</div></div></div>';
+  return h;
+}
+function _openFut(n){
+  if(!_futCtx || !_futCtx.S.players[n]) return;
+  _closeFut();
+  var m = document.createElement('div');
+  m.id = 'fut-modal'; m.className = 'fut-modal';
+  m.onclick = function(e){ if(e.target === m) _closeFut(); };
+  m.innerHTML = '<button class="fut-x" aria-label="Fermer" onclick="_closeFut()">✕</button>'
+    + _futHtml(n, _futCtx.S.players[n], _futCtx.titres[n]||0, _futCtx.scope)
+    + '<div class="fut-hint">Touche la carte pour la retourner</div>';
+  document.body.appendChild(m);
+}
+function _closeFut(){ var m = document.getElementById('fut-modal'); if(m) m.remove(); }
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') _closeFut(); });
+
 function renderJoueurs(){
   var wrap = document.getElementById('view-joueurs');
   if(!wrap) return;
@@ -3518,67 +3566,63 @@ function renderJoueurs(){
      + 'text-transform:uppercase;letter-spacing:.1em;padding:' + (pills ? '.5rem' : '0') + ' .4rem .8rem">'
      + (pills ? '' : (scope ? 'Saison '+scope : 'Depuis toujours') + ' · ') + noms.length + ' joueurs</div>';
 
-  h += '<div class="fut-grid">';
+  _futCtx = {S:S, titres:titres, scope:scope};
   noms.forEach(function(n){
     var st = S.players[n];
     var wr = st.played ? Math.round(st.wins/st.played*100) : 0;
+    var col = wr>=67 ? '#4ade80' : wr>=50 ? '#FFE49B' : '#ef4444';
     var photo = (typeof _getPhotoSrc==='function') ? _getPhotoSrc(n) : null;
     var role = (typeof PLAYER_ROLES!=='undefined' && PLAYER_ROLES[n]) ? PLAYER_ROLES[n] : null;
     var club = _clubOf(n);
     var nb = titres[n] || 0;
     var form = (typeof getPlayerForm==='function') ? getPlayerForm(n, scope).slice(-5) : [];
-    var crit = (typeof CRITERIA!=='undefined' && CRITERIA[n]) ? CRITERIA[n].slice(0,6) : null;
-    /* Grade : suit le winrate du perimetre affiche (jamais la note interne, qui n'est
-       affichee nulle part). Moins de 3 matchs = recrue ; 2 titres d'homme du match = icone. */
-    var tier = st.played < 3 ? 'rk' : nb >= 2 ? 'icon' : wr >= 60 ? 'gold' : wr >= 45 ? 'silver' : 'bronze';
-    var nq = n.replace(/'/g,"\\'");
 
-    h += '<div class="fut t-'+tier+'" onclick="this.classList.toggle(\'flip\')"><div class="fut-in">';
+    h += '<div class="jr-card" onclick="_openFut(\''+n.replace(/'/g,"\\'")+'\')" style="cursor:pointer">';
 
-    /* Face */
-    h += '<div class="fut-f">';
-    h += '<div class="fut-top"><div class="fut-ovr"><b>'+(st.played?wr:'–')+'</b><span>WIN</span></div>';
-    if(role) h += '<div class="fut-pos">'+role.slice(0,3).toUpperCase()+'</div>';
-    h += '</div>';
-    if(club) h += '<div class="fut-crest">'+_clubBadge(club,20)+'</div>';
-    h += '<div class="fut-ph">'+(photo ? '<img src="'+photo+'" alt="'+n+'">'
-         : '<div class="ini">'+n.slice(0,2).toUpperCase()+'</div>');
-    if(nb>0) h += '<span class="fut-tro">\u{1F3C6} '+nb+'</span>';
-    var nbArtF = (typeof _prCountFor === 'function') ? _prCountFor(n, scope) : 0;
-    if(nbArtF) h += '<span class="fut-art" onclick="event.stopPropagation();_prOpenFor(\''+nq+'\','
-         + (scope ? '\''+scope+'\'' : 'null') + ')" title="Articles">\u{1F4F0} '+nbArtF+'</span>';
-    h += '</div>';
-    h += '<div class="fut-name">'+n+'</div>';
-    if(form.length){
-      h += '<div class="fut-fm">';
-      form.forEach(function(r){ h += '<i class="'+(r==='W'?'w':'l')+'"></i>'; });
-      h += '</div>';
-    }
-    h += '<div class="fut-ft">'+st.played+' match'+(st.played>1?'s':'')+' · '+st.wins+' V</div>';
+    /* Photo */
+    h += '<div class="jr-photo">';
+    h += photo ? '<img src="'+photo+'" alt="'+n+'">'
+               : '<div class="jr-ini">'+n.slice(0,2).toUpperCase()+'</div>';
+    if(club) h += '<div class="jr-crest">'+_clubBadge(club,20)+'</div>';
     h += '</div>';
 
-    /* Dos : radar, forme, lien vers les articles */
-    h += '<div class="fut-b"><div class="rd">'+makeHexOverlaySvg(n,true)+'</div>';
-    if(form.length){
-      h += '<div class="fm">';
-      form.forEach(function(r){ h += '<i class="'+(r==='W'?'w':'l')+'">'+(r==='W'?'V':'D')+'</i>'; });
-      h += '</div>';
-    }
+    /* Identite + chiffres */
+    h += '<div class="jr-body">';
+    h += '<div class="jr-top"><span class="jr-name">'+n+'</span>';
+    if(nb>0) h += '<span class="jr-tro" title="'+nb+' titre'+(nb>1?'s':'')+' d’homme du match '
+                + (scope ? 'en '+scope : 'depuis toujours')+'">'
+                + '\u{1F3C6} '+nb+'</span>';
+    h += '</div>';
     var sub = [];
     if(role) sub.push(role);
     if(club) sub.push(CLUBS[club].nom);
-    if(sub.length) h += '<div class="bn">'+sub.join(' · ')+'</div>';
-    var nbArt = (typeof _prCountFor === 'function') ? _prCountFor(n, scope) : 0;
-    if(nbArt){
-      h += '<button class="jr-press" onclick="event.stopPropagation();_prOpenFor(\''+nq+'\','
-         + (scope ? '\''+scope+'\'' : 'null') + ')">\u{1F4F0} '
-         + nbArt + ' article' + (nbArt>1?'s':'') + ' ›</button>';
-    }
+    h += '<div class="jr-sub">'+(sub.length?sub.join(' · '):'—')+'</div>';
+
+    h += '<div class="jr-stats">';
+    h += '<div class="jr-st"><b>'+st.played+'</b><span>matchs</span></div>';
+    h += '<div class="jr-st"><b>'+st.wins+'</b><span>victoires</span></div>';
+    h += '<div class="jr-st"><b style="color:'+col+'">'+wr+' %</b><span>winrate</span></div>';
     h += '</div>';
 
-    h += '</div></div>';
+    if(form.length){
+      h += '<div class="jr-form">';
+      form.forEach(function(r){
+        h += '<i class="'+(r==='W'?'w':'l')+'">'+(r==='W'?'V':'D')+'</i>';
+      });
+      h += '</div>';
+    }
+
+    /* Lien vers ses articles : la Presse pre-filtree sur son prenom, dans le meme
+       perimetre de saison que la fiche. Rien ne s'affiche quand aucun article ne
+       parle de lui — un bouton qui ouvrirait une liste vide ne sert personne. */
+    var nbArt = (typeof _prCountFor === 'function') ? _prCountFor(n, scope) : 0;
+    if(nbArt){
+      h += '<button class="jr-press" onclick="event.stopPropagation();_prOpenFor(\''+n.replace(/'/g,"\\'")+'\','
+         + (scope ? '\''+scope+'\'' : 'null') + ')">\u{1F4F0} '
+         + nbArt + ' article' + (nbArt>1?'s':'') + ' \u203A</button>';
+    }
+    h += '</div><span class="jr-chev" aria-hidden="true">\u203A</span></div>';
   });
-  h += '</div>';
 
   if(!noms.length){
     h += '<div style="font-family:Saira,sans-serif;font-size:.7rem;color:rgba(255,255,255,.4);'
