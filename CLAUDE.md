@@ -171,14 +171,13 @@ Dans l'ordre, chaque niveau n'agit que dans ce que le précédent laisse :
 
 1. **`together`** (par créneau) : exclut les splits qui séparent le groupe.
 2. **Pool à notes égales** : ΔNote ajustée ≤ minimum + 0,5. Les notes passent avant tout.
-3. **Les deux meilleurs joueurs séparés** (note ajustée, égalités par ordre alphabétique — jamais par ordre du roster) : **filtre** sur le pool, abandonné s'il ne laisse rien. Ce n'est plus une pénalité (+10 négligeable face à ΔSM × 10).
-4. **Les deux meilleurs gardiens séparés** (`CRITERIA[n][6]`, égalités par note ajustée puis ordre alphabétique) : même mécanique de filtre, appliqué après le 3.
-5. **Tri final** : `ΔSM × 10 + ΔMobilité × 6 + pen + duoPen × 0,01`.
+3. **Les deux meilleurs joueurs séparés** (note ajustée, égalités par ordre alphabétique — jamais par ordre du roster) : **filtre strict** sur le pool, abandonné s'il ne laisse rien. Ce n'est plus une pénalité (+10 négligeable face à ΔSM × 10).
+4. **Tri final** : `ΔSM × 10 + ΔMobilité × 6 + pen + duoPen × 0,01`.
    - `SM` = somme des **7** critères de `CRITERIA` (Tech, Fin, Vis, Phy, Vit, End, **Gardien** — il a remplacé Mental, label `Gar`). Calculé, jamais saisi ; `PLAYER_NOTES[n].sm` n'est qu'un repli sans critères.
    - Mobilité = `_playerMob(n)` = Vit + End (12 si inconnu), **totale par équipe** (pas de seuil individuel, écarté par l'utilisateur).
-   - `pen` : +2 par équipe sans joueur **> 6** en Gardien (lu sur le critère, plus sur `PLAYER_ROLES`). La règle Michael/Ibrahima a été supprimée.
+   - `pen` : **+50 si les deux meilleurs gardiens** (`CRITERIA[n][6]`, égalités par note ajustée puis ordre alphabétique) **jouent ensemble** — c'est une *pénalité*, plus un filtre : le filtre passait avant SM et mobilité et réduisait le pool de 6 à 2 compos le 23 novembre (décision du 22 novembre : « fais ce qui est le plus juste pour des matchs équilibrés »). Mesuré (300 tirages) : gardiens ensemble 11 % (filtre 2 %), ΔSM 2,9 (filtre 3,5), ΔMob 4,7. +2 par équipe sans joueur **> 6** en Gardien (lu sur le critère, plus sur `PLAYER_ROLES`). La règle Michael/Ibrahima a été supprimée.
 
-Mesuré sur 300 tirages (22 joueurs) : top-2 joueurs ensemble 2/300, top-2 gardiens ensemble 6/300, ΔNote moyen 0,26, ΔSM 3,5, ΔMobilité 5,0. ⚠️ **Le poids de mobilité (6) agit peu** : une fois les deux filtres passés, le pool est étroit (poids 0 → 6,6 ; 3 → 4,9 ; 10 → 3,7 avant l'ajout du filtre des meilleurs joueurs). Si on veut une vraie mobilité, monter le poids ou en faire un filtre.
+Mesuré sur 300 tirages (22 joueurs) : top-2 joueurs ensemble 2/300, top-2 gardiens ensemble ~11 %, ΔNote moyen 0,26, ΔSM 2,9, ΔMobilité 4,7. ⚠️ **Le poids de mobilité (6) agit peu** : une fois les deux filtres passés, le pool est étroit (poids 0 → 6,6 ; 3 → 4,9 ; 10 → 3,7 avant l'ajout du filtre des meilleurs joueurs). Si on veut une vraie mobilité, monter le poids ou en faire un filtre.
 
 Notes remplacées le 22 novembre (22 joueurs, 7 critères). **Guilhem et Invité** : critères inchangés, Gardien à 5 (neutre) — à renseigner. `Invité` reste un nom générique partagé (cf. plus bas).
 
