@@ -177,6 +177,7 @@ départage désormais, dans le pool des splits à ΔNote ≤ min + 0,5 :
 - Test sur 300 tirages aléatoires : écart de mobilité moyen 4,4 → 1,9, écart de note inchangé (0,48).
 - `CRITERIA` ajouté à l'extraction de `lock_session.py` et `republish_compo.py` (sinon `_playerMob` plante dans node).
 - Endurance de Hugo 9 → 7 (demande de l'utilisateur). Les notes et critères sont en cours de revue avec Spy.
+- **SM calculé** (décision du 22 novembre) : `_playerSM` = somme des 6 premiers critères de `CRITERIA` (mental exclu), plus jamais saisie à la main. `PLAYER_NOTES[n].sm` n'est qu'un repli pour un joueur sans critères. Sept SM stockés divergeaient (Quentin 38→43, Invité 40→45, Alex, Tim, Hugo, Raphaël, Samy) ; sur le créneau du 23 novembre la compo calculée reste identique.
 - ⚠️ Le poids (3) et la définition (Vit+End) sont des **réglages**, pas des vérités : à revoir avec les nouvelles notes.
 - Merger la règle ne change **pas** la compo déjà publiée (`roster_key` identique) ; pour qu'elle s'applique
   il faut `republish_compo.py <slot>` — volontairement **non lancé** pour `ins_nov_23` tant que les notes sont en revue.
