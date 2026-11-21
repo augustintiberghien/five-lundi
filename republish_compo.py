@@ -111,6 +111,7 @@ def main():
         sl("var _MN = ['janvier'", '\n'),
         sl('function _seasonOfDate(dateStr){', '\n/* Toutes les rencontres'),
         sl('var PLAYER_NOTES = {', '\nvar PAIR_STATS'),
+        sl('var CRITERIA = {', '\nvar LABELS'),   # mobilité (Vit+End) du départage
         sl('var PAIR_STATS = [', '\nfunction'),
         sl('var PLAYER_ROLES = {', '\nfunction'),
         sl('function getPairWinRate(n1, n2) {', '\nfunction '),
