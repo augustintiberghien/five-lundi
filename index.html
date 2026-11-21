@@ -4151,8 +4151,8 @@ function _genBalancedTeams(names10, together) {
     if (same) c.pen += GK_TOGETHER_PEN;
   });
   pool.sort(function(a, b){
-    var sA = a.dSM * 10 + a.dMob * 6 + a.pen + a.duoPen * 0.01;
-    var sB = b.dSM * 10 + b.dMob * 6 + b.pen + b.duoPen * 0.01;
+    var sA = a.dSM * 10 + a.dMob * 10 + a.pen + a.duoPen * 0.01;
+    var sB = b.dSM * 10 + b.dMob * 10 + b.pen + b.duoPen * 0.01;
     return sA - sB;
   });
 
