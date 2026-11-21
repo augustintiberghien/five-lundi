@@ -4126,18 +4126,18 @@ function _genBalancedTeams(names10, together) {
   //          choisir celui où les critères sont les plus équilibrés (ΔSM + pénalités)
   var NOTE_TOL = 0.5;
   var pool = allCombos.filter(function(c){ return c.dN <= minDN + NOTE_TOL; });
-  /* Hierarchie des filtres (22 novembre 2026), chacun applique au pool a notes egales et
-     abandonne s'il ne laisse rien : 1) les deux meilleurs joueurs separes, puis 2) les deux
-     meilleurs gardiens separes. Ils ne coutent rien en equilibre de notes. */
+  /* Filtre (22 novembre 2026), applique au pool a notes egales et abandonne s'il ne laisse
+     rien : les deux meilleurs joueurs separes. Il ne coute rien en equilibre de notes. */
   var topSplit = pool.filter(function(c){
     return (c.teamA.indexOf(top2[0]) !== -1) !== (c.teamA.indexOf(top2[1]) !== -1);
   });
   if (topSplit.length) pool = topSplit;
   /* Regle gardien (22 novembre 2026) : les deux meilleurs au critere Gardien (CRITERIA[n][6])
-     ne jouent pas dans la meme equipe. Filtre sur le pool a notes egales, donc sans cout
-     d'equilibre ; si aucun split du pool ne les separe, on garde le pool tel quel.
-     Departage des egalites : note ajustee puis ordre alphabetique (determinisme : tous les
-     navigateurs et le lock doivent calculer la meme compo). */
+     devraient jouer dans des equipes differentes. PENALITE de 50 dans le tri final (= 5 points
+     de SM), et non filtre : un filtre passait avant SM et mobilite et reduisait le pool de 6 a
+     2 compos le 23 novembre. Mesure sur 300 tirages : gardiens ensemble 11 % (filtre : 2 %),
+     ecart de SM 2,9 (filtre : 3,5). Egalites departagees par note ajustee puis ordre
+     alphabetique (determinisme : navigateurs et lock doivent calculer la meme compo). */
   var gkRank = names10.slice().sort(function(a, b){
     var ga = (CRITERIA[a] || [])[6] || 0, gb = (CRITERIA[b] || [])[6] || 0;
     if (gb !== ga) return gb - ga;
@@ -4145,10 +4145,11 @@ function _genBalancedTeams(names10, together) {
     return dn !== 0 ? dn : (a < b ? -1 : 1);
   });
   var gk2 = [gkRank[0], gkRank[1]];
-  var gkSplit = pool.filter(function(c){
-    return c.teamA.indexOf(gk2[0]) !== -1 !== (c.teamA.indexOf(gk2[1]) !== -1);
+  var GK_TOGETHER_PEN = 50;
+  pool.forEach(function(c){
+    var same = (c.teamA.indexOf(gk2[0]) !== -1) === (c.teamA.indexOf(gk2[1]) !== -1);
+    if (same) c.pen += GK_TOGETHER_PEN;
   });
-  if (gkSplit.length) pool = gkSplit;
   pool.sort(function(a, b){
     var sA = a.dSM * 10 + a.dMob * 6 + a.pen + a.duoPen * 0.01;
     var sB = b.dSM * 10 + b.dMob * 6 + b.pen + b.duoPen * 0.01;
