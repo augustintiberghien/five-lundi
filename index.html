@@ -4093,8 +4093,11 @@ function _genBalancedTeams(names10, together) {
       var top2TogetherA = top2.every(function(n){ return chosen.indexOf(n) !== -1; });
       var top2TogetherB = top2.every(function(n){ return tB.indexOf(n) !== -1; });
       if (top2TogetherA || top2TogetherB) pen += 10;
-      var gkA = chosen.some(function(n){ return (PLAYER_ROLES[n]||'')==='Gardien'; });
-      var gkB = tB.some(function(n){ return (PLAYER_ROLES[n]||'')==='Gardien'; });
+      /* Penalite « pas de gardien » : une equipe sans joueur a plus de 6 au critere Gardien
+         (CRITERIA[n][6] > 6). Remplace le test sur PLAYER_ROLES, que seul Remi satisfaisait. */
+      var isGk = function(n){ return ((CRITERIA[n] || [])[6] || 0) > 6; };
+      var gkA = chosen.some(isGk);
+      var gkB = tB.some(isGk);
       if (!gkA) pen += 2;
       if (!gkB) pen += 2;
       var mIbrA = chosen.indexOf('Michael')!==-1 && chosen.indexOf('Ibrahima')!==-1;
@@ -4124,6 +4127,22 @@ function _genBalancedTeams(names10, together) {
   //          choisir celui où les critères sont les plus équilibrés (ΔSM + pénalités)
   var NOTE_TOL = 0.5;
   var pool = allCombos.filter(function(c){ return c.dN <= minDN + NOTE_TOL; });
+  /* Regle gardien (22 novembre 2026) : les deux meilleurs au critere Gardien (CRITERIA[n][6])
+     ne jouent pas dans la meme equipe. Filtre sur le pool a notes egales, donc sans cout
+     d'equilibre ; si aucun split du pool ne les separe, on garde le pool tel quel.
+     Departage des egalites : note ajustee puis ordre alphabetique (determinisme : tous les
+     navigateurs et le lock doivent calculer la meme compo). */
+  var gkRank = names10.slice().sort(function(a, b){
+    var ga = (CRITERIA[a] || [])[6] || 0, gb = (CRITERIA[b] || [])[6] || 0;
+    if (gb !== ga) return gb - ga;
+    var dn = _adjustedNote(b) - _adjustedNote(a);
+    return dn !== 0 ? dn : (a < b ? -1 : 1);
+  });
+  var gk2 = [gkRank[0], gkRank[1]];
+  var gkSplit = pool.filter(function(c){
+    return c.teamA.indexOf(gk2[0]) !== -1 !== (c.teamA.indexOf(gk2[1]) !== -1);
+  });
+  if (gkSplit.length) pool = gkSplit;
   pool.sort(function(a, b){
     var sA = a.dSM * 10 + a.dMob * 3 + a.pen + a.duoPen * 0.01;
     var sB = b.dSM * 10 + b.dMob * 3 + b.pen + b.duoPen * 0.01;
