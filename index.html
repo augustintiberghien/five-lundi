@@ -4066,7 +4066,12 @@ function _halfHash(names) {
 
 function _genBalancedTeams(names10, together) {
   // Pre-compute top-2 by adjusted note (à séparer si possible)
-  var sorted = names10.slice().sort(function(a,b){ return _adjustedNote(b)-_adjustedNote(a); });
+  /* Les deux meilleurs joueurs (note ajustee, egalites par ordre alphabetique : le resultat ne
+     doit pas dependre de l'ordre du roster, que chaque navigateur et le lock rejouent). */
+  var sorted = names10.slice().sort(function(a,b){
+    var d = _adjustedNote(b) - _adjustedNote(a);
+    return d !== 0 ? d : (a < b ? -1 : 1);
+  });
   var top2 = [sorted[0], sorted[1]];
 
   // Contrainte exceptionnelle (slot.together) : garder ces joueurs dans la même équipe.
@@ -4090,9 +4095,6 @@ function _genBalancedTeams(names10, together) {
 
       // Critères (pénalités légères — secondaires aux notes)
       var pen = 0;
-      var top2TogetherA = top2.every(function(n){ return chosen.indexOf(n) !== -1; });
-      var top2TogetherB = top2.every(function(n){ return tB.indexOf(n) !== -1; });
-      if (top2TogetherA || top2TogetherB) pen += 10;
       /* Penalite « pas de gardien » : une equipe sans joueur a plus de 6 au critere Gardien
          (CRITERIA[n][6] > 6). Remplace le test sur PLAYER_ROLES, que seul Remi satisfaisait. */
       var isGk = function(n){ return ((CRITERIA[n] || [])[6] || 0) > 6; };
@@ -4100,9 +4102,6 @@ function _genBalancedTeams(names10, together) {
       var gkB = tB.some(isGk);
       if (!gkA) pen += 2;
       if (!gkB) pen += 2;
-      var mIbrA = chosen.indexOf('Michael')!==-1 && chosen.indexOf('Ibrahima')!==-1;
-      var mIbrB = tB.indexOf('Michael')!==-1 && tB.indexOf('Ibrahima')!==-1;
-      if (mIbrA || mIbrB) pen += 1;
       var duoPen = Math.max(_duoPairScore(chosen), _duoPairScore(tB));
 
       var mobA = 0, mobB = 0;
@@ -4127,6 +4126,13 @@ function _genBalancedTeams(names10, together) {
   //          choisir celui où les critères sont les plus équilibrés (ΔSM + pénalités)
   var NOTE_TOL = 0.5;
   var pool = allCombos.filter(function(c){ return c.dN <= minDN + NOTE_TOL; });
+  /* Hierarchie des filtres (22 novembre 2026), chacun applique au pool a notes egales et
+     abandonne s'il ne laisse rien : 1) les deux meilleurs joueurs separes, puis 2) les deux
+     meilleurs gardiens separes. Ils ne coutent rien en equilibre de notes. */
+  var topSplit = pool.filter(function(c){
+    return (c.teamA.indexOf(top2[0]) !== -1) !== (c.teamA.indexOf(top2[1]) !== -1);
+  });
+  if (topSplit.length) pool = topSplit;
   /* Regle gardien (22 novembre 2026) : les deux meilleurs au critere Gardien (CRITERIA[n][6])
      ne jouent pas dans la meme equipe. Filtre sur le pool a notes egales, donc sans cout
      d'equilibre ; si aucun split du pool ne les separe, on garde le pool tel quel.
@@ -4144,8 +4150,8 @@ function _genBalancedTeams(names10, together) {
   });
   if (gkSplit.length) pool = gkSplit;
   pool.sort(function(a, b){
-    var sA = a.dSM * 10 + a.dMob * 3 + a.pen + a.duoPen * 0.01;
-    var sB = b.dSM * 10 + b.dMob * 3 + b.pen + b.duoPen * 0.01;
+    var sA = a.dSM * 10 + a.dMob * 6 + a.pen + a.duoPen * 0.01;
+    var sB = b.dSM * 10 + b.dMob * 6 + b.pen + b.duoPen * 0.01;
     return sA - sB;
   });
 
