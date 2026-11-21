@@ -165,24 +165,26 @@ mêmes notes.
 
 Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **Retirée d'`ins_jul_06` après le match ; elle ne subsiste que sur l'ancien `ins_jun_15`, fermé, donc sans effet. Aucun créneau ouvert n'en porte aujourd'hui.**
 
-### Mobilité : 3ᵉ départage de l'équilibrage (22 novembre 2026)
+### Hiérarchie des règles de `_genBalancedTeams` (revue du 22 novembre 2026, avec Spy)
 
-Demande de Romain (Spy) : à cinq, la mobilité fait basculer un match. `_genBalancedTeams`
-départage désormais, dans le pool des splits à ΔNote ≤ min + 0,5 :
-`ΔSM × 10 + |mobA − mobB| × 3 + pen + duoPen × 0,01`, où la mobilité d'un joueur est
-`_playerMob(n)` = Vitesse + Endurance (`CRITERIA[n][4] + CRITERIA[n][5]`, 12 si inconnu).
+Dans l'ordre, chaque niveau n'agit que dans ce que le précédent laisse :
 
-- Les **notes restent prioritaires** : la mobilité ne joue qu'à l'intérieur du pool. Pas de seuil
-  « au moins un joueur à 15 » (écarté par l'utilisateur) : seule compte la **mobilité totale** de chaque équipe.
-- Test sur 300 tirages aléatoires : écart de mobilité moyen 4,4 → 1,9, écart de note inchangé (0,48).
-- `CRITERIA` ajouté à l'extraction de `lock_session.py` et `republish_compo.py` (sinon `_playerMob` plante dans node).
-- Endurance de Hugo 9 → 7 (demande de l'utilisateur). Les notes et critères sont en cours de revue avec Spy.
-- **Nouveaux critères (22 novembre, revue avec Spy)** : le 7ᵉ critère de `CRITERIA` est désormais **Gardien** (il remplace Mental, label `Gar` dans `LABELS`) et **entre dans le SM** : `_playerSM` = somme des **7** critères. Notes globales et critères de 22 joueurs remplacés. Guilhem et Invité n'étaient pas dans la liste : critères inchangés, Gardien mis à 5 (neutre) — à renseigner. La pénalité « pas de gardien » de l'algo lit toujours `PLAYER_ROLES`, pas ce critère. (Ancienne règle ci-dessous : somme des 6, mental exclu.)
-- **SM calculé** (décision du 22 novembre) : `_playerSM` = somme des 6 premiers critères de `CRITERIA` (mental exclu), plus jamais saisie à la main. `PLAYER_NOTES[n].sm` n'est qu'un repli pour un joueur sans critères. Sept SM stockés divergeaient (Quentin 38→43, Invité 40→45, Alex, Tim, Hugo, Raphaël, Samy) ; sur le créneau du 23 novembre la compo calculée reste identique.
-- **Règle Gardien (22 novembre)** : (1) les **deux meilleurs au critère Gardien** (`CRITERIA[n][6]`) ne jouent pas ensemble — filtre sur le pool à notes égales (sans coût d'équilibre ; si aucun split du pool ne les sépare, on garde le pool : 146/150 compos aléatoires séparées, ΔNote moyen 0,30). Égalités départagées par note ajustée puis ordre alphabétique (déterminisme). (2) La pénalité « pas de gardien » (+2 par équipe) se lit désormais sur le critère : une équipe sans joueur **> 6** en Gardien est pénalisée (avant : rôle `Gardien` de `PLAYER_ROLES`, que seul Rémi avait).
-- ⚠️ Le poids (3) et la définition (Vit+End) sont des **réglages**, pas des vérités : à revoir avec les nouvelles notes.
-- Merger la règle ne change **pas** la compo déjà publiée (`roster_key` identique) ; pour qu'elle s'applique
-  il faut `republish_compo.py <slot>` — volontairement **non lancé** pour `ins_nov_23` tant que les notes sont en revue.
+1. **`together`** (par créneau) : exclut les splits qui séparent le groupe.
+2. **Pool à notes égales** : ΔNote ajustée ≤ minimum + 0,5. Les notes passent avant tout.
+3. **Les deux meilleurs joueurs séparés** (note ajustée, égalités par ordre alphabétique — jamais par ordre du roster) : **filtre** sur le pool, abandonné s'il ne laisse rien. Ce n'est plus une pénalité (+10 négligeable face à ΔSM × 10).
+4. **Les deux meilleurs gardiens séparés** (`CRITERIA[n][6]`, égalités par note ajustée puis ordre alphabétique) : même mécanique de filtre, appliqué après le 3.
+5. **Tri final** : `ΔSM × 10 + ΔMobilité × 6 + pen + duoPen × 0,01`.
+   - `SM` = somme des **7** critères de `CRITERIA` (Tech, Fin, Vis, Phy, Vit, End, **Gardien** — il a remplacé Mental, label `Gar`). Calculé, jamais saisi ; `PLAYER_NOTES[n].sm` n'est qu'un repli sans critères.
+   - Mobilité = `_playerMob(n)` = Vit + End (12 si inconnu), **totale par équipe** (pas de seuil individuel, écarté par l'utilisateur).
+   - `pen` : +2 par équipe sans joueur **> 6** en Gardien (lu sur le critère, plus sur `PLAYER_ROLES`). La règle Michael/Ibrahima a été supprimée.
+
+Mesuré sur 300 tirages (22 joueurs) : top-2 joueurs ensemble 2/300, top-2 gardiens ensemble 6/300, ΔNote moyen 0,26, ΔSM 3,5, ΔMobilité 5,0. ⚠️ **Le poids de mobilité (6) agit peu** : une fois les deux filtres passés, le pool est étroit (poids 0 → 6,6 ; 3 → 4,9 ; 10 → 3,7 avant l'ajout du filtre des meilleurs joueurs). Si on veut une vraie mobilité, monter le poids ou en faire un filtre.
+
+Notes remplacées le 22 novembre (22 joueurs, 7 critères). **Guilhem et Invité** : critères inchangés, Gardien à 5 (neutre) — à renseigner. `Invité` reste un nom générique partagé (cf. plus bas).
+
+`CRITERIA` est dans l'extraction de `lock_session.py` et `republish_compo.py` (sinon `_playerMob` / `_playerSM` plantent dans node).
+
+Merger une règle ne change **pas** la compo déjà publiée (`roster_key` identique) : il faut `republish_compo.py <slot>`. Le 22 novembre, la compo du `ins_nov_23` (Blanche Edouard/Johann/Khalid/Landry/Michael, Bleue Dylan/Flo/Gugu/Hugo/Spy, 75,5 – 75,5) est la même avant et après cette revue.
 
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
