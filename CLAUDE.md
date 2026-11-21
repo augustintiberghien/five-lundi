@@ -165,6 +165,22 @@ mêmes notes.
 
 Un créneau peut porter `together:['Samy','Gugu','Quentin']` dans `INSCRIPTION_SLOTS` : l'algo (`_genBalancedTeams`) ne considère alors que les splits où ces joueurs sont **dans la même équipe** et choisit le meilleur ratio parmi eux. La contrainte suit tous les recalculs (absences, désistements, banc) ; si un membre du groupe manque au roster, elle ne porte que sur les présents. **Retirée d'`ins_jul_06` après le match ; elle ne subsiste que sur l'ancien `ins_jun_15`, fermé, donc sans effet. Aucun créneau ouvert n'en porte aujourd'hui.**
 
+### Mobilité : 3ᵉ départage de l'équilibrage (22 novembre 2026)
+
+Demande de Romain (Spy) : à cinq, la mobilité fait basculer un match. `_genBalancedTeams`
+départage désormais, dans le pool des splits à ΔNote ≤ min + 0,5 :
+`ΔSM × 10 + |mobA − mobB| × 3 + pen + duoPen × 0,01`, où la mobilité d'un joueur est
+`_playerMob(n)` = Vitesse + Endurance (`CRITERIA[n][4] + CRITERIA[n][5]`, 12 si inconnu).
+
+- Les **notes restent prioritaires** : la mobilité ne joue qu'à l'intérieur du pool. Pas de seuil
+  « au moins un joueur à 15 » (écarté par l'utilisateur) : seule compte la **mobilité totale** de chaque équipe.
+- Test sur 300 tirages aléatoires : écart de mobilité moyen 4,4 → 1,9, écart de note inchangé (0,48).
+- `CRITERIA` ajouté à l'extraction de `lock_session.py` et `republish_compo.py` (sinon `_playerMob` plante dans node).
+- Endurance de Hugo 9 → 7 (demande de l'utilisateur). Les notes et critères sont en cours de revue avec Spy.
+- ⚠️ Le poids (3) et la définition (Vit+End) sont des **réglages**, pas des vérités : à revoir avec les nouvelles notes.
+- Merger la règle ne change **pas** la compo déjà publiée (`roster_key` identique) ; pour qu'elle s'applique
+  il faut `republish_compo.py <slot>` — volontairement **non lancé** pour `ins_nov_23` tant que les notes sont en revue.
+
 ### Promotion du créneau en session (le geste du lock) — automatisée
 
 Concrètement, « figer à 21h30 » = **promouvoir le créneau d'inscription en entrée `SESSIONS`** avec des `players` explicites. C'est ce qui rend la compo **immunisée contre les notes ajustées** (une entrée `SESSIONS` n'est jamais recalculée). Le `_dateKey` de `buildTabs()` fait alors primer la session sur le créneau → 1 seul onglet par date.
