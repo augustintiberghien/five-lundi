@@ -4025,7 +4025,12 @@ function _adjustedNote(name) {
   return ((PLAYER_NOTES[name] || {}).note || 10) + _getPlayerForm(name);
 }
 
+/* SM = somme des 6 criteres (Tech, Fin, Vis, Phy, Vit, End), mental exclu : calcule depuis
+   CRITERIA, donc impossible a desynchroniser (decision du 22 novembre 2026). Le champ
+   `sm` de PLAYER_NOTES n'est plus qu'un repli pour un joueur sans critères. */
 function _playerSM(name) {
+  var c = CRITERIA[name];
+  if (c) return c[0] + c[1] + c[2] + c[3] + c[4] + c[5];
   return (PLAYER_NOTES[name] || {}).sm || 32;
 }
 
