@@ -179,7 +179,7 @@ Dans l'ordre, chaque niveau n'agit que dans ce que le précédent laisse :
 
 Mesuré sur 300 tirages (22 joueurs) : top-2 joueurs ensemble 2/300, top-2 gardiens ensemble ~11 %, ΔNote moyen 0,26, ΔSM 2,9, ΔMobilité 4,7. Poids de mobilité **10** (testé le 22 novembre sur 400 tirages, 22 joueurs) : écart de mobilité 7,1 (poids 0) → 5,0 (poids 6) → **4,4** (poids 10) → 4,0 (15) → 3,7 (25), pour un écart de SM de 3,0 → 3,3 → 3,55 → 3,9 → 4,4. Le 10 est le meilleur compromis ; au-delà, on perd en SM pour peu de mobilité. Un seuil individuel (« un joueur ≥ 14 par équipe ») n'apporte rien : une équipe sans joueur ≥ 14 en Vit+End n'arrive que dans ~1 % des compos, même sans règle. Un filtre sur la mobilité est moins bon que la pénalité (SM 4,5).
 
-Notes remplacées le 22 novembre (22 joueurs, 7 critères). **Guilhem et Invité** : Gardien à 5, confirmé par l'utilisateur (23 novembre). **Henri** : Vit 2 / End 2 / Gardien 2, confirmé (« si c'est si choquant »). `Invité` reste un nom générique partagé (cf. plus bas).
+Notes remplacées le 22 novembre (22 joueurs, 7 critères). **Guilhem** : Gardien à 5, confirmé. **Invité** : profil = **moyenne des 22 joueurs** (décision du 23 novembre) — critères 7/7/6/7/7/7/6, note 15, SM 47 ; à refaire si on veut mettre à jour le profil de l'invité du soir. **Henri** : Vit 2 / End 2 / Gardien 2, confirmé (« si c'est si choquant »). `Invité` reste un nom générique partagé (cf. plus bas).
 
 `CRITERIA` est dans l'extraction de `lock_session.py` et `republish_compo.py` (sinon `_playerMob` / `_playerSM` plantent dans node).
 
