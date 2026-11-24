@@ -1027,7 +1027,9 @@ que rien ne pouvait partir, ce qui a fait croire pendant des mois que la fonctio
 ## Sessions existantes
 | ID | Date | Score | current |
 |----|------|-------|---------|
-| s28 | 9 novembre 2026 | 5 – 4 (A) | ✅ |
+| s30 | 23 novembre 2026 | 11 – 7 (A) | ✅ |
+| s29 | 16 novembre 2026 | 12 – 7 (A) | |
+| s28 | 9 novembre 2026 | 5 – 4 (A) | |
 | s27 | 2 novembre 2026 | 10 – 7 (A) | |
 | s26 | 26 octobre 2026 | 12 – 11 (A) | |
 | s25 | 19 octobre 2026 | 11 – 9 (A) | |
@@ -1117,6 +1119,12 @@ Deux points laissés en l'état, volontairement :
   14 septembre 2026**, en même temps qu'un défaut bien plus visible : il ignorait les
   créneaux ouverts et annonçait le match de ce soir dans une semaine. Cf. « Compte à
   rebours » plus haut.
+
+## Joueurs actifs (s30 — 23 novembre 2026)
+Blanche ⚪ : Rémi, Michael, Johann, Landry, Flo
+Bleue 🔵 : Gugu, Edouard, Spy, Dylan, Hugo
+La Blanche l'emporte 11-7 (banc : Ibrahima, Raphaël, Jack, Thomas D ; Khalid, Cyril, Alex, Théo absents). Équilibrage **74 – 74** : en notes de base la Bleue était devant (75 contre 71), la forme du moment (+3 contre −1) a refait l'égalité — c'est dans l'article. Déroulé : la Bleue mène six fois (1-0, 2-0, 3-1, 4-3, 5-4, 6-5, 7-6), la Blanche revient chaque fois, puis 4 buts de rang (7-7 → 11-7). Spy marque 3 buts, Gugu aucun.
+Homme du match : **Johann**, 6 voix sur 10, devant Flo (4) ; Johann et Flo se sont votés l'un l'autre, aucun vote pour Michael. Vote clos à 10 voix le 24 novembre à 08h21 Paris, article publié à 08h31 Paris-UTC (`publishedAt` réel). Débrief dicté par l'utilisateur (Michael chef d'orchestre) ; transcription vocale : « Speech » = Spy, « Gus » = Gugu, « Doudou » = Edouard. ⚠️ Les « 2 lucarnes de Flo » ne viennent que du vote de Johann : écrit « de l'avis de Johann ». Article dans `ARTICLES['s30']`.
 
 ## Joueurs actifs (s28 — 9 novembre 2026)
 Blanche ⚪ : Michael, Gugu, Spy, Landry, Raphaël

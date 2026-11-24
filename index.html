@@ -6223,6 +6223,38 @@ async function submitTmotmVote(sid) {
    ARTICLES — DÉBRIEF SESSIONS
    ══════════════════════════════════════════ */
 var ARTICLES = {
+  's30': {
+    publishedAt: '2026-11-24T08:31:00Z',
+    kicker: 'Five Lundi · 23 novembre 2026',
+    quote: { text: 'Collectif blanc enragé qui a envoyé aux duels.', by: 'Dylan', ctx: 'vote pour Johann' },
+    headline: 'Menés six fois, le cinq blanc finit en trombe et Johann prend le titre : 11-7',
+    sub: 'Le cinq bleu, casting XXL, n’a jamais pu s’échapper. À 7-7, le cinq blanc de Michael enchaîne quatre buts sans réponse et file. Johann ramasse six voix sur dix, devant un Flo qui a retrouvé sa finition',
+    body: [
+      { type: 'p', text: '<strong>74 contre 74</strong> à l’équilibrage, et pourtant tout le monde regardait de l’autre côté. Le cinq bleu, c’étaient <strong>Spy</strong>, <strong>Hugo</strong>, <strong>Gugu</strong>, <strong>Edouard</strong> et surtout <strong>Dylan</strong>, encore tout auréolé de sa soirée monstrueuse de la semaine dernière : un casting XXL, un vrai épouvantail. Le cinq blanc, lui, alignait <strong>Rémi</strong>, <strong>Michael</strong>, <strong>Johann</strong>, <strong>Landry</strong> et <strong>Flo</strong>.' },
+
+      { type: 'h3', text: 'Sur le papier, l’avantage était bleu' },
+      { type: 'p', text: 'Entrons dans les chiffres : à l’équilibrage, <strong>74 partout</strong>. Mais ce 74 est une moyenne qui arrondit les angles. En notes de base, le cinq bleu était <strong>devant, 75 contre 71</strong>. C’est la forme du moment qui a tout rééquilibré : <strong>+3 points pour les Blancs</strong> (Michael à +1, Johann, Landry, Flo et Rémi à +0,5), contre <strong>−1 pour les Bleus</strong> (Hugo, Spy et Gugu à −0,5). Autrement dit, sur le papier, les hommes en blanc étaient en dessous, et ce sont leurs derniers résultats qui les ont remis à hauteur. Le terrain a confirmé que la forme du moment, ça se joue aussi : elle les a gonflés, et ils ont fini par dépasser tout le monde.' },
+
+      { type: 'h3', text: 'Toujours devant, jamais tranquilles' },
+      { type: 'p', text: 'Les Bleus partent fort : <strong>1-0</strong>, <strong>2-0</strong>. Les Blancs reviennent à <strong>2-1</strong>, mais le cinq bleu repasse devant, <strong>3-1</strong>. Nouveau retour blanc, <strong>3-2</strong>, puis <strong>3-3</strong>. Même scénario ensuite : <strong>4-3</strong> bleu, <strong>4-4</strong> ; <strong>5-4</strong> bleu, <strong>5-5</strong> ; <strong>6-5</strong> bleu, <strong>6-6</strong> ; <strong>7-6</strong> bleu, <strong>7-7</strong>. Six fois les Bleus ont repris l’avantage, six fois les Blancs ont répondu. Ils ne sont jamais passés devant.' },
+      { type: 'p', text: 'Le tournant, c’est sans doute là : à force de mener sans jamais s’échapper, le cinq bleu s’est probablement vu trop beau, trop vite. Il a manqué, au moment de vérité, la combativité que ses adversaires, eux, ne lâchaient pas.' },
+
+      { type: 'h3', text: 'Quatre buts d’un coup' },
+      { type: 'p', text: 'Après le <strong>7-7</strong>, plus rien ne passe côté bleu. Le cinq blanc enchaîne quatre buts sans réponse et s’impose <strong>11-7</strong>. C’est le <strong>onzième succès blanc en treize journées</strong> cette saison.' },
+
+      { type: 'h3', text: 'Michael, chef d’orchestre' },
+      { type: 'p', text: 'Au centre de tout, <strong>Michael</strong> : en pleine confiance, en pleine bourre, un vrai capitaine qui a trouvé les clés du jeu et tiré toute son équipe vers le haut. Autour de lui, une prestation solidaire. <strong>Landry</strong> a été extrêmement combatif, précis, rugueux sur l’homme. <strong>Johann</strong>, très véloce, affamé, a mis de nombreux buts. <strong>Rémi</strong> a livré un match solide et combatif. Et <strong>Flo</strong> a enfin retrouvé sa finition : plus affûté, plus précis, avec, de l’avis de <strong>Johann</strong>, deux frappes en pleine lucarne, et une belle séquence dans les buts en prime.' },
+
+      { type: 'h3', text: 'Les Bleus, entre deux eaux' },
+      { type: 'p', text: 'Du côté du cinq bleu, la déception était à son comble. <strong>Dylan</strong> n’a pas réussi à garder le niveau de la semaine dernière. <strong>Spy</strong>, qui n’a pas trouvé la mire, en a quand même mis <strong>trois</strong>. <strong>Hugo</strong> a été très solide, mais a eu un peu de mal à se dépêtrer de la rigueur de ses adversaires. <strong>Edouard</strong>, revenu de vacances, était encore en cours de rythme, la tête peut-être déjà dans son application qui marie fromage et vin. Quant à <strong>Gugu</strong>, il a fait son tarif habituel : il a couru partout, et pas un but au bout du compte.' },
+
+      { type: 'h3', text: 'Le vote' },
+      { type: 'p', text: '<strong>Johann</strong> l’emporte avec <strong>6 voix sur 10</strong>, devant <strong>Flo</strong> (4). Le plus beau, c’est que les deux se sont votés l’un l’autre : Flo a voté pour Johann (« Zinedine Johann »), et Johann pour Flo (« 2 frappes dans la lucarne logé »). <strong>Gugu</strong> a posé le portrait : « Mobile. Précis. Tueur. Le Johann qui te porte une équipe dans son sac à dos et qui arrive à dribbler 4 joueurs quand même. » <strong>Landry</strong> a réglé son compte à l’affaire : « Johan, seul footballeur d’une équipe poursuivie pour association de malfaiteurs. »' },
+      { type: 'p', text: 'Côté bleu, le fair-play l’emporte : <strong>Dylan</strong> salue un « collectif blanc enragé qui a envoyé aux duels », et <strong>Edouard</strong>, sobre, résume d’un mot : « Clinique. » <strong>Michael</strong>, le chef d’orchestre, a voté pour Johann : « Des buts décisifs, beaucoup de buts, présent également en défense. Il parachève une grosse performance collective de son équipe. » Côté Flo, <strong>Hugo</strong> (« Finition rien à dire »), <strong>Spy</strong> (« Mobile, efficace et beau. Pastore. ») et <strong>Rémi</strong> (« Je vote Flo car Johann en aura d’autres. Flo a enfin retrouvé sa finition et a été solide aux buts. Un match plein et solidaire. Chapeau l’artiste ! »).' },
+
+      { type: 'footer', text: 'Blanche 11 · Bleue 7 — six fois menés, six fois revenus, puis quatre buts de rang pour finir. Un chef d’orchestre, un homme du match, et un casting XXL qui s’est vu trop beau.' },
+    ],
+  },
   's29': {
     publishedAt: '2026-11-17T07:05:00Z',
     kicker: 'Five Lundi · 16 novembre 2026',
